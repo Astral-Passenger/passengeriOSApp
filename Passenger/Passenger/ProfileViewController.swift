@@ -84,10 +84,8 @@ class ProfileViewController: UIViewController {
             // The rewards received was nil
         }
         
-        if let lastName = self.currentUser!["last_name"] as? String,
-        let firstName = self.currentUser!["first_name"] as? String
+        if let fullName = self.currentUser!["full_name"] as? String
          {
-            let fullName = firstName + " " + lastName
             fullNameLabel.text = fullName
         } else {
             // The first or last name is nil

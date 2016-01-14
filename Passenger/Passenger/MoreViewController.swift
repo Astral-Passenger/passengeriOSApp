@@ -88,9 +88,7 @@ class MoreViewController: UIViewController {
             
         }
         
-        let userFirstName = self.currentUser!["first_name"] as! String
-        let userLastName = self.currentUser!["last_name"] as! String
-        let userFullName = userFirstName + " " + userLastName
+        let userFullName = self.currentUser!["full_name"] as! String
         
         self.currentUserNameLabel.text = userFullName
         

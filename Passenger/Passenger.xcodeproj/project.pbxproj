@@ -10,6 +10,7 @@
 		1E2E3B741C3317EC008E3FB3 /* Notifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E2E3B731C3317EC008E3FB3 /* Notifier.m */; };
 		1E32FCAB1C481C0500F01EC4 /* ForgotPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E32FCAA1C481C0500F01EC4 /* ForgotPasswordViewController.swift */; };
 		1E32FCAD1C48271000F01EC4 /* ForgotPasswordLoggedInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E32FCAC1C48271000F01EC4 /* ForgotPasswordLoggedInViewController.swift */; };
+		1E32FCAF1C48322900F01EC4 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E32FCAE1C48322900F01EC4 /* logo.png */; };
 		1E36F7271C0E9403002259CA /* RewardsHistoryCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E36F7261C0E9403002259CA /* RewardsHistoryCollectionViewCell.swift */; };
 		1E4010741C3EEB25001221C4 /* DiscountsCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4010731C3EEB25001221C4 /* DiscountsCollectionViewCell.swift */; };
 		1E4010781C3F1262001221C4 /* RedeemViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4010771C3F1262001221C4 /* RedeemViewController.swift */; };
@@ -121,6 +122,7 @@
 		1E2E3B731C3317EC008E3FB3 /* Notifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Notifier.m; sourceTree = "<group>"; };
 		1E32FCAA1C481C0500F01EC4 /* ForgotPasswordViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForgotPasswordViewController.swift; sourceTree = "<group>"; };
 		1E32FCAC1C48271000F01EC4 /* ForgotPasswordLoggedInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForgotPasswordLoggedInViewController.swift; sourceTree = "<group>"; };
+		1E32FCAE1C48322900F01EC4 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = logo.png; path = "../../../Astral/Projects/Passenger/Passenger Logos/iOS logos/logo.png"; sourceTree = "<group>"; };
 		1E36F7261C0E9403002259CA /* RewardsHistoryCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RewardsHistoryCollectionViewCell.swift; sourceTree = "<group>"; };
 		1E4010731C3EEB25001221C4 /* DiscountsCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscountsCollectionViewCell.swift; sourceTree = "<group>"; };
 		1E4010771C3F1262001221C4 /* RedeemViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemViewController.swift; sourceTree = "<group>"; };
@@ -434,6 +436,7 @@
 		1EF9597D1BFFE15D0087F9E4 /* SupportingFiles */ = {
 			isa = PBXGroup;
 			children = (
+				1E32FCAE1C48322900F01EC4 /* logo.png */,
 				1EE174FD1C474BE500F74773 /* iphone_locked_image.png */,
 				1E70594A1C432FC600936C0D /* earn-points-image.png */,
 				1E70594C1C432FCC00936C0D /* earn-rewards-image.png */,
@@ -564,6 +567,7 @@
 			files = (
 				1EAC2D201BE861D200547515 /* LaunchScreen.storyboard in Resources */,
 				1EAC2D1D1BE861D200547515 /* Assets.xcassets in Resources */,
+				1E32FCAF1C48322900F01EC4 /* logo.png in Resources */,
 				1EF959A31BFFE3BE0087F9E4 /* tmp-7.jpg in Resources */,
 				1EF959A01BFFE3BE0087F9E4 /* tmp-4.jpg in Resources */,
 				1E70594D1C432FCC00936C0D /* earn-rewards-image.png in Resources */,

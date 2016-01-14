@@ -47,8 +47,7 @@ class RankingViewController: UITableViewController {
                 if let objects = objects {
                     for object in objects {
                         let newRankedUser = RankingUser()
-                        newRankedUser.firstName = object["first_name"] as? String
-                        newRankedUser.lastName = object["last_name"] as? String
+                        newRankedUser.fullName = object["full_name"] as? String
                         newRankedUser.totalPoints = object["totalPoints"] as? Int
                         newRankedUser.ranking = String(self.currentRanking)
                         self.rankedUsers.append(newRankedUser)
@@ -105,7 +104,7 @@ class RankingViewController: UITableViewController {
             as! RankingTableViewCell
         
         cell.totalPoints.text = "\(rankedUsers[indexPath.row].totalPoints!)"
-        cell.userFullName.text = rankedUsers[indexPath.row].firstName! + " " + rankedUsers[indexPath.row].lastName!
+        cell.userFullName.text = rankedUsers[indexPath.row].fullName!
         cell.currentRanking.text = rankedUsers[indexPath.row].ranking! + "."
         
         if (rankedUsers[indexPath.row].isCurrentUser!) {

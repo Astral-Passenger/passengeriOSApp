@@ -23,6 +23,11 @@ class RegisterViewController: UIViewController {
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
     @IBOutlet weak var registerBackground: UIImageView!
+    @IBOutlet weak var usernameView: UIView!
+    @IBOutlet weak var usernameTextField: UITextField!
+    @IBOutlet weak var nameView: UIView!
+    @IBOutlet weak var nameTextField: UITextField!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     var imageList = [UIImage]()
     
@@ -59,7 +64,7 @@ class RegisterViewController: UIViewController {
     }
     
     func configureView() {
-        
+        activityIndicator.hidden = true
         let navBarAttributesDictionary: [String: AnyObject]? = [
             NSForegroundColorAttributeName: UIColor.whiteColor(),
         ]
@@ -74,6 +79,8 @@ class RegisterViewController: UIViewController {
         connectFacebookButton.layer.cornerRadius = 5
         emailTextFieldView.layer.cornerRadius = 5
         passwordTextFieldView.layer.cornerRadius = 5
+        nameView.layer.cornerRadius = 5
+        usernameView.layer.cornerRadius = 5
 
         navigationController?.navigationBar.setBackgroundImage(UIImage(), forBarMetrics: UIBarMetrics.Default)
         navigationController?.navigationBar.shadowImage = UIImage()
@@ -91,27 +98,55 @@ class RegisterViewController: UIViewController {
     }
     
     func registerUser() {
+        
+        let username = usernameTextField.text!
+        let password = passwordTextField.text!
+        let email = emailTextField.text!
+        let name = nameTextField.text!
+        
         let user = PFUser()
-        user.username = "Username"
+        user.username = usernameTextField.text
         user.password = passwordTextField.text
         user.email = emailTextField.text
+        user.setObject(name, forKey: "full_name")
+        user.setObject(0, forKey: "totalPoints")
+        user.setObject(0, forKey: "currentPoints")
+        user.setObject(0, forKey: "distanceTraveled")
+        user.setObject(0, forKey: "rewardsReceived")
+        user.setObject("", forKey: "phoneNumber")
         
-        user.signUpInBackgroundWithBlock {
-            (succeed: Bool, error: NSError?) -> Void in
-            if let error = error {
-                let errorString = error.userInfo["error"] as? NSString
-                print(errorString)
-                // show the error somewhere and have the user try again
-            } else {
-                // Hooray, let them use the application
-            self.performSegueWithIdentifier("registerSegue", sender: nil)
-            }
+        if (username.characters.count < 4) {
+            
+        } else if (password.characters.count < 6) {
+            
+        } else if (email.characters.count < 7) {
+            
+        } else if (name.characters.count < 2) {
+            
+        } else {
+            user.signUpInBackgroundWithBlock({ (success:Bool, error:NSError?) -> Void in
+                
+                if(success)
+                {
+                    self.performSegueWithIdentifier("finishedSigningUp", sender: nil)
+                    self.activityIndicator.hidden = true
+                    self.activityIndicator.stopAnimating()
+                } else {
+                    let alert = UIAlertController(title: "SIGN UP", message: "\(error!.localizedDescription)", preferredStyle: UIAlertControllerStyle.Alert)
+                    alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+                    self.presentViewController(alert, animated: true, completion: nil)
+                }
+                
+            })
         }
+
         
     }
 
 
     @IBAction func createAccount(sender: AnyObject) {
+        activityIndicator.hidden = false
+        activityIndicator.startAnimating()
         registerUser()
     }
     
@@ -162,17 +197,10 @@ class RegisterViewController: UIViewController {
                 
                 let myUser:PFUser = PFUser.currentUser()!
                 
-                // Save first name
-                if(userFirstName != nil)
-                {
-                    myUser.setObject(userFirstName!, forKey: "first_name")
-                    
-                }
+                let fullName:String? = userFirstName! + " " + userLastName!
                 
-                //Save last name
-                if(userLastName != nil)
-                {
-                    myUser.setObject(userLastName!, forKey: "last_name")
+                if (fullName != nil) {
+                    myUser.setObject(fullName!, forKey: "full_name")
                 }
                 
                 // Save email address
@@ -180,6 +208,12 @@ class RegisterViewController: UIViewController {
                 {
                     myUser.setObject(userEmail!, forKey: "email")
                 }
+                
+                myUser.setObject(0, forKey: "totalPoints")
+                myUser.setObject(0, forKey: "currentPoints")
+                myUser.setObject(0, forKey: "distanceTraveled")
+                myUser.setObject(0, forKey: "rewardsReceived")
+                myUser.setObject("", forKey: "phoneNumber")
                 
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
                     

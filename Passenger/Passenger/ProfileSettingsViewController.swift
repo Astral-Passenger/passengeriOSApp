@@ -24,12 +24,14 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
     
     var senderViewController: String?
     
+    var didEditImage: Bool = false
+    
     @IBOutlet weak var profileImage: UIImageView!
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var emailTextField: UITextField!
-    @IBOutlet weak var phoneNumberTextField: UITextField!
     @IBOutlet weak var connectToFacebookButton: UIButton!
     @IBOutlet weak var saveButton: UIButton!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,18 +42,26 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "dismissKeyboard")
         view.addGestureRecognizer(tap)
         
+        let profileImageTap = UITapGestureRecognizer(target:self, action: "imageTapped")
+        profileImage.userInteractionEnabled = true
+        profileImage.addGestureRecognizer(profileImageTap)
+        
         self.transitionManager.sourceViewController = self
         
         imagePicker.delegate = self
     }
     
+    func imageTapped() {
+            imagePicker.allowsEditing = false
+            imagePicker.sourceType = .PhotoLibrary
+            
+            presentViewController(imagePicker, animated: true, completion: nil)
+
+    }
+    
     func dismissKeyboard() {
         //Causes the view (or one of its embedded text fields) to resign the first responder status.
         view.endEditing(true)
-    }
-
-    @IBAction func phoneNumberEditingBegan(sender: AnyObject) {
-        phoneNumberTextField.text = ""
     }
     
     override func didReceiveMemoryWarning() {
@@ -86,7 +96,7 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
     }
     
     func configureView() {
-        
+        activityIndicator.hidden = true
         let font = UIFont.systemFontOfSize(16, weight: UIFontWeightLight)
         
         let navBarAttributesDictionary: [String: AnyObject]? = [
@@ -99,16 +109,12 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
         
         UIApplication.sharedApplication().statusBarStyle = .Default
         
-        let firstName = currentUser!["first_name"] as! String
-        let lastName = currentUser!["last_name"] as! String
-        let fullName = firstName + " " + lastName
+        let fullName = currentUser!["full_name"] as! String
         
         let email = currentUser!.email
-        let phoneNumber = currentUser!["phoneNumber"] as! String
         
         nameTextField.text = fullName
         emailTextField.text = email
-        phoneNumberTextField.text = phoneNumber
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
             
@@ -126,7 +132,7 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
     }
     
     func imagePickerController(picker: UIImagePickerController, didFinishPickingImage image: UIImage!, editingInfo: [NSObject : AnyObject]!) {
-        
+        didEditImage = true
         let contextSize: CGSize = image.size
         
         let posX: CGFloat
@@ -173,72 +179,86 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
     }
     
     @IBAction func saveButtonTap(sender: AnyObject) {
-        
+        activityIndicator.hidden = false
+        activityIndicator.startAnimating()
         let fullName = nameTextField.text
         let email = emailTextField.text
-        let phoneNumber = phoneNumberTextField.text
         var parsedPhoneNumber: String = ""
         
-        let letters = phoneNumber!.characters.map { String($0) }
-        print(letters)
-        
-        var iterator = 0
+        //let letters = phoneNumber!.characters.map { String($0) }
 
-        // Parse the phone number to make sure it fits the same format
-        if (phoneNumber?.characters.count < 11) {
-            for (var i = 0; i < 12; i++) {
-                if (i == 0) {
-                    parsedPhoneNumber = parsedPhoneNumber + "+"
-                } else if (i == 1) {
-                    parsedPhoneNumber = parsedPhoneNumber + "1"
-                } else if (i == 2) {
-                    parsedPhoneNumber = parsedPhoneNumber + " "
-                } else if (i < 6) {
-                    let char = letters[iterator]
-                    parsedPhoneNumber = parsedPhoneNumber + String(UTF8String: char)!
-                    iterator++
-                } else if (i == 6) {
-                    parsedPhoneNumber = parsedPhoneNumber + "-"
-                } else {
-                    let char = letters[iterator]
-                    parsedPhoneNumber = parsedPhoneNumber + String(UTF8String: char)!
-                    iterator++
-                }
-            }
-
-        }
         
-        print(parsedPhoneNumber)
+        //var iterator = 0
+
+//        // Parse the phone number to make sure it fits the same format
+//        if (phoneNumber?.characters.count < 11 && phoneNumber?.characters.count > 9) {
+//            for (var i = 0; i < 12; i++) {
+//                if (i == 0) {
+//                    parsedPhoneNumber = parsedPhoneNumber + "+"
+//                } else if (i == 1) {
+//                    parsedPhoneNumber = parsedPhoneNumber + "1"
+//                } else if (i == 2) {
+//                    parsedPhoneNumber = parsedPhoneNumber + " "
+//                } else if (i < 6) {
+//                    let char = letters[iterator]
+//                    parsedPhoneNumber = parsedPhoneNumber + String(UTF8String: char)!
+//                    iterator++
+//                } else if (i == 6) {
+//                    parsedPhoneNumber = parsedPhoneNumber + "-"
+//                } else {
+//                    let char = letters[iterator]
+//                    parsedPhoneNumber = parsedPhoneNumber + String(UTF8String: char)!
+//                    iterator++
+//                }
+//            }
+//
+//        } else if (phoneNumber?.characters.count > 1){
+//            let alert = UIAlertController(title: "EDIT PROFILE", message: "Please enter a phone number with an area code.", preferredStyle: UIAlertControllerStyle.Alert)
+//            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+//            self.presentViewController(alert, animated: true, completion: nil)
+//        }
         
         currentUser!["full_name"] = fullName
         currentUser!.email = email
-        currentUser!["phoneNumber"] = parsedPhoneNumber
         
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
-            
-            let imageData = UIImageJPEGRepresentation(self.updatedImage!,0.05)
-            
-            if(imageData != nil)
-            {
-                let profileFileObject = PFFile(data:imageData!)
-                self.currentUser?.setObject(profileFileObject!, forKey: "profile_picture")
+        if (didEditImage) {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+                
+                let imageData = UIImageJPEGRepresentation(self.updatedImage!,0.05)
+                
+                if(imageData != nil)
+                {
+                    let profileFileObject = PFFile(data:imageData!)
+                    self.currentUser?.setObject(profileFileObject!, forKey: "profile_picture")
+                }
+                
+                
+                self.currentUser?.saveInBackgroundWithBlock({ (success:Bool, error:NSError?) -> Void in
+                    
+                    if(success)
+                    {
+                        self.activityIndicator.hidden = true
+                        self.activityIndicator.stopAnimating()
+                    }
+                    
+                })
+                
             }
-            
-            
+        } else {
             self.currentUser?.saveInBackgroundWithBlock({ (success:Bool, error:NSError?) -> Void in
                 
                 if(success)
                 {
-                    print("The users profile information has been updated.")
+                    self.activityIndicator.hidden = true
+                    self.activityIndicator.stopAnimating()
                 }
                 
             })
-            
         }
+        
         
         nameTextField.text = fullName
         emailTextField.text = email
-        phoneNumberTextField.text = parsedPhoneNumber
         
     }
 

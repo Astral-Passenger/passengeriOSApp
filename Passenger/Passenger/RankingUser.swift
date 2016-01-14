@@ -10,8 +10,7 @@ import Foundation
 
 class RankingUser {
     
-    var firstName: String?
-    var lastName: String?
+    var fullName: String?
     var totalPoints: Int?
     var ranking: String?
     var profileImage: UIImage?

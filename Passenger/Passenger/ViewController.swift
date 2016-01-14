@@ -79,11 +79,8 @@ class ViewController: UIViewController {
         let currentUser = PFUser.currentUser()
         if currentUser != nil {
             // Do stuff with the user
-            let firstName = currentUser!["first_name"] as! String
-            let lastName = currentUser!["last_name"] as! String
-            let fullName = firstName + " " + lastName
+            let fullName = currentUser!["full_name"] as! String
             usernameTextView.text = fullName
-            let totalPoints = currentUser!["totalPoints"] as! Int
             let currentPoints = currentUser!["currentPoints"] as! Int
             totalPointsTextView.text = String(currentPoints)
             
