@@ -73,6 +73,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         // [Optional] Power your app with Local Datastore. For more info, go to
         // https://parse.com/docs/ios_guide#localdatastore/iOS
+        
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        
         Parse.enableLocalDatastore()
         
         // Initialize Parse.
@@ -83,46 +86,59 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         PFAnalytics.trackAppOpenedWithLaunchOptions(launchOptions)
         
         PFFacebookUtils.initializeFacebookWithApplicationLaunchOptions(launchOptions)
+        
+        if(NSUserDefaults.standardUserDefaults().boolForKey("HasLaunchedOnce"))
+        {
+            // app already launched
 
-        
-        UITabBar.appearance().tintColor = UIColor(red:0.04, green:0.37, blue:0.76, alpha:1.0)
-        UITabBar.appearance().barTintColor = UIColor.whiteColor()
-        
-        self.window = UIWindow(frame: UIScreen.mainScreen().bounds)
-        
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        
-        currentUser = PFUser.currentUser()
-        if currentUser != nil {
-            // Do stuff with the user
-            let initialViewController = storyboard.instantiateViewControllerWithIdentifier("homeViewController")
+            UITabBar.appearance().tintColor = UIColor(red:0.04, green:0.37, blue:0.76, alpha:1.0)
+            UITabBar.appearance().barTintColor = UIColor.whiteColor()
             
-            self.window?.rootViewController = initialViewController
-            self.window?.makeKeyAndVisible()
-            locationManager.requestAlwaysAuthorization()
-            currentUserTotalPoints = currentUser!["totalPoints"] as! Double
-            currentUserCurrentPoints = currentUser!["currentPoints"] as! Double
-            print("The users current points \(currentUserCurrentPoints)")
+            self.window = UIWindow(frame: UIScreen.mainScreen().bounds)
+
+            
+            currentUser = PFUser.currentUser()
+            if currentUser != nil {
+                // Do stuff with the user
+                let initialViewController = storyboard.instantiateViewControllerWithIdentifier("homeViewController")
+                
+                self.window?.rootViewController = initialViewController
+                self.window?.makeKeyAndVisible()
+                locationManager.requestAlwaysAuthorization()
+                currentUserTotalPoints = currentUser!["totalPoints"] as! Double
+                currentUserCurrentPoints = currentUser!["currentPoints"] as! Double
+                print("The users current points \(currentUserCurrentPoints)")
+                
+            } else {
+                // Show the first screen
+                let initialViewController = storyboard.instantiateViewControllerWithIdentifier("firstViewController")
+                
+                self.window?.rootViewController = initialViewController
+                self.window?.makeKeyAndVisible()
+            }
+            
+            seconds = 0.0
+            distance = 0.0
+            locations.removeAll(keepCapacity: false)
+            timer = NSTimer.scheduledTimerWithTimeInterval(1,
+                target: self,
+                selector: "eachSecond:",
+                userInfo: nil,
+                repeats: true)
+            startLocationUpdates()
 
         } else {
-            // Show the first screen
-            let initialViewController = storyboard.instantiateViewControllerWithIdentifier("firstViewController")
+            
+            // This is the first launch ever
+            NSUserDefaults.standardUserDefaults().setBool(true, forKey: "HasLaunchedOnce")
+            NSUserDefaults.standardUserDefaults().synchronize()
+            
+            let initialViewController = storyboard.instantiateViewControllerWithIdentifier("firstLaunchViewController")
             
             self.window?.rootViewController = initialViewController
             self.window?.makeKeyAndVisible()
         }
-        
-        seconds = 0.0
-        distance = 0.0
-        locations.removeAll(keepCapacity: false)
-        timer = NSTimer.scheduledTimerWithTimeInterval(1,
-            target: self,
-            selector: "eachSecond:",
-            userInfo: nil,
-            repeats: true)
-        startLocationUpdates()
 
-        
         return true
     }
     
@@ -149,143 +165,128 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidEnterBackground(application: UIApplication) {
-        // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-        // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-        //startLocationUpdates()
+
     }
 
     func applicationWillEnterForeground(application: UIApplication) {
-        // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
-        //startLocationUpdates()
+
+        if (currentUser != nil) {
+            self.currentUser?.fetchInBackground()
+        }
+        
     }
 
     func applicationWillTerminate(application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
         
-        let pointRecord = PFObject(className:"PointsHistory")
-        pointRecord["distanceTraveled"] = distance * 0.000189394
-        pointRecord["pointsGenerated"] = totalCurrentPoints
-        pointRecord["userID"] = currentUser!
-        pointRecord.saveInBackgroundWithBlock {
-            (success: Bool, error: NSError?) -> Void in
-            if (success) {
-                // The object has been saved.
-                print("The record was saved now time to save the users data.")
-            } else {
-                // There was a problem, check error.description
-                print("There was an error sabing the object")
+        if (totalCurrentPoints > 0.75) {
+            let pointRecord = PFObject(className:"PointsHistory")
+            pointRecord["distanceTraveled"] = distance * 0.000189394
+            pointRecord["pointsGenerated"] = totalCurrentPoints
+            pointRecord["userID"] = currentUser!
+            pointRecord.saveInBackgroundWithBlock {
+                (success: Bool, error: NSError?) -> Void in
+                if (success) {
+                    // The object has been saved.
+                    print("The record was saved now time to save the users data.")
+                } else {
+                    // There was a problem, check error.description
+                    print("There was an error sabing the object")
+                }
             }
+            
+            // When the user is about to exit the app, we need to save the amount of points that they have gained before the app dies.
+            self.currentUserTotalPoints = currentUser!["totalPoints"] as! Double
+            self.currentUserCurrentPoints = currentUser!["currentPoints"] as! Double
+            self.currentUserCurrentDistance = currentUser!["distanceTraveled"] as! Double
+            self.currentUserTimeSpentDriving = currentUser!["timeSpendDriving"] as! Double
+            // The user is finished driving. Save the drive in parse and begin to wait till they start moving again.
+            self.currentUser?["totalPoints"] = currentUserTotalPoints + totalCurrentPoints
+            self.currentUser?["currentPoints"] = currentUserCurrentPoints + totalCurrentPoints
+            self.currentUser?["distanceTraveled"] = distance * 0.000189394 // Conversion from feet to miles
+            self.currentUser?["timeSpendDriving"] = seconds + currentUserTimeSpentDriving
+            currentUser?.saveInBackgroundWithBlock{
+                (success: Bool, error: NSError?) -> Void in
+                if (success) {
+                    // The object has been saved.
+                    print("The user was saved before the app was shut down completely")
+                } else {
+                    // There was a problem, check error.description
+                }
+            }
+
         }
         
-        // When the user is about to exit the app, we need to save the amount of points that they have gained before the app dies.
-        self.currentUserTotalPoints = currentUser!["totalPoints"] as! Double
-        self.currentUserCurrentPoints = currentUser!["currentPoints"] as! Double
-        self.currentUserCurrentDistance = currentUser!["distanceTraveled"] as! Double
-        self.currentUserTimeSpentDriving = currentUser!["timeSpendDriving"] as! Double
-        // The user is finished driving. Save the drive in parse and begin to wait till they start moving again.
-        self.currentUser?["totalPoints"] = currentUserTotalPoints + totalCurrentPoints
-        self.currentUser?["currentPoints"] = currentUserCurrentPoints + totalCurrentPoints
-        self.currentUser?["distanceTraveled"] = distance * 0.000189394 // Conversion from feet to miles
-        self.currentUser?["timeSpendDriving"] = seconds + currentUserTimeSpentDriving
-        currentUser?.saveInBackgroundWithBlock{
-            (success: Bool, error: NSError?) -> Void in
-            if (success) {
-                // The object has been saved.
-                print("The user was saved before the app was shut down completely")
-            } else {
-                // There was a problem, check error.description
-            }
-        }
-
     }
 
     func eachSecond(timer: NSTimer) {
-        if (((everyTenSeconds % 10) == 0 && phoneScreenIsOff) && isDriving && seconds > 1.0) {
-        
-            self.addScreenOffPoints()
-            phoneScreenIsOff = true
-            isDrivingSpeedLimit = true
-            distanceTraveledInTen = 0
-            print(totalCurrentPoints)
-            
-        } /*else if(((everyTenSeconds % 10) == 0 && phoneScreenIsOff) && isDriving && seconds > 1.0) {
-            if(phoneScreenIsOff) {
-                //print("The user wasn't going the speed limit but had their phone off while driving.")
-                self.addScreenOffPoints()
-            } else {
-                // We don't want the user to get any points if they are using their phone while driving.
-                
-                //print("The user was going the speed limit but had their phone on while they were driving.")
-                self.subtractTimePoints()
-                
-            }
-            phoneScreenIsOff = true
-            isDrivingSpeedLimit = true
-            distanceTraveledInTen = 0
-            print(totalCurrentPoints)
-        }*/
-        
-        // The Code to handle the screen point system
-        
         
         let instanceOfCustomObject: Notifier = Notifier()
         instanceOfCustomObject.registerAppforDetectLockState()
         let isLocked = instanceOfCustomObject.isLocked()
-        if (!isLocked && everyTenSeconds > 9) {
-            phoneScreenIsOff = false
+        
+        if (((everyTenSeconds % 10) == 0 && isLocked) && isDriving && seconds > 1.0) {
+        
+            self.addScreenOffPoints()
+            phoneScreenIsOff = true
+            distanceTraveledInTen = 0
+            print(totalCurrentPoints)
+            
         }
-
-        // The code for the distance point system
 
         seconds++
         
         if (distanceTraveledInTen < 50) {
             currentSpeed = 0.0
             isSittingStillCount++
-            if (isSittingStillCount > 120 && stoppedDriving == false) {
-                
-                let pointRecord = PFObject(className:"PointsHistory")
-                pointRecord["distanceTraveled"] = distance * 0.000189394
-                pointRecord["pointsGenerated"] = totalCurrentPoints
-                pointRecord["userID"] = currentUser!
-                pointRecord.saveInBackgroundWithBlock {
-                    (success: Bool, error: NSError?) -> Void in
-                    if (success) {
-                        // The object has been saved.
-                        print("The record was saved now time to save the users data.")
-                    } else {
-                        // There was a problem, check error.description
-                        print("There was an error sabing the object")
+            if (isSittingStillCount > 10 && stoppedDriving) {
+                if (totalCurrentPoints > 0.75) {
+                    let pointRecord = PFObject(className:"PointsHistory")
+                    pointRecord["distanceTraveled"] = distance * 0.000189394
+                    pointRecord["pointsGenerated"] = totalCurrentPoints
+                    pointRecord["userID"] = currentUser!
+                    pointRecord.saveInBackgroundWithBlock {
+                        (success: Bool, error: NSError?) -> Void in
+                        if (success) {
+                            // The object has been saved.
+                            print("The record was saved now time to save the users data.")
+                        } else {
+                            // There was a problem, check error.description
+                            print("There was an error sabing the object")
+                        }
                     }
-                }
-                
-                self.currentUserTotalPoints = currentUser!["totalPoints"] as! Double
-                self.currentUserCurrentPoints = currentUser!["currentPoints"] as! Double
-                self.currentUserCurrentDistance = currentUser!["distanceTraveled"] as! Double
-                self.currentUserTimeSpentDriving = currentUser!["timeSpendDriving"] as! Double
-                // The user is finished driving. Save the drive in parse and begin to wait till they start moving again.
-                self.currentUser?["totalPoints"] = currentUserTotalPoints + totalCurrentPoints
-                self.currentUser?["currentPoints"] = currentUserCurrentPoints + totalCurrentPoints
-                self.currentUser?["distanceTraveled"] = currentUserCurrentDistance + (distance * 0.000189394) // Conversion from feet to miles
-                self.currentUser?["timeSpendDriving"] = seconds + currentUserTimeSpentDriving
-                currentUser?.saveInBackgroundWithBlock{
-                    (success: Bool, error: NSError?) -> Void in
-                    if (success) {
-                        // The object has been saved.
-                        print("The points have been saved for this user but the location services are still looking out to see if they begin driving")
-                        self.totalCurrentPoints = 0
-                        self.isSittingStillCount = 0
-                        self.stoppedDriving = true
-                        self.distance = 0.0
-                        self.seconds = 0.0
-                    } else {
-                        // There was a problem, check error.description
+                    
+                    self.currentUserTotalPoints = currentUser!["totalPoints"] as! Double
+                    self.currentUserCurrentPoints = currentUser!["currentPoints"] as! Double
+                    self.currentUserCurrentDistance = currentUser!["distanceTraveled"] as! Double
+                    self.currentUserTimeSpentDriving = currentUser!["timeSpendDriving"] as! Double
+                    // The user is finished driving. Save the drive in parse and begin to wait till they start moving again.
+                    self.currentUser?["totalPoints"] = currentUserTotalPoints + totalCurrentPoints
+                    self.currentUser?["currentPoints"] = currentUserCurrentPoints + totalCurrentPoints
+                    self.currentUser?["distanceTraveled"] = currentUserCurrentDistance + (distance * 0.000189394) // Conversion from feet to miles
+                    self.currentUser?["timeSpendDriving"] = seconds + currentUserTimeSpentDriving
+                    currentUser?.saveInBackgroundWithBlock{
+                        (success: Bool, error: NSError?) -> Void in
+                        if (success) {
+                            // The object has been saved.
+                            print("The points have been saved for this user but the location services are still looking out to see if they begin driving")
+                            self.totalCurrentPoints = 0
+                            self.isSittingStillCount = 0
+                            self.stoppedDriving = true
+                            self.distance = 0.0
+                            self.seconds = 0.0
+                        } else {
+                            // There was a problem, check error.description
+                        }
                     }
+   
+                } else {
+                    totalCurrentPoints = 0.0
                 }
-                
                 
             } else {
                 // The user may be at a stop light or something.
+                self.stoppedDriving = true
             }
             isDriving = false
         } else {
@@ -297,10 +298,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         print("Current speed: \(currentSpeed)")
         //print("Current Distance: \(distanceTraveledInTen)")
         print("Is Driving: \(isDriving)")
-        print("The seconds: \(seconds)")
+        print(isLocked)
         
-        averageSpeedOverTen = (averageSpeedOverTen + currentSpeed)
-       // print(everyTenSeconds)
         everyTenSeconds++
     }
     
@@ -314,7 +313,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Calculate the points for the phone being off
         
         totalCurrentPoints = totalCurrentPoints + (10 * 0.025)
-        
+
     }
     
     

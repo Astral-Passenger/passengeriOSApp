@@ -17,7 +17,6 @@ class ViewController: UIViewController {
     @IBOutlet weak var rewardsButtonView: UIView!
     @IBOutlet weak var pointsHistoryButtonView: UIView!
     @IBOutlet weak var rewardsHistoryButtonView: UIView!
-    @IBOutlet weak var currentDriveButtonlayout: UIView!
     @IBOutlet weak var usernameTextView: UILabel!
     @IBOutlet weak var totalPointsTextView: UILabel!
     @IBOutlet weak var profilePictureView: UIImageView!

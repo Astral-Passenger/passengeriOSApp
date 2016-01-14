@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		1E2E3B741C3317EC008E3FB3 /* Notifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E2E3B731C3317EC008E3FB3 /* Notifier.m */; };
+		1E32FCAB1C481C0500F01EC4 /* ForgotPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E32FCAA1C481C0500F01EC4 /* ForgotPasswordViewController.swift */; };
+		1E32FCAD1C48271000F01EC4 /* ForgotPasswordLoggedInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E32FCAC1C48271000F01EC4 /* ForgotPasswordLoggedInViewController.swift */; };
 		1E36F7271C0E9403002259CA /* RewardsHistoryCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E36F7261C0E9403002259CA /* RewardsHistoryCollectionViewCell.swift */; };
 		1E4010741C3EEB25001221C4 /* DiscountsCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4010731C3EEB25001221C4 /* DiscountsCollectionViewCell.swift */; };
 		1E4010781C3F1262001221C4 /* RedeemViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4010771C3F1262001221C4 /* RedeemViewController.swift */; };
@@ -35,6 +37,10 @@
 		1E67B6881C0506AC00B7C866 /* PointsDetailedTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E67B6871C0506AC00B7C866 /* PointsDetailedTableViewCell.swift */; };
 		1E67B68A1C0508F900B7C866 /* RewardGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E67B6891C0508F900B7C866 /* RewardGroup.swift */; };
 		1E67B68E1C05091600B7C866 /* Reward.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E67B68D1C05091600B7C866 /* Reward.swift */; };
+		1E7059471C431AEE00936C0D /* FirstLaunchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7059461C431AEE00936C0D /* FirstLaunchViewController.swift */; };
+		1E7059491C431B0F00936C0D /* PageViewDetailedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7059481C431B0F00936C0D /* PageViewDetailedViewController.swift */; };
+		1E70594B1C432FC600936C0D /* earn-points-image.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E70594A1C432FC600936C0D /* earn-points-image.png */; };
+		1E70594D1C432FCC00936C0D /* earn-rewards-image.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E70594C1C432FCC00936C0D /* earn-rewards-image.png */; };
 		1E76C7711BFEB57B00F03E74 /* PointsHistoryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E76C7701BFEB57B00F03E74 /* PointsHistoryTableViewCell.swift */; };
 		1E76C7741BFED52500F03E74 /* DriveRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E76C7731BFED52500F03E74 /* DriveRecord.swift */; };
 		1E76C7771BFED70C00F03E74 /* PointsHistoryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E76C7751BFED70C00F03E74 /* PointsHistoryTableViewController.swift */; };
@@ -76,6 +82,8 @@
 		1ED8F7BD1C0BB1290063B001 /* RankingTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ED8F7BC1C0BB1290063B001 /* RankingTableViewCell.swift */; };
 		1ED8F7BF1C0BB7DF0063B001 /* RankingUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ED8F7BE1C0BB7DF0063B001 /* RankingUser.swift */; };
 		1ED8F7CD1C0C02110063B001 /* MotionKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ED8F7CC1C0C02110063B001 /* MotionKit.swift */; };
+		1EE174FC1C473F1B00F74773 /* InviteFriendsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE174FB1C473F1B00F74773 /* InviteFriendsTableViewController.swift */; };
+		1EE174FE1C474BE500F74773 /* iphone_locked_image.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EE174FD1C474BE500F74773 /* iphone_locked_image.png */; };
 		1EF195C51C1244F000CC7AC5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EF195C41C1244F000CC7AC5 /* Foundation.framework */; };
 		1EF62EC31BF2D6C100AFE2F3 /* CurrentDriveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EF62EC21BF2D6C100AFE2F3 /* CurrentDriveViewController.swift */; };
 		1EF62EC61BF2DA6800AFE2F3 /* RewardsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EF62EC51BF2DA6800AFE2F3 /* RewardsViewController.swift */; };
@@ -111,6 +119,8 @@
 /* Begin PBXFileReference section */
 		1E2E3B721C3317EC008E3FB3 /* Notifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Notifier.h; sourceTree = "<group>"; };
 		1E2E3B731C3317EC008E3FB3 /* Notifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Notifier.m; sourceTree = "<group>"; };
+		1E32FCAA1C481C0500F01EC4 /* ForgotPasswordViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForgotPasswordViewController.swift; sourceTree = "<group>"; };
+		1E32FCAC1C48271000F01EC4 /* ForgotPasswordLoggedInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForgotPasswordLoggedInViewController.swift; sourceTree = "<group>"; };
 		1E36F7261C0E9403002259CA /* RewardsHistoryCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RewardsHistoryCollectionViewCell.swift; sourceTree = "<group>"; };
 		1E4010731C3EEB25001221C4 /* DiscountsCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscountsCollectionViewCell.swift; sourceTree = "<group>"; };
 		1E4010771C3F1262001221C4 /* RedeemViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemViewController.swift; sourceTree = "<group>"; };
@@ -138,6 +148,10 @@
 		1E67B6871C0506AC00B7C866 /* PointsDetailedTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PointsDetailedTableViewCell.swift; sourceTree = "<group>"; };
 		1E67B6891C0508F900B7C866 /* RewardGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RewardGroup.swift; sourceTree = "<group>"; };
 		1E67B68D1C05091600B7C866 /* Reward.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reward.swift; sourceTree = "<group>"; };
+		1E7059461C431AEE00936C0D /* FirstLaunchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FirstLaunchViewController.swift; sourceTree = "<group>"; };
+		1E7059481C431B0F00936C0D /* PageViewDetailedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PageViewDetailedViewController.swift; sourceTree = "<group>"; };
+		1E70594A1C432FC600936C0D /* earn-points-image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "earn-points-image.png"; path = "../../../Astral/Projects/Passenger/Passenger Logos/iOS logos/earn-points-image.png"; sourceTree = "<group>"; };
+		1E70594C1C432FCC00936C0D /* earn-rewards-image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "earn-rewards-image.png"; path = "../../../Astral/Projects/Passenger/Passenger Logos/iOS logos/earn-rewards-image.png"; sourceTree = "<group>"; };
 		1E76C7701BFEB57B00F03E74 /* PointsHistoryTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PointsHistoryTableViewCell.swift; sourceTree = "<group>"; };
 		1E76C7731BFED52500F03E74 /* DriveRecord.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DriveRecord.swift; sourceTree = "<group>"; };
 		1E76C7751BFED70C00F03E74 /* PointsHistoryTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PointsHistoryTableViewController.swift; sourceTree = "<group>"; };
@@ -187,6 +201,8 @@
 		1ED8F7BE1C0BB7DF0063B001 /* RankingUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RankingUser.swift; sourceTree = "<group>"; };
 		1ED8F7CB1C0C02110063B001 /* MotionKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MotionKit.h; sourceTree = "<group>"; };
 		1ED8F7CC1C0C02110063B001 /* MotionKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MotionKit.swift; sourceTree = "<group>"; };
+		1EE174FB1C473F1B00F74773 /* InviteFriendsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InviteFriendsTableViewController.swift; sourceTree = "<group>"; };
+		1EE174FD1C474BE500F74773 /* iphone_locked_image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = iphone_locked_image.png; path = "../../../Astral/Projects/Passenger/Passenger Logos/iOS logos/iphone_locked_image.png"; sourceTree = "<group>"; };
 		1EF195C41C1244F000CC7AC5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1EF62EC21BF2D6C100AFE2F3 /* CurrentDriveViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentDriveViewController.swift; sourceTree = "<group>"; };
 		1EF62EC51BF2DA6800AFE2F3 /* RewardsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RewardsViewController.swift; sourceTree = "<group>"; };
@@ -406,6 +422,11 @@
 				1EA5EDA91C3EDC4C0066B332 /* DiscountCollectionViewController.swift */,
 				1E4010731C3EEB25001221C4 /* DiscountsCollectionViewCell.swift */,
 				1E4010771C3F1262001221C4 /* RedeemViewController.swift */,
+				1E7059461C431AEE00936C0D /* FirstLaunchViewController.swift */,
+				1E7059481C431B0F00936C0D /* PageViewDetailedViewController.swift */,
+				1EE174FB1C473F1B00F74773 /* InviteFriendsTableViewController.swift */,
+				1E32FCAA1C481C0500F01EC4 /* ForgotPasswordViewController.swift */,
+				1E32FCAC1C48271000F01EC4 /* ForgotPasswordLoggedInViewController.swift */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -413,6 +434,9 @@
 		1EF9597D1BFFE15D0087F9E4 /* SupportingFiles */ = {
 			isa = PBXGroup;
 			children = (
+				1EE174FD1C474BE500F74773 /* iphone_locked_image.png */,
+				1E70594A1C432FC600936C0D /* earn-points-image.png */,
+				1E70594C1C432FCC00936C0D /* earn-rewards-image.png */,
 				1EF959921BFFE3BE0087F9E4 /* tmp-0.jpg */,
 				1EF959931BFFE3BE0087F9E4 /* tmp-1.jpg */,
 				1EF959941BFFE3BE0087F9E4 /* tmp-2.jpg */,
@@ -489,7 +513,7 @@
 		1EAC2D0A1BE861D200547515 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftMigration = 0710;
+				LastSwiftMigration = 0720;
 				LastSwiftUpdateCheck = 0710;
 				LastUpgradeCheck = 0710;
 				ORGANIZATIONNAME = Astral;
@@ -542,15 +566,18 @@
 				1EAC2D1D1BE861D200547515 /* Assets.xcassets in Resources */,
 				1EF959A31BFFE3BE0087F9E4 /* tmp-7.jpg in Resources */,
 				1EF959A01BFFE3BE0087F9E4 /* tmp-4.jpg in Resources */,
+				1E70594D1C432FCC00936C0D /* earn-rewards-image.png in Resources */,
 				1EF9599C1BFFE3BE0087F9E4 /* tmp-0.jpg in Resources */,
 				1EF9599E1BFFE3BE0087F9E4 /* tmp-2.jpg in Resources */,
 				1EAC2D1B1BE861D200547515 /* Main.storyboard in Resources */,
 				1EF9599D1BFFE3BE0087F9E4 /* tmp-1.jpg in Resources */,
+				1EE174FE1C474BE500F74773 /* iphone_locked_image.png in Resources */,
 				1EF959A41BFFE3BE0087F9E4 /* tmp-8.jpg in Resources */,
 				1E76C7781BFED70C00F03E74 /* PointsHistoryTableViewController.xib in Resources */,
 				1EF959A11BFFE3BE0087F9E4 /* tmp-5.jpg in Resources */,
 				1EF9599F1BFFE3BE0087F9E4 /* tmp-3.jpg in Resources */,
 				1EF959A21BFFE3BE0087F9E4 /* tmp-6.jpg in Resources */,
+				1E70594B1C432FC600936C0D /* earn-points-image.png in Resources */,
 				1EF959A51BFFE3BE0087F9E4 /* tmp-9.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -576,6 +603,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1E7059471C431AEE00936C0D /* FirstLaunchViewController.swift in Sources */,
+				1E32FCAD1C48271000F01EC4 /* ForgotPasswordLoggedInViewController.swift in Sources */,
 				1E67B6841C027EAB00B7C866 /* MoreViewController.swift in Sources */,
 				1E67B6861C05068500B7C866 /* RewardsDetailTableViewController.swift in Sources */,
 				1EAB38A91BF6720A008E568E /* RegisterViewController.swift in Sources */,
@@ -585,12 +614,15 @@
 				1E2E3B741C3317EC008E3FB3 /* Notifier.m in Sources */,
 				1EB2230D1C2B3BF50034D7E4 /* MenuTransitionManager.swift in Sources */,
 				1E67B6821C027EA300B7C866 /* ProfileViewController.swift in Sources */,
+				1EE174FC1C473F1B00F74773 /* InviteFriendsTableViewController.swift in Sources */,
 				1E67B6801C027E9700B7C866 /* RankingViewController.swift in Sources */,
 				1EA1F03B1C22383200845B2C /* ProfileSettingsViewController.swift in Sources */,
 				1ED8F7BD1C0BB1290063B001 /* RankingTableViewCell.swift in Sources */,
 				1E67B68A1C0508F900B7C866 /* RewardGroup.swift in Sources */,
 				1EA1F0391C22382500845B2C /* SettignsViewController.swift in Sources */,
+				1E32FCAB1C481C0500F01EC4 /* ForgotPasswordViewController.swift in Sources */,
 				1E76C7811BFF9A0D00F03E74 /* SecondCustomSegue.swift in Sources */,
+				1E7059491C431B0F00936C0D /* PageViewDetailedViewController.swift in Sources */,
 				1E9240501C25F73F00F8D2DA /* HelpFinalViewController.swift in Sources */,
 				1E76C77D1BFF99C200F03E74 /* FirstCustomSegue.swift in Sources */,
 				1E76C7891BFFC2DC00F03E74 /* HomeViewController.swift in Sources */,

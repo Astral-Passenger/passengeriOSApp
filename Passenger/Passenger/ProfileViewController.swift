@@ -163,14 +163,29 @@ class ProfileViewController: UIViewController {
         
         return finalString!
     }
-    /*
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
+        
+        if (segue.identifier == "profileToEditProfile") {
+            let destinationViewController = segue.destinationViewController as! UINavigationController
+            let targetViewController = destinationViewController.topViewController as! ProfileSettingsViewController
+            targetViewController.senderViewController = "Profile"
+        } else if (segue.identifier == "profiileToRewardsHistory") {
+            let destinationViewController = segue.destinationViewController as! UINavigationController
+            let targetViewController = destinationViewController.topViewController as! RewardsHistoryCollectionViewController
+            targetViewController.senderViewController = "Rewards"
+        } else if (segue.identifier == "profileToPointsHistory") {
+            let destinationViewController = segue.destinationViewController as! UINavigationController
+            let targetViewController = destinationViewController.topViewController as! PointsHistoryTableViewController
+            targetViewController.senderViewController = "Points"
+        }
+        
     }
-    */
+
 
 }

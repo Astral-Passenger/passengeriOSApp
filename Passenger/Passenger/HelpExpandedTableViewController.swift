@@ -10,20 +10,25 @@ import UIKit
 
 class HelpExpandedTableViewController: UITableViewController {
     
+    let transitionManager = MenuTransitionManager()
+    
     var helpTitle: String?
-    var questions: [String]?
-    var answers: [String]?
+    var questions = [String]()
+    var answers = [String]()
+    
+    var questionType: String?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = helpTitle
-        print(helpTitle)
 
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
+        loadQuestions()
+        self.transitionManager.sourceViewController = self
         configureView()
     }
 
@@ -41,8 +46,38 @@ class HelpExpandedTableViewController: UITableViewController {
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return questions!.count
+        return questions.count
     }
+    
+    func loadQuestions() {
+        
+        let query = PFQuery(className:"HelpQuestions")
+        query.whereKey("questionType", equalTo: questionType!)
+        query.findObjectsInBackgroundWithBlock {
+            (objects: [PFObject]?, error: NSError?) -> Void in
+            if error == nil {
+                // The find succeeded.
+                print("Successfully retrieved \(objects!.count) rewards.")
+                // Do something with the found objects gameScore["playerName"] as String
+                var i = 0
+                if let objects = objects {
+                    var i = 0
+                    for object in objects {
+                        self.questions.append(object["question"] as! String)
+                        self.answers.append(object["questionDescription"] as! String)
+                        print(self.questions)
+                        i++
+                    }
+                    self.tableView.reloadData()
+                }
+            } else {
+                // Log details of the failure
+                print("Error: \(error!) \(error!.userInfo)")
+            }
+        }
+        self.tableView.reloadData()
+    }
+
     
     func configureView() {
         self.tableView.tableFooterView = UIView()
@@ -65,7 +100,7 @@ class HelpExpandedTableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCellWithIdentifier("helpExpandedCell", forIndexPath: indexPath)
             as! HelpExpandedTableViewCell
 
-        cell.cellQuestionLabel!.text = questions![indexPath.row]
+        cell.cellQuestionLabel!.text = questions[indexPath.row]
         
         return cell
 
@@ -79,10 +114,15 @@ class HelpExpandedTableViewController: UITableViewController {
             let destinationController = segue.destinationViewController as! UINavigationController
             let helpFinalViewController = destinationController.viewControllers.first as! HelpFinalViewController
             let row = self.tableView.indexPathForCell(cell)?.row
-            helpFinalViewController.question = questions![row!]
-            helpFinalViewController.answer = answers![row!]
-            helpFinalViewController.returnQuestions = questions
-            helpFinalViewController.returnAnswers = answers
+            helpFinalViewController.question = questions[row!]
+            helpFinalViewController.answer = answers[row!]
+            helpFinalViewController.questionType = self.questionType
+        } else if (segue.identifier == "presentMenu") {
+            // set transition delegate for our menu view controller
+            let menu = segue.destinationViewController as! UINavigationController
+            let targetController = menu.topViewController as! HelpViewController
+            menu.transitioningDelegate = self.transitionManager
+            self.transitionManager.menuViewController = menu
         }
         
     }

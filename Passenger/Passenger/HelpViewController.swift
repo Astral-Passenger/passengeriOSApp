@@ -16,7 +16,6 @@ class HelpViewController: UIViewController {
     @IBOutlet weak var howButton: UIButton!
     @IBOutlet weak var whereButton: UIButton!
     @IBOutlet weak var rewardsButton: UIButton!
-    @IBOutlet weak var referralsButton: UIButton!
     
     var accountQuestions = ["Update my account information", "Reset password", "I'd like to delete my account"]
     var accountAnswers = ["This is the answer to question one", "This is the answer to questions 2", "This is the answer ot question 3"]
@@ -29,10 +28,6 @@ class HelpViewController: UIViewController {
     
     var rewardsQuestions = ["How often do you add new rewards?", "How do I redeem my product rewards?", "Do you mail me my giftcard?", "What are sweepstakes?"]
     var rewardsAnswers = ["This is the answer to question one", "This is the answer to questions 2", "This is the answer ot question 3", "Answer 4"]
-    
-    var referralsQuestions = ["What is the referral program?", "How do I refer someone?", "How do I give someone credit for their referral?"]
-    var referralsAnswers = ["This is the answer to question one", "This is the answer to questions 2", "This is the answer ot question 3"]
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,32 +55,22 @@ class HelpViewController: UIViewController {
             let destinationViewController = segue.destinationViewController as! UINavigationController
             let targetController = destinationViewController.topViewController as! HelpExpandedTableViewController
             targetController.helpTitle = "ACCOUNT"
-            targetController.questions = accountQuestions
-            targetController.answers = accountAnswers
+            targetController.questionType = "Account"
         } else if (segue.identifier == "helpToExpandedHow") {
             let destinationViewController = segue.destinationViewController as! UINavigationController
             let targetController = destinationViewController.topViewController as! HelpExpandedTableViewController
             targetController.helpTitle = "HOW TO USE PASSENGER"
-            targetController.questions = howQuestions
-            targetController.answers = howAnswers
+            targetController.questionType = "How"
         } else if (segue.identifier == "helpToExpandedWhere") {
             let destinationViewController = segue.destinationViewController as! UINavigationController
             let targetController = destinationViewController.topViewController as! HelpExpandedTableViewController
             targetController.helpTitle = "WHERE TO USE PASSENGER"
-            targetController.questions = whereQuestions
-            targetController.answers = whereAnswers
+            targetController.questionType = "Where"
         } else if (segue.identifier == "helpToExpandedRewards") {
             let destinationViewController = segue.destinationViewController as! UINavigationController
             let targetController = destinationViewController.topViewController as! HelpExpandedTableViewController
             targetController.helpTitle = "REWARDS"
-            targetController.questions = rewardsQuestions
-            targetController.answers = rewardsAnswers
-        } else if (segue.identifier == "helpToExpandedReferrals") {
-            let destinationViewController = segue.destinationViewController as! UINavigationController
-            let targetController = destinationViewController.topViewController as! HelpExpandedTableViewController
-            targetController.helpTitle = "REFERRALS"
-            targetController.questions = referralsQuestions
-            targetController.answers = referralsAnswers
+            targetController.questionType = "Rewards"
         }
     }
     
@@ -119,14 +104,6 @@ class HelpViewController: UIViewController {
     
     @IBAction func rewardsUp(sender: AnyObject) {
         rewardsButton.backgroundColor = UIColor.whiteColor()
-    }
-    
-    @IBAction func referralsDown(sender: AnyObject) {
-        referralsButton.backgroundColor = UIColor(red:0.89, green:0.89, blue:0.89, alpha:1.0)
-    }
-    
-    @IBAction func referralsUp(sender: AnyObject) {
-        referralsButton.backgroundColor = UIColor.whiteColor()
     }
     
     func configureView() {

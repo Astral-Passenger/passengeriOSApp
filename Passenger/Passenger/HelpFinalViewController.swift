@@ -10,10 +10,13 @@ import UIKit
 
 class HelpFinalViewController: UIViewController {
     
+    let transitionManager = MenuTransitionManager()
+    
     var returnQuestions: [String]?
     var returnAnswers: [String]?
     var question: String?
     var answer: String?
+    var questionType: String?
     
     @IBOutlet weak var questionLabel: UILabel!
     @IBOutlet weak var answerLabel: UILabel!
@@ -22,6 +25,7 @@ class HelpFinalViewController: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        self.transitionManager.sourceViewController = self
         configureView()
     }
 
@@ -32,11 +36,12 @@ class HelpFinalViewController: UIViewController {
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         
-        if segue.identifier == "finalToHelpExpanded" {
-            let destinationController = segue.destinationViewController as! UINavigationController
-            let helpExpandedViewController = destinationController.viewControllers.first as! HelpExpandedTableViewController
-            helpExpandedViewController.questions = returnQuestions
-            helpExpandedViewController.answers = returnAnswers
+        if segue.identifier == "presentMenu" {
+            let menu = segue.destinationViewController as! UINavigationController
+            let targetController = menu.topViewController as! HelpExpandedTableViewController
+            menu.transitioningDelegate = self.transitionManager
+            self.transitionManager.menuViewController = menu
+            targetController.questionType = self.questionType!
         }
         
     }

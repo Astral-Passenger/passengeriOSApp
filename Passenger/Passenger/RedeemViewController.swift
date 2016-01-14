@@ -307,7 +307,7 @@ class RedeemViewController: UIViewController {
             query.findObjectsInBackgroundWithBlock {
                 (objects: [PFObject]?, error: NSError?) -> Void in
                 if error == nil {
-                    var company = objects![0]
+                    let company = objects![0]
                     let companyIdentifier = company["sixDigitIdentifier"] as! String
                     if (companyIdentifier == self.sixDigitString) {
                         

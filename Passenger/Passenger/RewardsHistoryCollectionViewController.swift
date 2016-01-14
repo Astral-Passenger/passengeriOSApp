@@ -15,6 +15,8 @@ class RewardsHistoryCollectionViewController: UICollectionViewController {
     var counter = 0
     let sectionInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 0.0, right: 0.0)
     
+    var senderViewController: String?
+    
     let transitionManager = MenuTransitionManager()
     
     private var statusBarBackground: UIView!
@@ -44,9 +46,17 @@ class RewardsHistoryCollectionViewController: UICollectionViewController {
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if(segue.identifier == "presentMenu") {
             // set transition delegate for our menu view controller
-            let menu = segue.destinationViewController as! HomeNavigationViewController
-            menu.transitioningDelegate = self.transitionManager
-            self.transitionManager.menuViewController = menu
+            if (senderViewController == "Rewards") {
+                let menu = segue.destinationViewController as! HomeNavigationViewController
+                let targetController = menu.topViewController as! HomeViewController
+                targetController.profile = true
+                menu.transitioningDelegate = self.transitionManager
+                self.transitionManager.menuViewController = menu
+            } else {
+                let menu = segue.destinationViewController as! HomeNavigationViewController
+                menu.transitioningDelegate = self.transitionManager
+                self.transitionManager.menuViewController = menu
+            }
         }
     }
 
@@ -140,7 +150,7 @@ class RewardsHistoryCollectionViewController: UICollectionViewController {
     func collectionView(collectionView: UICollectionView!, layout collectionViewLayout: UICollectionViewLayout!, sizeForItemAtIndexPath indexPath: NSIndexPath!) -> CGSize {
         
         let collectionViewWidth = self.collectionView!.bounds.size.width
-        return CGSize(width: collectionViewWidth/2, height: collectionViewWidth/2)
+        return CGSize(width: (collectionViewWidth/2) - 1.0, height: collectionViewWidth/2)
         
     }
     

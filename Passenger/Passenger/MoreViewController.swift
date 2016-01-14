@@ -7,16 +7,24 @@
 //
 
 import UIKit
+import Parse
+import Bolts
 
 class MoreViewController: UIViewController {
 
     @IBOutlet weak var helpSupportButton: UIButton!
     @IBOutlet weak var profileSettingsButton: UIButton!
-    @IBOutlet weak var legalButton: UIButton!
     @IBOutlet weak var settingsButton: UIButton!
+    @IBOutlet weak var profilePicture: UIImageView!
+    @IBOutlet weak var currentUserNameLabel: UILabel!
+    
+    private var currentUser: PFUser?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        currentUser = PFUser.currentUser()
+        
         configureView()
     }
 
@@ -45,14 +53,6 @@ class MoreViewController: UIViewController {
     @IBAction func settingsButtonUp(sender: AnyObject) {
         settingsButton.backgroundColor = UIColor.whiteColor()
     }
-    
-    @IBAction func legalButtonDown(sender: AnyObject) {
-        legalButton.backgroundColor = UIColor(red:0.89, green:0.89, blue:0.89, alpha:1.0)
-    }
-    
-    @IBAction func legalButtonUp(sender: AnyObject) {
-        legalButton.backgroundColor = UIColor.whiteColor()
-    }
 
     @IBAction func helpButtonDown(sender: AnyObject) {
         helpSupportButton.backgroundColor = UIColor(red:0.89, green:0.89, blue:0.89, alpha:1.0)
@@ -61,8 +61,6 @@ class MoreViewController: UIViewController {
     @IBAction func helpButtonUp(sender: AnyObject) {
         helpSupportButton.backgroundColor = UIColor.whiteColor()
     }
-    
-
     
     func configureView() {
         helpSupportButton.adjustsImageWhenHighlighted = true;
@@ -77,6 +75,24 @@ class MoreViewController: UIViewController {
         navigationController?.navigationBar.titleTextAttributes = navBarAttributesDictionary
         UINavigationBar.appearance().tintColor = UIColor.blackColor()
         
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+            
+            if let profileImage = self.currentUser!["profile_picture"] as? PFFile {
+                profileImage.getDataInBackgroundWithBlock({ (imageData: NSData?, error: NSError?) -> Void in
+                    let image: UIImage! = UIImage(data: imageData!)!
+                    self.profilePicture?.image = image
+                    self.profilePicture.layer.masksToBounds = true
+                    self.profilePicture.layer.cornerRadius = 20
+                })
+            }
+            
+        }
+        
+        let userFirstName = self.currentUser!["first_name"] as! String
+        let userLastName = self.currentUser!["last_name"] as! String
+        let userFullName = userFirstName + " " + userLastName
+        
+        self.currentUserNameLabel.text = userFullName
         
     }
 

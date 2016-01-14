@@ -13,6 +13,7 @@ import HealthKit
 class HomeViewController: UITabBarController, UITabBarControllerDelegate {
     
     var helpSupport: Bool = false
+    var profile: Bool = false
     
     private var statusBarBackground: UIView!
     
@@ -24,6 +25,8 @@ class HomeViewController: UITabBarController, UITabBarControllerDelegate {
         if (helpSupport) {
             self.navigationItem.titleView = nil
             self.navigationItem.title = "MORE"
+        } else if (profile) {
+            
         } else {
             let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 28, height: 28))
             imageView.contentMode = .ScaleAspectFit
@@ -109,6 +112,9 @@ class HomeViewController: UITabBarController, UITabBarControllerDelegate {
         if (helpSupport) {
             self.selectedIndex = 3
              helpSupport = false
+        } else if (profile) {
+            self.selectedIndex = 2
+            profile = false
         }
     }
     
