@@ -21,9 +21,13 @@ class RedeemViewController: UIViewController {
     var companyName: String?
     var rewardName: String?
     
+    var redeemedRewards = [PFObject]()
+    
     var currentUser: PFUser?
     
     var isEditable = false
+    
+    var localData = ParseLocalData()
     
     private var sixDigitString = ""
     private var currentTotalPoints: Int?
@@ -354,6 +358,8 @@ class RedeemViewController: UIViewController {
                                         // The object has been saved.
                                         print("The user was saved")
                                         self.performSegueWithIdentifier("redeemToRewardsHistory", sender: nil)
+                                        self.localData.loadDataDescending("RewardsHistory", descendingBy: "createdAt")
+                                        
                                     } else {
                                         // There was a problem, check error.description
                                     }
@@ -385,7 +391,7 @@ class RedeemViewController: UIViewController {
 
         }
     }
-
+    
 
     @IBAction func backspaceButtonTapped(sender: AnyObject) {
         

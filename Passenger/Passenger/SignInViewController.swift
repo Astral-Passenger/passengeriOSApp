@@ -25,6 +25,12 @@ class SignInViewController: UIViewController {
     
     var imageList = [UIImage]()
     
+    var rewards = [PFObject]()
+    var rewardsHistory = [PFObject]()
+    var helpData = [PFObject]()
+    
+    var localData = ParseLocalData()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureView()
@@ -67,8 +73,6 @@ class SignInViewController: UIViewController {
             NSForegroundColorAttributeName: UIColor.whiteColor(),
         ]
         
-        
-        
         navigationController?.navigationBar.titleTextAttributes = navBarAttributesDictionary
         //create a new button
         UINavigationBar.appearance().tintColor = UIColor.blackColor()
@@ -99,6 +103,9 @@ class SignInViewController: UIViewController {
             if user != nil {
                 // do stuff with a successful login
                 self.performSegueWithIdentifier("signInSegue", sender: nil)
+                self.localData.loadDataDescending("RewardsHistory", descendingBy: "createdAt")
+                self.localData.loadData("Rewards")
+                self.localData.loadData("HelpQuestions")
             } else {
                 // the login failed. Check error to see what happened
                 let alert = UIAlertController(title: "SIGN IN FAILED", message: "Please make sure that you entered in the correct login infotmation", preferredStyle: UIAlertControllerStyle.Alert)
@@ -116,9 +123,15 @@ class SignInViewController: UIViewController {
                 if user.isNew {
                     print("User signed up and logged in through Facebook!", terminator: "")
                     self.performSegueWithIdentifier("signInSegue", sender: nil)
+                    self.localData.loadDataDescending("RewardsHistory", descendingBy: "createdAt")
+                    self.localData.loadData("Rewards")
+                    self.localData.loadData("HelpQuestions")
                 } else {
                     print("User logged in through Facebook!", terminator: "")
                     self.performSegueWithIdentifier("signInSegue", sender: nil)
+                    self.localData.loadDataDescending("RewardsHistory", descendingBy: "createdAt")
+                    self.localData.loadData("Rewards")
+                    self.localData.loadData("HelpQuestions")
                 }
             } else {
                 print("Uh oh. The user cancelled the Facebook login.", terminator: "")

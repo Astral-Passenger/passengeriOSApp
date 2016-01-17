@@ -12,6 +12,7 @@ class PointsDetailedTableViewCell: UITableViewCell {
     
     @IBOutlet weak var rewardCompanyBackgroundImage: UIImageView!
     @IBOutlet weak var rewardCompanyName: UILabel!
+    @IBOutlet weak var crossStreetsLabel: UILabel!
     
     override func awakeFromNib() {
         super.awakeFromNib()

@@ -9,6 +9,8 @@
 import UIKit
 import Parse
 import Bolts
+import FBSDKCoreKit
+import ParseFacebookUtilsV4
 
 class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
@@ -32,6 +34,8 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
     @IBOutlet weak var connectToFacebookButton: UIButton!
     @IBOutlet weak var saveButton: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var usernameTextField: UITextField!
+    @IBOutlet weak var cameraImageView: UIImageView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,6 +53,18 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
         self.transitionManager.sourceViewController = self
         
         imagePicker.delegate = self
+    }
+    
+    @IBAction func connectToFacebookTap(sender: AnyObject) {
+        if !PFFacebookUtils.isLinkedWithUser(currentUser!) {
+            PFFacebookUtils.linkUserInBackground(currentUser!, withReadPermissions: nil, block: {
+                (succeeded: Bool?, error: NSError?) -> Void in
+                if (succeeded != nil) {
+                    print("Woohoo, the user is linked with Facebook!")
+                }
+            })
+        }
+
     }
     
     func imageTapped() {
@@ -110,11 +126,13 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
         UIApplication.sharedApplication().statusBarStyle = .Default
         
         let fullName = currentUser!["full_name"] as! String
+        let username = currentUser!.username
         
         let email = currentUser!.email
         
         nameTextField.text = fullName
         emailTextField.text = email
+        usernameTextField.text = username
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
             
@@ -123,8 +141,11 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
                     let image: UIImage! = UIImage(data: imageData!)!
                     self.profileImage?.image = image
                     self.profileImage.layer.masksToBounds = true
-                    self.profileImage.layer.cornerRadius = 87.5
+                    self.profileImage.layer.cornerRadius = 62.5
+                    self.cameraImageView.hidden = false
                 })
+            } else {
+                self.cameraImageView.hidden = true
             }
             
         }
@@ -183,7 +204,10 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
         activityIndicator.startAnimating()
         let fullName = nameTextField.text
         let email = emailTextField.text
-        var parsedPhoneNumber: String = ""
+        
+        let username = usernameTextField.text
+        
+        //var parsedPhoneNumber: String = ""
         
         //let letters = phoneNumber!.characters.map { String($0) }
 
@@ -217,49 +241,73 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
 //            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
 //            self.presentViewController(alert, animated: true, completion: nil)
 //        }
-        
-        currentUser!["full_name"] = fullName
-        currentUser!.email = email
-        
-        if (didEditImage) {
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
-                
-                let imageData = UIImageJPEGRepresentation(self.updatedImage!,0.05)
-                
-                if(imageData != nil)
-                {
-                    let profileFileObject = PFFile(data:imageData!)
-                    self.currentUser?.setObject(profileFileObject!, forKey: "profile_picture")
-                }
-                
-                
-                self.currentUser?.saveInBackgroundWithBlock({ (success:Bool, error:NSError?) -> Void in
-                    
-                    if(success)
-                    {
-                        self.activityIndicator.hidden = true
-                        self.activityIndicator.stopAnimating()
-                    }
-                    
-                })
-                
-            }
-        } else {
-            self.currentUser?.saveInBackgroundWithBlock({ (success:Bool, error:NSError?) -> Void in
-                
-                if(success)
-                {
+        let query = PFQuery(className:"_User")
+        print(username)
+        query.whereKey("username", equalTo: username!)
+        query.findObjectsInBackgroundWithBlock {
+            (objects: [PFObject]?, error: NSError?) -> Void in
+            if error == nil {
+                // The find succeeded.
+                print("Successfully retrieved \(objects!.count) users.")
+                if (objects!.count > 0) {
+                    // There was already a user
+                    let alert = UIAlertController(title: "USERNAME", message: "The username \(username!) has already been taken choose another one.", preferredStyle: UIAlertControllerStyle.Alert)
+                    alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+                    self.presentViewController(alert, animated: true, completion: nil)
                     self.activityIndicator.hidden = true
                     self.activityIndicator.stopAnimating()
+                } else {
+                    
+                    
+                    self.currentUser!["full_name"] = fullName
+                    self.currentUser!.email = email
+                    self.currentUser!.username = username
+                    
+                    if (self.didEditImage) {
+                        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+                            
+                            let imageData = UIImageJPEGRepresentation(self.updatedImage!,0.05)
+                            
+                            if(imageData != nil)
+                            {
+                                let profileFileObject = PFFile(data:imageData!)
+                                self.currentUser?.setObject(profileFileObject!, forKey: "profile_picture")
+                            }
+                            
+                            
+                            self.currentUser?.saveInBackgroundWithBlock({ (success:Bool, error:NSError?) -> Void in
+                                
+                                if(success)
+                                {
+                                    self.activityIndicator.hidden = true
+                                    self.activityIndicator.stopAnimating()
+                                }
+                                
+                            })
+                            
+                        }
+                    } else {
+                        self.currentUser?.saveInBackgroundWithBlock({ (success:Bool, error:NSError?) -> Void in
+                            
+                            if(success)
+                            {
+                                self.activityIndicator.hidden = true
+                                self.activityIndicator.stopAnimating()
+                            }
+                            
+                        })
+                    }
+                    
+                    
+                    self.nameTextField.text = fullName
+                    self.emailTextField.text = email
                 }
-                
-            })
+            } else {
+                // Log details of the failure
+                print("Error: \(error!) \(error!.userInfo)")
+            }
+
         }
-        
-        
-        nameTextField.text = fullName
-        emailTextField.text = email
-        
     }
 
 }

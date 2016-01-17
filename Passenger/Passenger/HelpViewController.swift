@@ -17,18 +17,6 @@ class HelpViewController: UIViewController {
     @IBOutlet weak var whereButton: UIButton!
     @IBOutlet weak var rewardsButton: UIButton!
     
-    var accountQuestions = ["Update my account information", "Reset password", "I'd like to delete my account"]
-    var accountAnswers = ["This is the answer to question one", "This is the answer to questions 2", "This is the answer ot question 3"]
-    
-    var howQuestions = ["How Passenger works", "Do I need to have my location on at all times?", "Passenger point system", "Redeeming your rewards"]
-    var howAnswers = ["This is the answer to question one", "This is the answer to questions 2", "This is the answer ot question 3", "Answer 4"]
-    
-    var whereQuestions = ["Where am I able to get points for Passenger?", "In what cities am I able to get rewards?", "How often do you get new rewards?"]
-    var whereAnswers = ["This is the answer to question one", "This is the answer to questions 2", "This is the answer ot question 3"]
-    
-    var rewardsQuestions = ["How often do you add new rewards?", "How do I redeem my product rewards?", "Do you mail me my giftcard?", "What are sweepstakes?"]
-    var rewardsAnswers = ["This is the answer to question one", "This is the answer to questions 2", "This is the answer ot question 3", "Answer 4"]
-    
     override func viewDidLoad() {
         super.viewDidLoad()
 

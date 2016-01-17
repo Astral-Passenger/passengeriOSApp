@@ -16,6 +16,8 @@ class DiscountCollectionViewController: UICollectionViewController {
     
     var companyName: String?
     
+    var company: PFObject?
+    
     var rowSelected = 0
     var indexPathSelected: NSIndexPath?
     
@@ -93,7 +95,7 @@ class DiscountCollectionViewController: UICollectionViewController {
     func loadDiscounts() {
         
         let query = PFQuery(className:"RewardsExpanded")
-        query.whereKey("companyName", equalTo: companyName!)
+        query.whereKey("company", equalTo: company!)
         query.findObjectsInBackgroundWithBlock {
             (objects: [PFObject]?, error: NSError?) -> Void in
             if error == nil {

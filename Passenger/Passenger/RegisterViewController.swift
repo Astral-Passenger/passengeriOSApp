@@ -115,17 +115,32 @@ class RegisterViewController: UIViewController {
         user.setObject(0, forKey: "rewardsReceived")
         user.setObject("", forKey: "phoneNumber")
         
+        var isEmail: Bool = false
+        
+        if email.rangeOfString("@") != nil {
+            isEmail = true
+        }
+        
         if (username.characters.count < 4) {
-            
+            let alert = UIAlertController(title: "USERNAME", message: "Enter a username that is longer than 4 characters.", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+            self.presentViewController(alert, animated: true, completion: nil)
+            self.activityIndicator.hidden = true
+            self.activityIndicator.stopAnimating()
+        } else if (email.characters.count < 5 && isEmail == false) {
+            let alert = UIAlertController(title: "EMAIL", message: "Please enter a valid email", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+            self.presentViewController(alert, animated: true, completion: nil)
+            self.activityIndicator.hidden = true
+            self.activityIndicator.stopAnimating()
         } else if (password.characters.count < 6) {
-            
-        } else if (email.characters.count < 7) {
-            
-        } else if (name.characters.count < 2) {
-            
+            let alert = UIAlertController(title: "PASSWORD", message: "Please enter a password longer than 6 characters for security purposes.", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+            self.presentViewController(alert, animated: true, completion: nil)
+            self.activityIndicator.hidden = true
+            self.activityIndicator.stopAnimating()
         } else {
             user.signUpInBackgroundWithBlock({ (success:Bool, error:NSError?) -> Void in
-                
                 if(success)
                 {
                     self.performSegueWithIdentifier("finishedSigningUp", sender: nil)
@@ -159,11 +174,11 @@ class RegisterViewController: UIViewController {
                 if user.isNew {
                     print("User signed up and logged in through Facebook!", terminator: "")
                     self.registerUserInformation()
-                    self.performSegueWithIdentifier("signInSegue", sender: nil)
+                    self.performSegueWithIdentifier("finishedSigningUp", sender: nil)
                 } else {
                     print("User logged in through Facebook!", terminator: "")
-                    self.registerUserInformation()
-                    self.performSegueWithIdentifier("signInSegue", sender: nil)
+                    //self.registerUserInformation()
+                    self.performSegueWithIdentifier("finishedSigningUp", sender: nil)
                 }
             } else {
                 print("Uh oh. The user cancelled the Facebook login.", terminator: "")
@@ -209,6 +224,7 @@ class RegisterViewController: UIViewController {
                     myUser.setObject(userEmail!, forKey: "email")
                 }
                 
+                myUser.setObject("", forKey: "username")
                 myUser.setObject(0, forKey: "totalPoints")
                 myUser.setObject(0, forKey: "currentPoints")
                 myUser.setObject(0, forKey: "distanceTraveled")

@@ -69,7 +69,8 @@ class RewardsHistoryCollectionViewController: UICollectionViewController {
     func loadRewards() {
         let rewardsQuery = PFQuery(className:"RewardsHistory")
         if let user = PFUser.currentUser() {
-            rewardsQuery.whereKey("userId", equalTo: user)
+            rewardsQuery.fromLocalDatastore()
+            //rewardsQuery.whereKey("userId", equalTo: user)
             rewardsQuery.orderByDescending("createdAt")
             rewardsQuery.findObjectsInBackgroundWithBlock {
                 (objects: [PFObject]?, error: NSError?) -> Void in
@@ -170,7 +171,6 @@ class RewardsHistoryCollectionViewController: UICollectionViewController {
         
         // Set cell width to 100%
         let reward = redeemedRewards[indexPath.row]
-        print(reward.rewardDescription)
         
         cell.rewardDescriptionLabel.text = reward.rewardDescription
         cell.rewardPointCost.text = String(reward.pointCost)

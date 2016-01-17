@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1E0B6DC61C4C18680050ABF0 /* GpsCoordinateConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E0B6DC51C4C18680050ABF0 /* GpsCoordinateConverter.swift */; };
+		1E0B6DC81C4C2B890050ABF0 /* ParseLocalData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E0B6DC71C4C2B890050ABF0 /* ParseLocalData.swift */; };
 		1E2E3B741C3317EC008E3FB3 /* Notifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E2E3B731C3317EC008E3FB3 /* Notifier.m */; };
 		1E32FCAB1C481C0500F01EC4 /* ForgotPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E32FCAA1C481C0500F01EC4 /* ForgotPasswordViewController.swift */; };
 		1E32FCAD1C48271000F01EC4 /* ForgotPasswordLoggedInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E32FCAC1C48271000F01EC4 /* ForgotPasswordLoggedInViewController.swift */; };
@@ -118,6 +120,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1E0B6DC51C4C18680050ABF0 /* GpsCoordinateConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GpsCoordinateConverter.swift; sourceTree = "<group>"; };
+		1E0B6DC71C4C2B890050ABF0 /* ParseLocalData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParseLocalData.swift; sourceTree = "<group>"; };
 		1E2E3B721C3317EC008E3FB3 /* Notifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Notifier.h; sourceTree = "<group>"; };
 		1E2E3B731C3317EC008E3FB3 /* Notifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Notifier.m; sourceTree = "<group>"; };
 		1E32FCAA1C481C0500F01EC4 /* ForgotPasswordViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForgotPasswordViewController.swift; sourceTree = "<group>"; };
@@ -315,6 +319,8 @@
 				1E67B68D1C05091600B7C866 /* Reward.swift */,
 				1ED8F7BE1C0BB7DF0063B001 /* RankingUser.swift */,
 				1EB2230E1C2B45F70034D7E4 /* HexToUIColor.swift */,
+				1E0B6DC51C4C18680050ABF0 /* GpsCoordinateConverter.swift */,
+				1E0B6DC71C4C2B890050ABF0 /* ParseLocalData.swift */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -624,6 +630,7 @@
 				1ED8F7BD1C0BB1290063B001 /* RankingTableViewCell.swift in Sources */,
 				1E67B68A1C0508F900B7C866 /* RewardGroup.swift in Sources */,
 				1EA1F0391C22382500845B2C /* SettignsViewController.swift in Sources */,
+				1E0B6DC81C4C2B890050ABF0 /* ParseLocalData.swift in Sources */,
 				1E32FCAB1C481C0500F01EC4 /* ForgotPasswordViewController.swift in Sources */,
 				1E76C7811BFF9A0D00F03E74 /* SecondCustomSegue.swift in Sources */,
 				1E7059491C431B0F00936C0D /* PageViewDetailedViewController.swift in Sources */,
@@ -638,6 +645,7 @@
 				1EAB38A51BF671F1008E568E /* SignInViewController.swift in Sources */,
 				1EA1F0351C2230BA00845B2C /* HomeNavigationViewController.swift in Sources */,
 				1EA5EDAA1C3EDC4C0066B332 /* DiscountCollectionViewController.swift in Sources */,
+				1E0B6DC61C4C18680050ABF0 /* GpsCoordinateConverter.swift in Sources */,
 				1E92404C1C25D53500F8D2DA /* HelpExpandedTableViewController.swift in Sources */,
 				1EAC2D181BE861D200547515 /* ViewController.swift in Sources */,
 				1EA1F0331C22207E00845B2C /* HelpViewController.swift in Sources */,

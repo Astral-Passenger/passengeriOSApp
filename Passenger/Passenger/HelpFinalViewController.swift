@@ -17,6 +17,7 @@ class HelpFinalViewController: UIViewController {
     var question: String?
     var answer: String?
     var questionType: String?
+    var helpTitle: String?
     
     @IBOutlet weak var questionLabel: UILabel!
     @IBOutlet weak var answerLabel: UILabel!
@@ -42,6 +43,7 @@ class HelpFinalViewController: UIViewController {
             menu.transitioningDelegate = self.transitionManager
             self.transitionManager.menuViewController = menu
             targetController.questionType = self.questionType!
+            targetController.helpTitle = self.helpTitle!
         }
         
     }

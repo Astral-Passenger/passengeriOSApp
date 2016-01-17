@@ -14,11 +14,31 @@ class RewardGroup {
     var rewardType: String?
     var companyName: String?
     var backgroundImage: UIImage?
+    var crossStreets: String?
+    var company: PFObject?
     
-    init(rewardType: String, companyName: String, backgroundImage: UIImage) {
+    init(rewardType: String, companyName: String, backgroundImage: UIImage, crossStreets: String, company: PFObject) {
         self.rewardType = rewardType
         self.companyName = companyName
         self.backgroundImage = backgroundImage
+        self.crossStreets = crossStreets
+        self.company = company
+    }
+    
+    func getCompany() -> PFObject {
+        return self.company!
+    }
+    
+    func setCompany(company: PFObject) {
+        self.company = company
+    }
+    
+    func getCrossStreets() -> String {
+        return self.crossStreets!
+    }
+    
+    func setCrossStreets(crossStreets: String) {
+        self.crossStreets = crossStreets
     }
     
     func getRewardType() -> String {

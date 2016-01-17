@@ -17,7 +17,7 @@ class HelpExpandedTableViewController: UITableViewController {
     var answers = [String]()
     
     var questionType: String?
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = helpTitle
@@ -52,6 +52,7 @@ class HelpExpandedTableViewController: UITableViewController {
     func loadQuestions() {
         
         let query = PFQuery(className:"HelpQuestions")
+        query.fromLocalDatastore()
         query.whereKey("questionType", equalTo: questionType!)
         query.findObjectsInBackgroundWithBlock {
             (objects: [PFObject]?, error: NSError?) -> Void in
@@ -76,6 +77,7 @@ class HelpExpandedTableViewController: UITableViewController {
             }
         }
         self.tableView.reloadData()
+
     }
 
     
@@ -92,6 +94,9 @@ class HelpExpandedTableViewController: UITableViewController {
         
         navigationController?.navigationBar.titleTextAttributes = navBarAttributesDictionary
         UINavigationBar.appearance().tintColor = UIColor.blackColor()
+        
+        self.tableView.estimatedRowHeight = 50.0
+        self.tableView.rowHeight = UITableViewAutomaticDimension
         
     }
 
@@ -117,6 +122,7 @@ class HelpExpandedTableViewController: UITableViewController {
             helpFinalViewController.question = questions[row!]
             helpFinalViewController.answer = answers[row!]
             helpFinalViewController.questionType = self.questionType
+            helpFinalViewController.helpTitle = self.helpTitle
         } else if (segue.identifier == "presentMenu") {
             // set transition delegate for our menu view controller
             let menu = segue.destinationViewController as! UINavigationController

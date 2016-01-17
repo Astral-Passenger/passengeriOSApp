@@ -239,20 +239,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if (distanceTraveledInTen < 50) {
             currentSpeed = 0.0
             isSittingStillCount++
-            if (isSittingStillCount > 10 && stoppedDriving) {
+            if (isSittingStillCount > 120 && stoppedDriving) {
                 if (totalCurrentPoints > 0.75) {
+                    self.isSittingStillCount = 0
+                    self.stoppedDriving = true
                     let pointRecord = PFObject(className:"PointsHistory")
-                    pointRecord["distanceTraveled"] = distance * 0.000189394
+                    pointRecord["distanceTraveled"] = (distance * 3.28084) * 0.000189394
                     pointRecord["pointsGenerated"] = totalCurrentPoints
                     pointRecord["userID"] = currentUser!
+                    
+                    do {
+                        try pointRecord.save()
+                        print("The record was saved now time to save the users data.")
+                    } catch {
+                        print("There was an error sabing the object")
+                    }
                     pointRecord.saveInBackgroundWithBlock {
                         (success: Bool, error: NSError?) -> Void in
                         if (success) {
                             // The object has been saved.
-                            print("The record was saved now time to save the users data.")
+                            
                         } else {
                             // There was a problem, check error.description
-                            print("There was an error sabing the object")
+                            
                         }
                     }
                     
@@ -263,22 +272,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     // The user is finished driving. Save the drive in parse and begin to wait till they start moving again.
                     self.currentUser?["totalPoints"] = currentUserTotalPoints + totalCurrentPoints
                     self.currentUser?["currentPoints"] = currentUserCurrentPoints + totalCurrentPoints
-                    self.currentUser?["distanceTraveled"] = currentUserCurrentDistance + (distance * 0.000189394) // Conversion from feet to miles
+                    self.currentUser?["distanceTraveled"] = currentUserCurrentDistance + ((distance * 3.28084) * 0.000189394) // Conversion from feet to miles
                     self.currentUser?["timeSpendDriving"] = seconds + currentUserTimeSpentDriving
-                    currentUser?.saveInBackgroundWithBlock{
-                        (success: Bool, error: NSError?) -> Void in
-                        if (success) {
-                            // The object has been saved.
-                            print("The points have been saved for this user but the location services are still looking out to see if they begin driving")
-                            self.totalCurrentPoints = 0
-                            self.isSittingStillCount = 0
-                            self.stoppedDriving = true
-                            self.distance = 0.0
-                            self.seconds = 0.0
-                        } else {
-                            // There was a problem, check error.description
-                        }
+                    
+                    do {
+                        try self.currentUser?.save()
+                        print("The points have been saved for this user but the location services are still looking out to see if they begin driving")
+                        self.totalCurrentPoints = 0
+                        self.distance = 0.0
+                        self.seconds = 0.0
+                    } catch {
+                        
                     }
+//                    currentUser?.saveInBackgroundWithBlock{
+//                        (success: Bool, error: NSError?) -> Void in
+//                        if (success) {
+//                            // The object has been saved.
+//
+//                        } else {
+//                            // There was a problem, check error.description
+//                        }
+//                    }
    
                 } else {
                     totalCurrentPoints = 0.0
@@ -295,10 +309,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             isSittingStillCount = 0
         }
         
-        print("Current speed: \(currentSpeed)")
+        //print("Current speed: \(currentSpeed)")
         //print("Current Distance: \(distanceTraveledInTen)")
-        print("Is Driving: \(isDriving)")
-        print(isLocked)
+        //print("Is Driving: \(isDriving)")
+        //print(isLocked)
         
         everyTenSeconds++
     }

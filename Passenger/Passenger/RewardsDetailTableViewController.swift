@@ -18,6 +18,8 @@ class RewardsDetailTableViewController: UITableViewController {
     var currentTitle: String?
     var rewardType: String?
     
+    var company: PFObject?
+    
     private var companyName: String?
     
     var rewardsList = [RewardGroup]()
@@ -47,6 +49,7 @@ class RewardsDetailTableViewController: UITableViewController {
             let nav = segue.destinationViewController as! UINavigationController
             let dest = nav.topViewController as! DiscountCollectionViewController
             dest.companyName = companyName
+            dest.company = company
         }
 
     }
@@ -77,6 +80,7 @@ class RewardsDetailTableViewController: UITableViewController {
     func loadSampleProducts() {
         
         let query = PFQuery(className:"Rewards")
+        query.fromLocalDatastore()
         query.whereKey("rewardType", equalTo: rewardType!)
         query.findObjectsInBackgroundWithBlock {
             (objects: [PFObject]?, error: NSError?) -> Void in
@@ -97,7 +101,7 @@ class RewardsDetailTableViewController: UITableViewController {
                         }
                         
                         let companyImage = UIImage(data: imageData)!
-                        let rewardGroup = RewardGroup(rewardType: object["rewardType"] as! String, companyName: object["companyName"] as! String, backgroundImage: companyImage)
+                        let rewardGroup = RewardGroup(rewardType: object["rewardType"] as! String, companyName: object["companyName"] as! String, backgroundImage: companyImage, crossStreets: object["crossStreets"] as! String, company: object)
                         self.rewardsList.append(rewardGroup)
                         self.tableView.reloadData()
                         
@@ -135,6 +139,7 @@ class RewardsDetailTableViewController: UITableViewController {
         
         cell.rewardCompanyName.text = currentCompany.getCompanyName()
         cell.rewardCompanyBackgroundImage.image = currentCompany.getBackgroundImage()
+        cell.crossStreetsLabel.text = currentCompany.getCrossStreets()
         
         cell.rewardCompanyBackgroundImage.layer.masksToBounds = true
         cell.rewardCompanyBackgroundImage.layer.cornerRadius = 2
@@ -145,6 +150,7 @@ class RewardsDetailTableViewController: UITableViewController {
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         //CODE TO BE RUN ON CELL TOUCH
         companyName = rewardsList[indexPath.row].getCompanyName()
+        company = rewardsList[indexPath.row].getCompany()
         performSegueWithIdentifier("rewardsToDiscounts", sender: nil)
         
     }

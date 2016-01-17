@@ -110,10 +110,10 @@ class HomeViewController: UITabBarController, UITabBarControllerDelegate {
     
     func checkIfWorking() {
         if (helpSupport) {
-            self.selectedIndex = 3
+            self.selectedIndex = 2
              helpSupport = false
         } else if (profile) {
-            self.selectedIndex = 2
+            self.selectedIndex = 1
             profile = false
         }
     }

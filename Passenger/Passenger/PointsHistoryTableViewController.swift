@@ -69,59 +69,60 @@ class PointsHistoryTableViewController: UITableViewController {
             if error == nil {
                 // The find succeeded.
                 print("Successfully retrieved \(objects!.count) rewards.")
-                // Do something with the found objects gameScore["playerName"] as String
-                var i = 0
-                if let objects = objects {
-                    var recordedDrives = [DriveRecord]()
-                    var dateRecorded = NSDate()
-                    var finalDatePlusOne = NSDate()
-                    var pointsGenerated = Int()
-                    var distanceTraveled = Double()
-                    let finalDate = NSDate()
-                    for object in objects {
-                        
-                        distanceTraveled = object["distanceTraveled"] as! Double
-                        pointsGenerated = object["pointsGenerated"] as! Int
-                        dateRecorded = object.createdAt!
-                        
-                        
-                        
-                        let date = NSDate()
-                        let cal = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
-                        let newDate = cal.startOfDayForDate(date)
-                        let finalDate = newDate.dateByAddingTimeInterval(60*60*12)
-                        finalDatePlusOne = newDate.dateByAddingTimeInterval(60*60*13)
-                        let newStr = self.dateFormatter.stringFromDate(finalDate)
-                        
-                        if (i == 0) {
-                            self.currentDriveDateIteration = dateRecorded
-                            let currentDriveRecord = DriveRecord(milesDriven: Double(distanceTraveled), timeRecorded: self.getDateString(dateRecorded, dateTo: finalDate, dateSubtract: finalDatePlusOne), pointsGenerated: "+\(pointsGenerated)")
-                            recordedDrives += [currentDriveRecord]
-                        } else if (self.compareDate(dateRecorded, secondDate: self.currentDriveDateIteration!)) {
-                            // The date is less than the previous date, therefore, create a new iteration in the array
-                            let dateString = self.readableDateFormatter.stringFromDate(self.currentDriveDateIteration!)
-                            let dayRecord = DayDriveRecorded(dateRecorded: dateString, recordedDrives: recordedDrives)
-                            self.dailyRecords += [dayRecord]
-                            recordedDrives = [DriveRecord]()
-                            let currentDriveRecord = DriveRecord(milesDriven: Double(distanceTraveled), timeRecorded: self.getDateString(dateRecorded, dateTo: finalDate, dateSubtract: finalDatePlusOne), pointsGenerated: "+\(pointsGenerated)")
-                            recordedDrives += [currentDriveRecord]
-                            self.currentDriveDateIteration = dateRecorded
-                        } else {
-                            // The dates are the same, just add the curentDrivePoint to the array
-                            let currentDriveRecord = DriveRecord(milesDriven: Double(distanceTraveled), timeRecorded: self.getDateString(dateRecorded, dateTo: finalDate, dateSubtract: finalDatePlusOne), pointsGenerated: "+\(pointsGenerated)")
-                            recordedDrives += [currentDriveRecord]
+                if (objects!.count > 0) {
+                    // Do something with the found objects gameScore["playerName"] as String
+                    var i = 0
+                    if let objects = objects {
+                        var recordedDrives = [DriveRecord]()
+                        var dateRecorded = NSDate()
+                        var finalDatePlusOne = NSDate()
+                        var pointsGenerated = Int()
+                        var distanceTraveled = Double()
+                        let finalDate = NSDate()
+                        for object in objects {
+                            
+                            distanceTraveled = object["distanceTraveled"] as! Double
+                            pointsGenerated = object["pointsGenerated"] as! Int
+                            dateRecorded = object.createdAt!
+                            
+                            let date = NSDate()
+                            let cal = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
+                            let newDate = cal.startOfDayForDate(date)
+                            let finalDate = newDate.dateByAddingTimeInterval(60*60*12)
+                            finalDatePlusOne = newDate.dateByAddingTimeInterval(60*60*13)
+                            let newStr = self.dateFormatter.stringFromDate(finalDate)
+                            
+                            if (i == 0) {
+                                self.currentDriveDateIteration = dateRecorded
+                                let currentDriveRecord = DriveRecord(milesDriven: Double(distanceTraveled), timeRecorded: self.getDateString(dateRecorded, dateTo: finalDate, dateSubtract: finalDatePlusOne), pointsGenerated: "+\(pointsGenerated)")
+                                recordedDrives += [currentDriveRecord]
+                            } else if (self.compareDate(dateRecorded, secondDate: self.currentDriveDateIteration!)) {
+                                // The date is less than the previous date, therefore, create a new iteration in the array
+                                let dateString = self.readableDateFormatter.stringFromDate(self.currentDriveDateIteration!)
+                                let dayRecord = DayDriveRecorded(dateRecorded: dateString, recordedDrives: recordedDrives)
+                                self.dailyRecords += [dayRecord]
+                                recordedDrives = [DriveRecord]()
+                                let currentDriveRecord = DriveRecord(milesDriven: Double(distanceTraveled), timeRecorded: self.getDateString(dateRecorded, dateTo: finalDate, dateSubtract: finalDatePlusOne), pointsGenerated: "+\(pointsGenerated)")
+                                recordedDrives += [currentDriveRecord]
+                                self.currentDriveDateIteration = dateRecorded
+                            } else {
+                                // The dates are the same, just add the curentDrivePoint to the array
+                                let currentDriveRecord = DriveRecord(milesDriven: Double(distanceTraveled), timeRecorded: self.getDateString(dateRecorded, dateTo: finalDate, dateSubtract: finalDatePlusOne), pointsGenerated: "+\(pointsGenerated)")
+                                recordedDrives += [currentDriveRecord]
+                            }
+                            self.tableView.reloadData()
+                            i = i + 1
                         }
+                        
+                        let dateString = self.readableDateFormatter.stringFromDate(self.currentDriveDateIteration!)
+                        let dayRecord = DayDriveRecorded(dateRecorded: dateString, recordedDrives: recordedDrives)
+                        self.dailyRecords += [dayRecord]
+                        recordedDrives = [DriveRecord]()
+                        let currentDriveRecord = DriveRecord(milesDriven: Double(distanceTraveled), timeRecorded: self.getDateString(dateRecorded, dateTo: finalDate, dateSubtract: finalDatePlusOne), pointsGenerated: String(pointsGenerated))
+                        recordedDrives += [currentDriveRecord]
                         self.tableView.reloadData()
-                        i = i + 1
                     }
-                    
-                    let dateString = self.readableDateFormatter.stringFromDate(self.currentDriveDateIteration!)
-                    let dayRecord = DayDriveRecorded(dateRecorded: dateString, recordedDrives: recordedDrives)
-                    self.dailyRecords += [dayRecord]
-                    recordedDrives = [DriveRecord]()
-                    let currentDriveRecord = DriveRecord(milesDriven: Double(distanceTraveled), timeRecorded: self.getDateString(dateRecorded, dateTo: finalDate, dateSubtract: finalDatePlusOne), pointsGenerated: String(pointsGenerated))
-                    recordedDrives += [currentDriveRecord]
-                    self.tableView.reloadData()
+
                 }
             } else {
                 // Log details of the failure
@@ -165,7 +166,13 @@ class PointsHistoryTableViewController: UITableViewController {
         print(minutes)
         
         if(hours < 12) {
-            if (minutes < 10) {
+            if (hours == 0) {
+                if (minutes < 10) {
+                    strDate = "\(12):0\(minutes) AM"
+                } else {
+                    strDate = "\(12):\(minutes) AM"
+                }
+            } else if (minutes < 10) {
                strDate = "\(hours):0\(minutes) AM"
             } else {
                 strDate = "\(hours):\(minutes) AM"

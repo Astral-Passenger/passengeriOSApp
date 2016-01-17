@@ -37,7 +37,11 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view, typically from a nib.
         
         configureView()
-        
+        let gpsConvert = GpsCoordinateConverter()
+        gpsConvert.gpsToAddress(36.8080762, longitude: -119.7274735) {
+            (result: String) in
+            print(result)
+        }
     }
     
 
