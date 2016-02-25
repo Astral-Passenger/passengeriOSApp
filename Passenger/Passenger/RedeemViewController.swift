@@ -27,6 +27,8 @@ class RedeemViewController: UIViewController {
     
     var isEditable = false
     
+    var company: PFObject?
+    
     var localData = ParseLocalData()
     
     private var sixDigitString = ""
@@ -136,6 +138,7 @@ class RedeemViewController: UIViewController {
                 self.transitionManager.menuViewController = menu
                 let dest = menu.topViewController as! DiscountCollectionViewController
                 dest.companyName = self.companyName
+                dest.company = company
         }
     
     

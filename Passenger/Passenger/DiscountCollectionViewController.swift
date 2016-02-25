@@ -65,6 +65,7 @@ class DiscountCollectionViewController: UICollectionViewController {
             dest.rewardPointCost = rewardsList[rowSelected].pointCost
             dest.rewardImage = rewardsList[rowSelected].getRewardImage()
             dest.companyName = self.companyName
+            dest.company = self.company
             dest.rewardName = rewardsList[rowSelected].getRewardName()
         }
 

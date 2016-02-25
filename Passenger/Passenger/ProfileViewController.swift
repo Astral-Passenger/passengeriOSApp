@@ -149,7 +149,6 @@ class ProfileViewController: UIViewController {
         if(hoursFull! > 23.999) {
             self.days = Int(hoursFull!/24.0)
             self.hoursFull = hoursFull! - (Double(days!) * 24.0)
-            print(hoursFull!)
             self.hoursFloored = Int(floor(hoursFull!))
             self.minutes = Int((hoursFull! - Double(hoursFloored!)) * 60)
             finalString = "\(days!) d. \(hoursFloored!) hr. \(minutes!) min."

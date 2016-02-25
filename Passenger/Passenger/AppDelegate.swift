@@ -203,7 +203,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // The user is finished driving. Save the drive in parse and begin to wait till they start moving again.
             self.currentUser?["totalPoints"] = currentUserTotalPoints + totalCurrentPoints
             self.currentUser?["currentPoints"] = currentUserCurrentPoints + totalCurrentPoints
-            self.currentUser?["distanceTraveled"] = distance * 0.000189394 // Conversion from feet to miles
+            self.currentUser?["distanceTraveled"] = currentUserCurrentDistance + ((distance * 3.28084) * 0.000189394) // Conversion from feet to miles
             self.currentUser?["timeSpendDriving"] = seconds + currentUserTimeSpentDriving
             currentUser?.saveInBackgroundWithBlock{
                 (success: Bool, error: NSError?) -> Void in

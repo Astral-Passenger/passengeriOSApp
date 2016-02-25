@@ -202,7 +202,7 @@ class MenuTransitionManager: UIPercentDrivenInteractiveTransition, UIViewControl
     
     // return how many seconds the transiton animation will take
     func transitionDuration(transitionContext: UIViewControllerContextTransitioning?) -> NSTimeInterval {
-        return 1.0
+        return 0.5
     }
     
     // MARK: UIViewControllerTransitioningDelegate protocol methods

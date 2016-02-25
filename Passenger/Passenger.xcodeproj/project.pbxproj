@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		1E0B6DC61C4C18680050ABF0 /* GpsCoordinateConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E0B6DC51C4C18680050ABF0 /* GpsCoordinateConverter.swift */; };
 		1E0B6DC81C4C2B890050ABF0 /* ParseLocalData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E0B6DC71C4C2B890050ABF0 /* ParseLocalData.swift */; };
+		1E1DE21A1C72801400C3D22E /* Firebase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E1DE2191C72801400C3D22E /* Firebase.framework */; };
+		1E1DE21C1C72828800C3D22E /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E1DE21B1C72828700C3D22E /* libc++.tbd */; };
+		1E1DE21E1C7282B000C3D22E /* libicucore.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E1DE21D1C7282B000C3D22E /* libicucore.tbd */; };
 		1E2E3B741C3317EC008E3FB3 /* Notifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E2E3B731C3317EC008E3FB3 /* Notifier.m */; };
 		1E32FCAB1C481C0500F01EC4 /* ForgotPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E32FCAA1C481C0500F01EC4 /* ForgotPasswordViewController.swift */; };
 		1E32FCAD1C48271000F01EC4 /* ForgotPasswordLoggedInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E32FCAC1C48271000F01EC4 /* ForgotPasswordLoggedInViewController.swift */; };
@@ -122,6 +125,9 @@
 /* Begin PBXFileReference section */
 		1E0B6DC51C4C18680050ABF0 /* GpsCoordinateConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GpsCoordinateConverter.swift; sourceTree = "<group>"; };
 		1E0B6DC71C4C2B890050ABF0 /* ParseLocalData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParseLocalData.swift; sourceTree = "<group>"; };
+		1E1DE2191C72801400C3D22E /* Firebase.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Firebase.framework; path = ../../../Downloads/Firebase.framework; sourceTree = "<group>"; };
+		1E1DE21B1C72828700C3D22E /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		1E1DE21D1C7282B000C3D22E /* libicucore.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.tbd; path = usr/lib/libicucore.tbd; sourceTree = SDKROOT; };
 		1E2E3B721C3317EC008E3FB3 /* Notifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Notifier.h; sourceTree = "<group>"; };
 		1E2E3B731C3317EC008E3FB3 /* Notifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Notifier.m; sourceTree = "<group>"; };
 		1E32FCAA1C481C0500F01EC4 /* ForgotPasswordViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForgotPasswordViewController.swift; sourceTree = "<group>"; };
@@ -229,6 +235,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1E1DE21E1C7282B000C3D22E /* libicucore.tbd in Frameworks */,
+				1E1DE21C1C72828800C3D22E /* libc++.tbd in Frameworks */,
 				1EF195C51C1244F000CC7AC5 /* Foundation.framework in Frameworks */,
 				1E406EEE1BF056E200C3885F /* AudioToolbox.framework in Frameworks */,
 				1ED8F7AD1C0A457E0063B001 /* FBSDKLoginKit.framework in Frameworks */,
@@ -236,6 +244,7 @@
 				1E406EF01BF056E200C3885F /* CoreGraphics.framework in Frameworks */,
 				1E406EF11BF056E200C3885F /* CoreLocation.framework in Frameworks */,
 				1ED8F7AF1C0A457E0063B001 /* FBSDKShareKit.framework in Frameworks */,
+				1E1DE21A1C72801400C3D22E /* Firebase.framework in Frameworks */,
 				1E406EF21BF056E200C3885F /* libsqlite3.tbd in Frameworks */,
 				1E406F081BF05A1400C3885F /* ParseTwitterUtils.framework in Frameworks */,
 				1E406EF31BF056E200C3885F /* libz.tbd in Frameworks */,
@@ -275,6 +284,9 @@
 		1E406EFA1BF0598000C3885F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1E1DE21D1C7282B000C3D22E /* libicucore.tbd */,
+				1E1DE21B1C72828700C3D22E /* libc++.tbd */,
+				1E1DE2191C72801400C3D22E /* Firebase.framework */,
 				1EF195C41C1244F000CC7AC5 /* Foundation.framework */,
 				1ED8F7B01C0A462D0063B001 /* FacebookSDK.framework */,
 				1ED8F7A61C0A457E0063B001 /* FBAudienceNetwork.framework */,

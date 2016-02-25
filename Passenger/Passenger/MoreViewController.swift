@@ -14,7 +14,6 @@ class MoreViewController: UIViewController {
 
     @IBOutlet weak var helpSupportButton: UIButton!
     @IBOutlet weak var profileSettingsButton: UIButton!
-    @IBOutlet weak var settingsButton: UIButton!
     @IBOutlet weak var profilePicture: UIImageView!
     @IBOutlet weak var currentUserNameLabel: UILabel!
     
@@ -44,14 +43,6 @@ class MoreViewController: UIViewController {
     }
     @IBAction func logOutUser(sender: AnyObject) {
         PFUser.logOut()
-    }
-    
-    @IBAction func settingButtonDown(sender: AnyObject) {
-        settingsButton.backgroundColor = UIColor(red:0.89, green:0.89, blue:0.89, alpha:1.0)
-    }
-    
-    @IBAction func settingsButtonUp(sender: AnyObject) {
-        settingsButton.backgroundColor = UIColor.whiteColor()
     }
 
     @IBAction func helpButtonDown(sender: AnyObject) {
