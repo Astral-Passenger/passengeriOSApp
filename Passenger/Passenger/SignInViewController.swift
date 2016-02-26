@@ -10,10 +10,17 @@ import UIKit
 import Parse
 import FBSDKCoreKit
 import ParseFacebookUtilsV4
+import Firebase
 
 class SignInViewController: UIViewController {
     
+    let ref = Firebase(url: "https://passenger-app.firebaseio.com")
+        let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users")
+    
     let transitionManager = MenuTransitionManager()
+    let facebookLogin = FBSDKLoginManager()
+    
+    var base64String: NSString!
 
     @IBOutlet weak var usernameTextViewField: UIView!
     @IBOutlet weak var passwordTextViewField: UIView!
@@ -98,45 +105,132 @@ class SignInViewController: UIViewController {
     }
     
     @IBAction func signInUser(sender: AnyObject) {
-        PFUser.logInWithUsernameInBackground(usernameTextField.text!, password: passwordTextField.text!) {
-            (user: PFUser?, error: NSError?) -> Void in
-            if user != nil {
-                // do stuff with a successful login
-                self.performSegueWithIdentifier("signInSegue", sender: nil)
-                self.localData.loadDataDescending("RewardsHistory", descendingBy: "createdAt")
-                self.localData.loadData("Rewards")
-                self.localData.loadData("HelpQuestions")
-            } else {
-                // the login failed. Check error to see what happened
+        
+        ref.authUser(usernameTextField.text!, password: passwordTextField.text!) {
+            error, authData in
+            if error != nil {
+                // an error occured while attempting login
+                
                 let alert = UIAlertController(title: "SIGN IN FAILED", message: "Please make sure that you entered in the correct login infotmation", preferredStyle: UIAlertControllerStyle.Alert)
                 alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
                 self.presentViewController(alert, animated: true, completion: nil)
+                
+            } else {
+                // user is logged in, check authData for data
+                
+                self.performSegueWithIdentifier("signInSegue", sender: nil)
+                
+                //self.localData.loadDataDescending("RewardsHistory", descendingBy: "createdAt")
+                //self.localData.loadData("Rewards")
+                //self.localData.loadData("HelpQuestions")
             }
         }
+        
     }
 
     @IBAction func loginUserWithFacebook(sender: AnyObject) {
-        let permissions = []
-        PFFacebookUtils.logInInBackgroundWithReadPermissions(permissions as? [String]) {
-            (user: PFUser?, error: NSError?) -> Void in
-            if let user = user {
-                if user.isNew {
-                    print("User signed up and logged in through Facebook!", terminator: "")
-                    self.performSegueWithIdentifier("signInSegue", sender: nil)
-                    self.localData.loadDataDescending("RewardsHistory", descendingBy: "createdAt")
-                    self.localData.loadData("Rewards")
-                    self.localData.loadData("HelpQuestions")
-                } else {
-                    print("User logged in through Facebook!", terminator: "")
-                    self.performSegueWithIdentifier("signInSegue", sender: nil)
-                    self.localData.loadDataDescending("RewardsHistory", descendingBy: "createdAt")
-                    self.localData.loadData("Rewards")
-                    self.localData.loadData("HelpQuestions")
-                }
+        
+        facebookLogin.logInWithReadPermissions(["email"], handler: {
+            (facebookResult, facebookError) -> Void in
+            if facebookError != nil {
+                print("Facebook login failed. Error \(facebookError)")
+            } else if facebookResult.isCancelled {
+                print("Facebook login was cancelled.")
             } else {
-                print("Uh oh. The user cancelled the Facebook login.", terminator: "")
+                let accessToken = FBSDKAccessToken.currentAccessToken().tokenString
+                self.ref.authWithOAuthProvider("facebook", token: accessToken,
+                    withCompletionBlock: { error, authData in
+                        if error != nil {
+                            print("Login failed. \(error)")
+                        } else {
+                            print("Logged in! \(authData)")
+                            self.registerUserInformation()
+                            self.performSegueWithIdentifier("signInSegue", sender: nil)
+                        }
+                })
             }
+        })
+    }
+    
+    func registerUserInformation() {
+        let requestParameters = ["fields": "id, email, first_name, last_name"]
+        
+        let userDetails = FBSDKGraphRequest(graphPath: "me", parameters: requestParameters)
+        
+        userDetails.startWithCompletionHandler { (connection, result, error:NSError!) -> Void in
+            
+            if(error != nil)
+            {
+                print("\(error.localizedDescription)", terminator: "")
+                return
+            }
+            
+            if(result != nil)
+            {
+                
+                let userId:String = result["id"] as! String
+                let userFirstName:String? = result["first_name"] as? String
+                let userLastName:String? = result["last_name"] as? String
+                let userEmail:String? = result["email"] as? String
+                
+                
+                print("\(userEmail)", terminator: "")
+                
+                //let myUser:PFUser = PFUser.currentUser()!
+                
+                let fullName:String? = userFirstName! + " " + userLastName!
+                
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+                    
+                    // Get Facebook profile picture
+                    let userProfile = "https://graph.facebook.com/" + userId + "/picture?type=large"
+                    
+                    let profilePictureUrl = NSURL(string: userProfile)
+                    
+                    let profilePictureData = NSData(contentsOfURL: profilePictureUrl!)
+                    
+                    if(profilePictureData != nil && fullName != nil && userEmail != nil)
+                    {
+                        self.base64String = profilePictureData!.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
+                        let currentUser = [
+                            "\(userId)": [
+                                "username": "This is a test",
+                                "name": "\(fullName!)",
+                                "email": "\(userEmail!)",
+                                "totalPoints": 0,
+                                "distanceTraveled": 0,
+                                "timeSpentDriving": 0,
+                                "rewardsReceived": 0,
+                                "phoneNumber": "",
+                                "profileImage": self.base64String
+                            ]
+                        ]
+                        
+                        self.usersRef.updateChildValues(currentUser)
+                    } else {
+                        let currentUser = [
+                            "\(userId)": [
+                                "username": "This is a test",
+                                "name": "\(fullName!)",
+                                "email": "\(userEmail!)",
+                                "totalPoints": 0,
+                                "distanceTraveled": 0,
+                                "timeSpentDriving": 0,
+                                "rewardsReceived": 0,
+                                "phoneNumber": "",
+                                "profileImage": ""
+                            ]
+                        ]
+                        
+                        self.usersRef.updateChildValues(currentUser)
+                    }
+                    
+                }
+                
+            }
+            
         }
     }
+
 
 }

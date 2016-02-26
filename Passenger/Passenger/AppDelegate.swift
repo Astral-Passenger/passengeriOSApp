@@ -7,16 +7,18 @@
 //
 
 import UIKit
-import Parse
 import Bolts
 import FBSDKCoreKit
 import ParseFacebookUtilsV4
 import CoreLocation
 import HealthKit
+import Firebase
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+    let ref = Firebase(url: "https://passenger-app.firebaseio.com")
+    
     var window: UIWindow?
 
     var currentUser: PFUser?
@@ -96,26 +98,51 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             self.window = UIWindow(frame: UIScreen.mainScreen().bounds)
 
-            
-            currentUser = PFUser.currentUser()
-            if currentUser != nil {
-                // Do stuff with the user
+            if ref.authData != nil {
+                // user authenticated
                 let initialViewController = storyboard.instantiateViewControllerWithIdentifier("homeViewController")
                 
                 self.window?.rootViewController = initialViewController
                 self.window?.makeKeyAndVisible()
                 locationManager.requestAlwaysAuthorization()
-                currentUserTotalPoints = currentUser!["totalPoints"] as! Double
-                currentUserCurrentPoints = currentUser!["currentPoints"] as! Double
-                print("The users current points \(currentUserCurrentPoints)")
+                
+                print("This is the login data for the user \(ref.authData)")
+                
+                // Need to comment the below until the database has been completely switched over to parse to get this data
+                
+//                currentUserTotalPoints = currentUser!["totalPoints"] as! Double
+//                currentUserCurrentPoints = currentUser!["currentPoints"] as! Double
+//                print("The users current points \(currentUserCurrentPoints)")
                 
             } else {
+                // No user is signed in
                 // Show the first screen
                 let initialViewController = storyboard.instantiateViewControllerWithIdentifier("firstViewController")
                 
                 self.window?.rootViewController = initialViewController
                 self.window?.makeKeyAndVisible()
+                print("This is the login data for the user \(ref.authData)")
             }
+            
+//            currentUser = PFUser.currentUser()
+//            if currentUser != nil {
+//                // Do stuff with the user
+//                let initialViewController = storyboard.instantiateViewControllerWithIdentifier("homeViewController")
+//                
+//                self.window?.rootViewController = initialViewController
+//                self.window?.makeKeyAndVisible()
+//                locationManager.requestAlwaysAuthorization()
+//                currentUserTotalPoints = currentUser!["totalPoints"] as! Double
+//                currentUserCurrentPoints = currentUser!["currentPoints"] as! Double
+//                print("The users current points \(currentUserCurrentPoints)")
+//                
+//            } else {
+//                // Show the first screen
+//                let initialViewController = storyboard.instantiateViewControllerWithIdentifier("firstViewController")
+//                
+//                self.window?.rootViewController = initialViewController
+//                self.window?.makeKeyAndVisible()
+//            }
             
             seconds = 0.0
             distance = 0.0

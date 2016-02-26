@@ -10,8 +10,12 @@ import UIKit
 import Parse
 import CoreLocation
 import HealthKit
+import Firebase
 
 class ViewController: UIViewController {
+    
+    let ref = Firebase(url: "https://passenger-app.firebaseio.com")
+    let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users/")
 
     @IBOutlet weak var homeProfileLayout: UIView!
     @IBOutlet weak var rewardsButtonView: UIView!
@@ -32,8 +36,8 @@ class ViewController: UIViewController {
     var currentLocation: CLLocation?
     
     override func viewDidLoad() {
-        checkUser()
         super.viewDidLoad()
+        
         // Do any additional setup after loading the view, typically from a nib.
         
         configureView()
@@ -43,9 +47,6 @@ class ViewController: UIViewController {
             print(result)
         }
     }
-    
-
-    
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -66,67 +67,45 @@ class ViewController: UIViewController {
     func configureView() {
         let hexConverter = HexToUIColor()
         self.navigationController!.navigationBar.barTintColor = hexConverter.hexStringToUIColor("ffffff")
-        // Change the font and size of nav bar text
-        /*
-            let navBarAttributesDictionary: [String: AnyObject]? = [
-                NSForegroundColorAttributeName: UIColor.whiteColor(),
-            ] */
-        /*
-        navigationController?.navigationBar.setBackgroundImage(UIImage(), forBarMetrics: UIBarMetrics.Default)
-        navigationController?.navigationBar.shadowImage = UIImage()
-        navigationController?.navigationBar.translucent = true
-        navigationController?.view.backgroundColor = UIColor.clearColor()
-        */
         
         UIApplication.sharedApplication().statusBarStyle = .Default
         
-        let currentUser = PFUser.currentUser()
-        if currentUser != nil {
-            // Do stuff with the user
-            let fullName = currentUser!["full_name"] as! String
-            usernameTextView.text = fullName
-            let currentPoints = currentUser!["currentPoints"] as! Int
-            totalPointsTextView.text = String(currentPoints)
-            
-            let font = UIFont.systemFontOfSize(16, weight: UIFontWeightLight)
-            
-            
-            let navBarAttributesDictionary: [String: AnyObject]? = [
-                NSForegroundColorAttributeName: UIColor(red:0.04, green:0.37, blue:0.76, alpha:1.0),
-                NSFontAttributeName: font
-            ]
-            //navigationController?.navigationBar.backgroundColor = UIColor.whiteColor()
-            
-            navigationController?.navigationBar.titleTextAttributes = navBarAttributesDictionary
-            
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
-                
-                if let profileImage = currentUser!["profile_picture"] as? PFFile {
-                    profileImage.getDataInBackgroundWithBlock({ (imageData: NSData?, error: NSError?) -> Void in
-                        let image: UIImage! = UIImage(data: imageData!)!
-                        self.profilePictureView?.image = image
-                        self.profilePictureView.layer.masksToBounds = true
-                        self.profilePictureView.layer.cornerRadius = 33.33333
-                    })
-                }
-                
-            }
-        } else {
-            // Show the signup or login screen
-            performSegueWithIdentifier("signOutUser", sender: nil)
-        }
+        usersRef.queryOrderedByChild("email").queryEqualToValue("\(ref.authData.providerData["email"]!)")
+            .observeEventType(.ChildAdded, withBlock: { snapshot in
+                let fullName = snapshot.value["name"] as! String!
+                let currentPoints = snapshot.value["totalPoints"] as! Int
+                self.usernameTextView.text = fullName
+                self.totalPointsTextView.text = String(currentPoints)
+                print("This is the key of the snapshot \(snapshot.value["profileImage"])")
+                let info = snapshot.value["profileImage"] as! String!
+                print(info)
+        })
+        
+        let font = UIFont.systemFontOfSize(16, weight: UIFontWeightLight)
+        
+        
+        let navBarAttributesDictionary: [String: AnyObject]? = [
+            NSForegroundColorAttributeName: UIColor(red:0.04, green:0.37, blue:0.76, alpha:1.0),
+            NSFontAttributeName: font
+        ]
+        //navigationController?.navigationBar.backgroundColor = UIColor.whiteColor()
+        
+        navigationController?.navigationBar.titleTextAttributes = navBarAttributesDictionary
 
-    }
-    
-    func checkUser () {
-        currentUser = PFUser.currentUser()
-        if currentUser != nil {
-            // Do stuff with the user
-            
-        } else {
-            // Show the signup or login screen
-            performSegueWithIdentifier("signOutUser", sender: nil)
-        }
+//            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+//                
+//                if let profileImage = currentUser!["profile_picture"] as? PFFile {
+//                    profileImage.getDataInBackgroundWithBlock({ (imageData: NSData?, error: NSError?) -> Void in
+//                        let image: UIImage! = UIImage(data: imageData!)!
+//                        self.profilePictureView?.image = image
+//                        self.profilePictureView.layer.masksToBounds = true
+//                        self.profilePictureView.layer.cornerRadius = 33.33333
+//                    })
+//                }
+//                
+//            }
+//        }
+
     }
 
 

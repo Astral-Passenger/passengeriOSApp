@@ -9,13 +9,17 @@
 /* Begin PBXBuildFile section */
 		1E0B6DC61C4C18680050ABF0 /* GpsCoordinateConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E0B6DC51C4C18680050ABF0 /* GpsCoordinateConverter.swift */; };
 		1E0B6DC81C4C2B890050ABF0 /* ParseLocalData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E0B6DC71C4C2B890050ABF0 /* ParseLocalData.swift */; };
-		1E1DE21A1C72801400C3D22E /* Firebase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E1DE2191C72801400C3D22E /* Firebase.framework */; };
 		1E1DE21C1C72828800C3D22E /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E1DE21B1C72828700C3D22E /* libc++.tbd */; };
 		1E1DE21E1C7282B000C3D22E /* libicucore.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E1DE21D1C7282B000C3D22E /* libicucore.tbd */; };
+		1E26E9031C7FCD5400B1EE23 /* Firebase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E26E9021C7FCD5400B1EE23 /* Firebase.framework */; };
+		1E26E9051C7FDD7500B1EE23 /* default-profile.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E26E9041C7FDD7500B1EE23 /* default-profile.png */; };
+		1E26E9071C7FE8EB00B1EE23 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E26E9061C7FE8EB00B1EE23 /* logo.png */; };
+		1E26E90B1C7FE91B00B1EE23 /* earn-points-image.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E26E9081C7FE91B00B1EE23 /* earn-points-image.png */; };
+		1E26E90C1C7FE91B00B1EE23 /* earn-rewards-image.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E26E9091C7FE91B00B1EE23 /* earn-rewards-image.png */; };
+		1E26E90D1C7FE91B00B1EE23 /* iphone_locked_image.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E26E90A1C7FE91B00B1EE23 /* iphone_locked_image.png */; };
 		1E2E3B741C3317EC008E3FB3 /* Notifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E2E3B731C3317EC008E3FB3 /* Notifier.m */; };
 		1E32FCAB1C481C0500F01EC4 /* ForgotPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E32FCAA1C481C0500F01EC4 /* ForgotPasswordViewController.swift */; };
 		1E32FCAD1C48271000F01EC4 /* ForgotPasswordLoggedInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E32FCAC1C48271000F01EC4 /* ForgotPasswordLoggedInViewController.swift */; };
-		1E32FCAF1C48322900F01EC4 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E32FCAE1C48322900F01EC4 /* logo.png */; };
 		1E36F7271C0E9403002259CA /* RewardsHistoryCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E36F7261C0E9403002259CA /* RewardsHistoryCollectionViewCell.swift */; };
 		1E4010741C3EEB25001221C4 /* DiscountsCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4010731C3EEB25001221C4 /* DiscountsCollectionViewCell.swift */; };
 		1E4010781C3F1262001221C4 /* RedeemViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4010771C3F1262001221C4 /* RedeemViewController.swift */; };
@@ -45,8 +49,6 @@
 		1E67B68E1C05091600B7C866 /* Reward.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E67B68D1C05091600B7C866 /* Reward.swift */; };
 		1E7059471C431AEE00936C0D /* FirstLaunchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7059461C431AEE00936C0D /* FirstLaunchViewController.swift */; };
 		1E7059491C431B0F00936C0D /* PageViewDetailedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7059481C431B0F00936C0D /* PageViewDetailedViewController.swift */; };
-		1E70594B1C432FC600936C0D /* earn-points-image.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E70594A1C432FC600936C0D /* earn-points-image.png */; };
-		1E70594D1C432FCC00936C0D /* earn-rewards-image.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E70594C1C432FCC00936C0D /* earn-rewards-image.png */; };
 		1E76C7711BFEB57B00F03E74 /* PointsHistoryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E76C7701BFEB57B00F03E74 /* PointsHistoryTableViewCell.swift */; };
 		1E76C7741BFED52500F03E74 /* DriveRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E76C7731BFED52500F03E74 /* DriveRecord.swift */; };
 		1E76C7771BFED70C00F03E74 /* PointsHistoryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E76C7751BFED70C00F03E74 /* PointsHistoryTableViewController.swift */; };
@@ -89,7 +91,6 @@
 		1ED8F7BF1C0BB7DF0063B001 /* RankingUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ED8F7BE1C0BB7DF0063B001 /* RankingUser.swift */; };
 		1ED8F7CD1C0C02110063B001 /* MotionKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ED8F7CC1C0C02110063B001 /* MotionKit.swift */; };
 		1EE174FC1C473F1B00F74773 /* InviteFriendsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE174FB1C473F1B00F74773 /* InviteFriendsTableViewController.swift */; };
-		1EE174FE1C474BE500F74773 /* iphone_locked_image.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EE174FD1C474BE500F74773 /* iphone_locked_image.png */; };
 		1EF195C51C1244F000CC7AC5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EF195C41C1244F000CC7AC5 /* Foundation.framework */; };
 		1EF62EC31BF2D6C100AFE2F3 /* CurrentDriveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EF62EC21BF2D6C100AFE2F3 /* CurrentDriveViewController.swift */; };
 		1EF62EC61BF2DA6800AFE2F3 /* RewardsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EF62EC51BF2DA6800AFE2F3 /* RewardsViewController.swift */; };
@@ -125,14 +126,18 @@
 /* Begin PBXFileReference section */
 		1E0B6DC51C4C18680050ABF0 /* GpsCoordinateConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GpsCoordinateConverter.swift; sourceTree = "<group>"; };
 		1E0B6DC71C4C2B890050ABF0 /* ParseLocalData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParseLocalData.swift; sourceTree = "<group>"; };
-		1E1DE2191C72801400C3D22E /* Firebase.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Firebase.framework; path = ../../../Downloads/Firebase.framework; sourceTree = "<group>"; };
 		1E1DE21B1C72828700C3D22E /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		1E1DE21D1C7282B000C3D22E /* libicucore.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.tbd; path = usr/lib/libicucore.tbd; sourceTree = SDKROOT; };
+		1E26E9021C7FCD5400B1EE23 /* Firebase.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Firebase.framework; sourceTree = "<group>"; };
+		1E26E9041C7FDD7500B1EE23 /* default-profile.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "default-profile.png"; sourceTree = "<group>"; };
+		1E26E9061C7FE8EB00B1EE23 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logo.png; sourceTree = "<group>"; };
+		1E26E9081C7FE91B00B1EE23 /* earn-points-image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "earn-points-image.png"; sourceTree = "<group>"; };
+		1E26E9091C7FE91B00B1EE23 /* earn-rewards-image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "earn-rewards-image.png"; sourceTree = "<group>"; };
+		1E26E90A1C7FE91B00B1EE23 /* iphone_locked_image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iphone_locked_image.png; sourceTree = "<group>"; };
 		1E2E3B721C3317EC008E3FB3 /* Notifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Notifier.h; sourceTree = "<group>"; };
 		1E2E3B731C3317EC008E3FB3 /* Notifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Notifier.m; sourceTree = "<group>"; };
 		1E32FCAA1C481C0500F01EC4 /* ForgotPasswordViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForgotPasswordViewController.swift; sourceTree = "<group>"; };
 		1E32FCAC1C48271000F01EC4 /* ForgotPasswordLoggedInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForgotPasswordLoggedInViewController.swift; sourceTree = "<group>"; };
-		1E32FCAE1C48322900F01EC4 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = logo.png; path = "../../../Astral/Projects/Passenger/Passenger Logos/iOS logos/logo.png"; sourceTree = "<group>"; };
 		1E36F7261C0E9403002259CA /* RewardsHistoryCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RewardsHistoryCollectionViewCell.swift; sourceTree = "<group>"; };
 		1E4010731C3EEB25001221C4 /* DiscountsCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscountsCollectionViewCell.swift; sourceTree = "<group>"; };
 		1E4010771C3F1262001221C4 /* RedeemViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemViewController.swift; sourceTree = "<group>"; };
@@ -162,8 +167,6 @@
 		1E67B68D1C05091600B7C866 /* Reward.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reward.swift; sourceTree = "<group>"; };
 		1E7059461C431AEE00936C0D /* FirstLaunchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FirstLaunchViewController.swift; sourceTree = "<group>"; };
 		1E7059481C431B0F00936C0D /* PageViewDetailedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PageViewDetailedViewController.swift; sourceTree = "<group>"; };
-		1E70594A1C432FC600936C0D /* earn-points-image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "earn-points-image.png"; path = "../../../Astral/Projects/Passenger/Passenger Logos/iOS logos/earn-points-image.png"; sourceTree = "<group>"; };
-		1E70594C1C432FCC00936C0D /* earn-rewards-image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "earn-rewards-image.png"; path = "../../../Astral/Projects/Passenger/Passenger Logos/iOS logos/earn-rewards-image.png"; sourceTree = "<group>"; };
 		1E76C7701BFEB57B00F03E74 /* PointsHistoryTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PointsHistoryTableViewCell.swift; sourceTree = "<group>"; };
 		1E76C7731BFED52500F03E74 /* DriveRecord.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DriveRecord.swift; sourceTree = "<group>"; };
 		1E76C7751BFED70C00F03E74 /* PointsHistoryTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PointsHistoryTableViewController.swift; sourceTree = "<group>"; };
@@ -214,7 +217,6 @@
 		1ED8F7CB1C0C02110063B001 /* MotionKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MotionKit.h; sourceTree = "<group>"; };
 		1ED8F7CC1C0C02110063B001 /* MotionKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MotionKit.swift; sourceTree = "<group>"; };
 		1EE174FB1C473F1B00F74773 /* InviteFriendsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InviteFriendsTableViewController.swift; sourceTree = "<group>"; };
-		1EE174FD1C474BE500F74773 /* iphone_locked_image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = iphone_locked_image.png; path = "../../../Astral/Projects/Passenger/Passenger Logos/iOS logos/iphone_locked_image.png"; sourceTree = "<group>"; };
 		1EF195C41C1244F000CC7AC5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1EF62EC21BF2D6C100AFE2F3 /* CurrentDriveViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentDriveViewController.swift; sourceTree = "<group>"; };
 		1EF62EC51BF2DA6800AFE2F3 /* RewardsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RewardsViewController.swift; sourceTree = "<group>"; };
@@ -242,9 +244,9 @@
 				1ED8F7AD1C0A457E0063B001 /* FBSDKLoginKit.framework in Frameworks */,
 				1E406EEF1BF056E200C3885F /* CFNetwork.framework in Frameworks */,
 				1E406EF01BF056E200C3885F /* CoreGraphics.framework in Frameworks */,
+				1E26E9031C7FCD5400B1EE23 /* Firebase.framework in Frameworks */,
 				1E406EF11BF056E200C3885F /* CoreLocation.framework in Frameworks */,
 				1ED8F7AF1C0A457E0063B001 /* FBSDKShareKit.framework in Frameworks */,
-				1E1DE21A1C72801400C3D22E /* Firebase.framework in Frameworks */,
 				1E406EF21BF056E200C3885F /* libsqlite3.tbd in Frameworks */,
 				1E406F081BF05A1400C3885F /* ParseTwitterUtils.framework in Frameworks */,
 				1E406EF31BF056E200C3885F /* libz.tbd in Frameworks */,
@@ -284,9 +286,9 @@
 		1E406EFA1BF0598000C3885F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1E26E9021C7FCD5400B1EE23 /* Firebase.framework */,
 				1E1DE21D1C7282B000C3D22E /* libicucore.tbd */,
 				1E1DE21B1C72828700C3D22E /* libc++.tbd */,
-				1E1DE2191C72801400C3D22E /* Firebase.framework */,
 				1EF195C41C1244F000CC7AC5 /* Foundation.framework */,
 				1ED8F7B01C0A462D0063B001 /* FacebookSDK.framework */,
 				1ED8F7A61C0A457E0063B001 /* FBAudienceNetwork.framework */,
@@ -454,10 +456,11 @@
 		1EF9597D1BFFE15D0087F9E4 /* SupportingFiles */ = {
 			isa = PBXGroup;
 			children = (
-				1E32FCAE1C48322900F01EC4 /* logo.png */,
-				1EE174FD1C474BE500F74773 /* iphone_locked_image.png */,
-				1E70594A1C432FC600936C0D /* earn-points-image.png */,
-				1E70594C1C432FCC00936C0D /* earn-rewards-image.png */,
+				1E26E9081C7FE91B00B1EE23 /* earn-points-image.png */,
+				1E26E9091C7FE91B00B1EE23 /* earn-rewards-image.png */,
+				1E26E90A1C7FE91B00B1EE23 /* iphone_locked_image.png */,
+				1E26E9041C7FDD7500B1EE23 /* default-profile.png */,
+				1E26E9061C7FE8EB00B1EE23 /* logo.png */,
 				1EF959921BFFE3BE0087F9E4 /* tmp-0.jpg */,
 				1EF959931BFFE3BE0087F9E4 /* tmp-1.jpg */,
 				1EF959941BFFE3BE0087F9E4 /* tmp-2.jpg */,
@@ -585,21 +588,22 @@
 			files = (
 				1EAC2D201BE861D200547515 /* LaunchScreen.storyboard in Resources */,
 				1EAC2D1D1BE861D200547515 /* Assets.xcassets in Resources */,
-				1E32FCAF1C48322900F01EC4 /* logo.png in Resources */,
 				1EF959A31BFFE3BE0087F9E4 /* tmp-7.jpg in Resources */,
 				1EF959A01BFFE3BE0087F9E4 /* tmp-4.jpg in Resources */,
-				1E70594D1C432FCC00936C0D /* earn-rewards-image.png in Resources */,
 				1EF9599C1BFFE3BE0087F9E4 /* tmp-0.jpg in Resources */,
 				1EF9599E1BFFE3BE0087F9E4 /* tmp-2.jpg in Resources */,
 				1EAC2D1B1BE861D200547515 /* Main.storyboard in Resources */,
 				1EF9599D1BFFE3BE0087F9E4 /* tmp-1.jpg in Resources */,
-				1EE174FE1C474BE500F74773 /* iphone_locked_image.png in Resources */,
+				1E26E90D1C7FE91B00B1EE23 /* iphone_locked_image.png in Resources */,
 				1EF959A41BFFE3BE0087F9E4 /* tmp-8.jpg in Resources */,
 				1E76C7781BFED70C00F03E74 /* PointsHistoryTableViewController.xib in Resources */,
+				1E26E90C1C7FE91B00B1EE23 /* earn-rewards-image.png in Resources */,
+				1E26E9071C7FE8EB00B1EE23 /* logo.png in Resources */,
 				1EF959A11BFFE3BE0087F9E4 /* tmp-5.jpg in Resources */,
 				1EF9599F1BFFE3BE0087F9E4 /* tmp-3.jpg in Resources */,
+				1E26E90B1C7FE91B00B1EE23 /* earn-points-image.png in Resources */,
+				1E26E9051C7FDD7500B1EE23 /* default-profile.png in Resources */,
 				1EF959A21BFFE3BE0087F9E4 /* tmp-6.jpg in Resources */,
-				1E70594B1C432FC600936C0D /* earn-points-image.png in Resources */,
 				1EF959A51BFFE3BE0087F9E4 /* tmp-9.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

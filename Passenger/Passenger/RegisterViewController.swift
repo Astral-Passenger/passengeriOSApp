@@ -10,10 +10,18 @@ import UIKit
 import Parse
 import FBSDKCoreKit
 import ParseFacebookUtilsV4
+import Firebase
 
 class RegisterViewController: UIViewController {
     
     let transitionManager = MenuTransitionManager()
+    
+    var base64String: NSString!
+    
+    let ref = Firebase(url: "https://passenger-app.firebaseio.com")
+    let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users")
+    
+    let facebookLogin = FBSDKLoginManager()
 
     @IBOutlet weak var createAccountButton: UIButton!
     @IBOutlet weak var connectFacebookButton: UIButton!
@@ -104,17 +112,6 @@ class RegisterViewController: UIViewController {
         let email = emailTextField.text!
         let name = nameTextField.text!
         
-        let user = PFUser()
-        user.username = usernameTextField.text
-        user.password = passwordTextField.text
-        user.email = emailTextField.text
-        user.setObject(name, forKey: "full_name")
-        user.setObject(0, forKey: "totalPoints")
-        user.setObject(0, forKey: "currentPoints")
-        user.setObject(0, forKey: "distanceTraveled")
-        user.setObject(0, forKey: "rewardsReceived")
-        user.setObject("", forKey: "phoneNumber")
-        
         var isEmail: Bool = false
         
         if email.rangeOfString("@") != nil {
@@ -140,19 +137,44 @@ class RegisterViewController: UIViewController {
             self.activityIndicator.hidden = true
             self.activityIndicator.stopAnimating()
         } else {
-            user.signUpInBackgroundWithBlock({ (success:Bool, error:NSError?) -> Void in
-                if(success)
-                {
-                    self.performSegueWithIdentifier("finishedSigningUp", sender: nil)
-                    self.activityIndicator.hidden = true
-                    self.activityIndicator.stopAnimating()
+            // Register & Authenticate user
+            self.ref.createUser(email, password: password) { (error: NSError!) in
+                if error == nil {
+                    self.ref.authUser(email, password: password,
+                        withCompletionBlock: {
+                            (error, auth) -> Void in
+                            self.performSegueWithIdentifier("finishedSigningUp", sender: nil)
+                            self.activityIndicator.hidden = true
+                            self.activityIndicator.stopAnimating()
+                            
+                            let uploadImage = UIImage(named: "default-profile.png")
+                            let imageData: NSData = UIImagePNGRepresentation(uploadImage!)!
+                            self.base64String = imageData.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
+                            let profileImageString = ["string": self.base64String]
+                            
+                            
+                            let currentUser = [
+                                "\(auth.uid)": [
+                                    "username": username,
+                                    "name": name,
+                                    "email": email,
+                                    "totalPoints": 0,
+                                    "distanceTraveled": 0,
+                                    "timeSpentDriving": 0,
+                                    "rewardsReceived": 0,
+                                    "phoneNumber": "",
+                                    "profileImage": self.base64String
+                                ]
+                            ]
+                            
+                            self.usersRef.updateChildValues(currentUser)
+                    })
                 } else {
                     let alert = UIAlertController(title: "SIGN UP", message: "\(error!.localizedDescription)", preferredStyle: UIAlertControllerStyle.Alert)
                     alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
                     self.presentViewController(alert, animated: true, completion: nil)
                 }
-                
-            })
+            }
         }
 
         
@@ -167,23 +189,27 @@ class RegisterViewController: UIViewController {
     
     
     @IBAction func createAccountWithFacebook(sender: AnyObject) {
-        let permissions = []
-        PFFacebookUtils.logInInBackgroundWithReadPermissions(permissions as? [String]) {
-            (user: PFUser?, error: NSError?) -> Void in
-            if let user = user {
-                if user.isNew {
-                    print("User signed up and logged in through Facebook!", terminator: "")
-                    self.registerUserInformation()
-                    self.performSegueWithIdentifier("finishedSigningUp", sender: nil)
-                } else {
-                    print("User logged in through Facebook!", terminator: "")
-                    //self.registerUserInformation()
-                    self.performSegueWithIdentifier("finishedSigningUp", sender: nil)
-                }
+        
+        facebookLogin.logInWithReadPermissions(["email"], handler: {
+            (facebookResult, facebookError) -> Void in
+            if facebookError != nil {
+                print("Facebook login failed. Error \(facebookError)")
+            } else if facebookResult.isCancelled {
+                print("Facebook login was cancelled.")
             } else {
-                print("Uh oh. The user cancelled the Facebook login.", terminator: "")
+                let accessToken = FBSDKAccessToken.currentAccessToken().tokenString
+                self.ref.authWithOAuthProvider("facebook", token: accessToken,
+                    withCompletionBlock: { error, authData in
+                        if error != nil {
+                            print("Login failed. \(error)")
+                        } else {
+                            print("Logged in! \(authData)")
+                            self.registerUserInformation()
+                            self.performSegueWithIdentifier("finishedSigningUp", sender: nil)
+                        }
+                })
             }
-        }
+        })
     }
     
     func registerUserInformation() {
@@ -210,26 +236,9 @@ class RegisterViewController: UIViewController {
                 
                 print("\(userEmail)", terminator: "")
                 
-                let myUser:PFUser = PFUser.currentUser()!
+                //let myUser:PFUser = PFUser.currentUser()!
                 
                 let fullName:String? = userFirstName! + " " + userLastName!
-                
-                if (fullName != nil) {
-                    myUser.setObject(fullName!, forKey: "full_name")
-                }
-                
-                // Save email address
-                if(userEmail != nil)
-                {
-                    myUser.setObject(userEmail!, forKey: "email")
-                }
-                
-                myUser.setObject("", forKey: "username")
-                myUser.setObject(0, forKey: "totalPoints")
-                myUser.setObject(0, forKey: "currentPoints")
-                myUser.setObject(0, forKey: "distanceTraveled")
-                myUser.setObject(0, forKey: "rewardsReceived")
-                myUser.setObject("", forKey: "phoneNumber")
                 
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
                     
@@ -240,21 +249,42 @@ class RegisterViewController: UIViewController {
                     
                     let profilePictureData = NSData(contentsOfURL: profilePictureUrl!)
                     
-                    if(profilePictureData != nil)
+                    if(profilePictureData != nil && fullName != nil && userEmail != nil)
                     {
-                        let profileFileObject = PFFile(data:profilePictureData!)
-                        myUser.setObject(profileFileObject!, forKey: "profile_picture")
+                        self.base64String = profilePictureData!.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
+                        let profileImageString = ["string": self.base64String]
+                        let currentUser = [
+                            "\(userId)": [
+                                "username": "This is a test",
+                                "name": "\(fullName!)",
+                                "email": "\(userEmail!)",
+                                "totalPoints": 0,
+                                "distanceTraveled": 0,
+                                "timeSpentDriving": 0,
+                                "rewardsReceived": 0,
+                                "phoneNumber": "",
+                                "profileImage": self.base64String
+                            ]
+                        ]
+                        
+                        self.usersRef.updateChildValues(currentUser)
+                    } else {
+                        let currentUser = [
+                            "\(userId)": [
+                                "username": "This is a test",
+                                "name": "\(fullName!)",
+                                "email": "\(userEmail!)",
+                                "totalPoints": 0,
+                                "distanceTraveled": 0,
+                                "timeSpentDriving": 0,
+                                "rewardsReceived": 0,
+                                "phoneNumber": "",
+                                "profileImage": ""
+                            ]
+                        ]
+                        
+                        self.usersRef.updateChildValues(currentUser)
                     }
-                    
-                    
-                    myUser.saveInBackgroundWithBlock({ (success:Bool, error:NSError?) -> Void in
-                        
-                        if(success)
-                        {
-                            print("User details are now updated", terminator: "")
-                        }
-                        
-                    })
                     
                 }
                 

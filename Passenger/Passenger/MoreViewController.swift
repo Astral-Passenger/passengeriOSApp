@@ -7,10 +7,12 @@
 //
 
 import UIKit
-import Parse
+import Firebase
 import Bolts
 
 class MoreViewController: UIViewController {
+    
+    let ref = Firebase(url: "https://passenger-app.firebaseio.com")
 
     @IBOutlet weak var helpSupportButton: UIButton!
     @IBOutlet weak var profileSettingsButton: UIButton!
@@ -22,7 +24,7 @@ class MoreViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        currentUser = PFUser.currentUser()
+        //currentUser = PFUser.currentUser()
         
         configureView()
     }
@@ -42,7 +44,7 @@ class MoreViewController: UIViewController {
         profileSettingsButton.backgroundColor = UIColor(red:0.89, green:0.89, blue:0.89, alpha:1.0)
     }
     @IBAction func logOutUser(sender: AnyObject) {
-        PFUser.logOut()
+        ref.unauth()
     }
 
     @IBAction func helpButtonDown(sender: AnyObject) {
@@ -66,22 +68,22 @@ class MoreViewController: UIViewController {
         navigationController?.navigationBar.titleTextAttributes = navBarAttributesDictionary
         UINavigationBar.appearance().tintColor = UIColor.blackColor()
         
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
-            
-            if let profileImage = self.currentUser!["profile_picture"] as? PFFile {
-                profileImage.getDataInBackgroundWithBlock({ (imageData: NSData?, error: NSError?) -> Void in
-                    let image: UIImage! = UIImage(data: imageData!)!
-                    self.profilePicture?.image = image
-                    self.profilePicture.layer.masksToBounds = true
-                    self.profilePicture.layer.cornerRadius = 20
-                })
-            }
-            
-        }
-        
-        let userFullName = self.currentUser!["full_name"] as! String
-        
-        self.currentUserNameLabel.text = userFullName
+//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+//            
+//            if let profileImage = self.currentUser!["profile_picture"] as? PFFile {
+//                profileImage.getDataInBackgroundWithBlock({ (imageData: NSData?, error: NSError?) -> Void in
+//                    let image: UIImage! = UIImage(data: imageData!)!
+//                    self.profilePicture?.image = image
+//                    self.profilePicture.layer.masksToBounds = true
+//                    self.profilePicture.layer.cornerRadius = 20
+//                })
+//            }
+//            
+//        }
+//        
+//        let userFullName = self.currentUser!["full_name"] as! String
+//        
+//        self.currentUserNameLabel.text = userFullName
         
     }
 
