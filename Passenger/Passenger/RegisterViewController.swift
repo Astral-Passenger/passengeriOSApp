@@ -18,6 +18,18 @@ class RegisterViewController: UIViewController {
     
     var base64String: NSString!
     
+    var fullName: String?
+    var username: String?
+    var currentPoints: Int?
+    var totalPoints: Int?
+    var profilePictureString: String?
+    var rewardsReceived: Int?
+    var timeSpentDriving: Double?
+    var email: String?
+    var distanceTraveled: Double?
+    var userExists: Bool?
+    var firebaseUserId: String?
+    
     let ref = Firebase(url: "https://passenger-app.firebaseio.com")
     let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users")
     
@@ -57,6 +69,19 @@ class RegisterViewController: UIViewController {
             let menu = segue.destinationViewController as! FirstScreenViewController
             menu.transitioningDelegate = self.transitionManager
             self.transitionManager.menuViewController = menu
+        } else if (segue.identifier == "finishedSigningUp") {
+            let prefs = NSUserDefaults.standardUserDefaults()
+            
+            prefs.setValue(fullName!, forKey: "name")
+            prefs.setValue(username!, forKey: "username")
+            prefs.setValue(currentPoints!, forKey: "currentPoints")
+            prefs.setValue(totalPoints!, forKey: "totalPoints")
+            prefs.setValue(profilePictureString!, forKey: "profilePictureString")
+            prefs.setValue(rewardsReceived!, forKey: "rewardsReceived")
+            prefs.setValue(timeSpentDriving!, forKey: "timeSpentDriving")
+            prefs.setValue(email!, forKey: "email")
+            prefs.setValue(distanceTraveled!, forKey: "distanceTraveled")
+            
         }
     }
 
@@ -143,14 +168,12 @@ class RegisterViewController: UIViewController {
                     self.ref.authUser(email, password: password,
                         withCompletionBlock: {
                             (error, auth) -> Void in
-                            self.performSegueWithIdentifier("finishedSigningUp", sender: nil)
                             self.activityIndicator.hidden = true
                             self.activityIndicator.stopAnimating()
                             
                             let uploadImage = UIImage(named: "default-profile.png")
                             let imageData: NSData = UIImagePNGRepresentation(uploadImage!)!
                             self.base64String = imageData.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
-                            let profileImageString = ["string": self.base64String]
                             
                             
                             let currentUser = [
@@ -159,6 +182,7 @@ class RegisterViewController: UIViewController {
                                     "name": name,
                                     "email": email,
                                     "totalPoints": 0,
+                                    "currentPoints": 0,
                                     "distanceTraveled": 0,
                                     "timeSpentDriving": 0,
                                     "rewardsReceived": 0,
@@ -168,6 +192,18 @@ class RegisterViewController: UIViewController {
                             ]
                             
                             self.usersRef.updateChildValues(currentUser)
+                            
+                            self.fullName = name
+                            self.username = ""
+                            self.currentPoints = 0
+                            self.totalPoints = 0
+                            self.profilePictureString = "\(self.base64String)"
+                            self.rewardsReceived = 0
+                            self.timeSpentDriving = 0
+                            self.email = email
+                            self.distanceTraveled = 0
+                            
+                            self.performSegueWithIdentifier("finishedSigningUp", sender: nil)
                     })
                 } else {
                     let alert = UIAlertController(title: "SIGN UP", message: "\(error!.localizedDescription)", preferredStyle: UIAlertControllerStyle.Alert)
@@ -204,15 +240,53 @@ class RegisterViewController: UIViewController {
                             print("Login failed. \(error)")
                         } else {
                             print("Logged in! \(authData)")
+                            
                             self.registerUserInformation()
-                            self.performSegueWithIdentifier("finishedSigningUp", sender: nil)
+                        
                         }
                 })
             }
         })
     }
     
+    func createNewUserInDatabase() {
+        
+    }
+    
     func registerUserInformation() {
+        
+        self.usersRef.queryOrderedByChild("email").queryEqualToValue("\(self.ref.authData.providerData["email"]!)")
+            .observeEventType(.Value, withBlock: { snapshot in
+                print("This is called")
+                if snapshot.value is NSNull {
+                    // The user is not currently in the database
+                    
+                    // Register user in the database function
+                    
+                } else {
+                    
+                    // The user is in the datbase and simply logged in 
+                    
+                    // Assign all variables from the data that we pull from the user
+                    
+                    self.userExists = true
+                    self.fullName = snapshot.value["name"] as! String
+                    self.username = snapshot.value["username"] as! String
+                    self.currentPoints = snapshot.value["currentPoints"] as! Int
+                    self.totalPoints = snapshot.value["totalPoints"] as! Int
+                    self.profilePictureString = snapshot.value["profileImage"] as! String
+                    self.rewardsReceived = snapshot.value["rewardsReceived"] as! Int
+                    self.timeSpentDriving = snapshot.value["timeSpentDriving"] as! Double
+                    self.email = snapshot.value["email"] as! String
+                    self.distanceTraveled = snapshot.value["currentPoints"] as! Double
+                    self.performSegueWithIdentifier("finishedSigningUp", sender: nil)
+                    
+                }
+                
+                
+                
+            })
+        
         let requestParameters = ["fields": "id, email, first_name, last_name"]
         
         let userDetails = FBSDKGraphRequest(graphPath: "me", parameters: requestParameters)
@@ -233,7 +307,6 @@ class RegisterViewController: UIViewController {
                 let userLastName:String? = result["last_name"] as? String
                 let userEmail:String? = result["email"] as? String
                 
-                
                 print("\(userEmail)", terminator: "")
                 
                 //let myUser:PFUser = PFUser.currentUser()!
@@ -248,17 +321,49 @@ class RegisterViewController: UIViewController {
                     let profilePictureUrl = NSURL(string: userProfile)
                     
                     let profilePictureData = NSData(contentsOfURL: profilePictureUrl!)
+                    let imageProfile: UIImage! = UIImage(data: profilePictureData!)!
+                    
+                    
+                    var data: NSData = NSData()
+                    
+                    if let image = imageProfile {
+                        data = UIImageJPEGRepresentation(image,0.1)!
+                    }
+                    
+                    let base64String = data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength)
                     
                     if(profilePictureData != nil && fullName != nil && userEmail != nil)
                     {
                         self.base64String = profilePictureData!.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
-                        let profileImageString = ["string": self.base64String]
                         let currentUser = [
                             "\(userId)": [
-                                "username": "This is a test",
+                                "username": "",
                                 "name": "\(fullName!)",
                                 "email": "\(userEmail!)",
                                 "totalPoints": 0,
+                                "currentPoints": 0,
+                                "distanceTraveled": 0,
+                                "timeSpentDriving": 0,
+                                "rewardsReceived": 0,
+                                "phoneNumber": "",
+                                "profileImage": base64String
+                            ]
+                        ]
+                        
+                        self.usersRef.updateChildValues(currentUser)
+                    } else {
+                        
+                        let uploadImage = UIImage(named: "default-profile.png")
+                        let imageData: NSData = UIImagePNGRepresentation(uploadImage!)!
+                        self.base64String = imageData.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
+                        
+                        let currentUser = [
+                            "\(userId)": [
+                                "username": "",
+                                "name": "\(fullName!)",
+                                "email": "\(userEmail!)",
+                                "totalPoints": 0,
+                                "currentPoints": 0,
                                 "distanceTraveled": 0,
                                 "timeSpentDriving": 0,
                                 "rewardsReceived": 0,
@@ -268,24 +373,21 @@ class RegisterViewController: UIViewController {
                         ]
                         
                         self.usersRef.updateChildValues(currentUser)
-                    } else {
-                        let currentUser = [
-                            "\(userId)": [
-                                "username": "This is a test",
-                                "name": "\(fullName!)",
-                                "email": "\(userEmail!)",
-                                "totalPoints": 0,
-                                "distanceTraveled": 0,
-                                "timeSpentDriving": 0,
-                                "rewardsReceived": 0,
-                                "phoneNumber": "",
-                                "profileImage": ""
-                            ]
-                        ]
                         
-                        self.usersRef.updateChildValues(currentUser)
                     }
                     
+                    self.fullName = fullName!
+                    self.username = ""
+                    self.currentPoints = 0
+                    self.totalPoints = 0
+                    self.profilePictureString = base64String
+                    self.rewardsReceived = 0
+                    self.timeSpentDriving = 0
+                    self.email = userEmail!
+                    self.distanceTraveled = 0
+                    
+                    self.performSegueWithIdentifier("finishedSigningUp", sender: nil)
+
                 }
                 
             }

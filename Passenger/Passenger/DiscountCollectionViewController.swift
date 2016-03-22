@@ -16,7 +16,7 @@ class DiscountCollectionViewController: UICollectionViewController {
     
     var companyName: String?
     
-    var company: PFObject?
+    var rewards: NSArray?
     
     var rowSelected = 0
     var indexPathSelected: NSIndexPath?
@@ -65,8 +65,9 @@ class DiscountCollectionViewController: UICollectionViewController {
             dest.rewardPointCost = rewardsList[rowSelected].pointCost
             dest.rewardImage = rewardsList[rowSelected].getRewardImage()
             dest.companyName = self.companyName
-            dest.company = self.company
+            dest.rewardsList = self.rewards
             dest.rewardName = rewardsList[rowSelected].getRewardName()
+            dest.rewardImageString = rewardsList[rowSelected].getRewardImageString()
         }
 
         
@@ -95,40 +96,52 @@ class DiscountCollectionViewController: UICollectionViewController {
     
     func loadDiscounts() {
         
-        let query = PFQuery(className:"RewardsExpanded")
-        query.whereKey("company", equalTo: company!)
-        query.findObjectsInBackgroundWithBlock {
-            (objects: [PFObject]?, error: NSError?) -> Void in
-            if error == nil {
-                // The find succeeded.
-                print("Successfully retrieved \(objects!.count) rewards.")
-                // Do something with the found objects gameScore["playerName"] as String
-                var i = 0
-                if let objects = objects {
-                    for object in objects {
-                        let rewardImageFiles = object["rewardImage"] as! PFFile
-                        var imageData = NSData()
-                        
-                        do {
-                            imageData = try rewardImageFiles.getData()
-                        } catch {
-                            print("There was an error getting the data")
-                        }
-                        
-                        let rewardImage = UIImage(data: imageData)!
-                        let reward = Reward(companyName: self.companyName!, pointCost: object["pointCost"] as! Int, rewardImage: rewardImage, rewardPrice: object["rewardPrice"] as! Int, rewardDescription: object["rewardDescription"] as! String, rewardName: object["rewardName"] as! String)
-                        self.rewardsList.append(reward)
-                        self.collectionView!.reloadData()
-                        
-                        i = i + 1
-                    }
-                    self.collectionView!.reloadData()
-                }
-            } else {
-                // Log details of the failure
-                print("Error: \(error!) \(error!.userInfo)")
-            }
+        for (var i = 0; i < self.rewards!.count; i++) {
+            print(rewards![i]["companyName"] as! String)
+            let info = rewards![i]["rewardImage"] as! String
+            let decodedData = NSData(base64EncodedString: info, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
+            let decodedImage = UIImage(data: decodedData!)
+            let reward = Reward(companyName: self.companyName!, pointCost: rewards![i]["pointCost"] as! Int, rewardImage: decodedImage!, rewardPrice: rewards![i]["rewardPrice"] as! Int, rewardDescription: rewards![i]["rewardDescription"] as! String, rewardName: rewards![i]["rewardsName"] as! String, rewardImageString: info)
+            self.rewardsList.append(reward)
+            self.collectionView!.reloadData()
         }
+        
+        self.collectionView!.reloadData()
+        
+//        let query = PFQuery(className:"RewardsExpanded")
+//        query.whereKey("company", equalTo: company!)
+//        query.findObjectsInBackgroundWithBlock {
+//            (objects: [PFObject]?, error: NSError?) -> Void in
+//            if error == nil {
+//                // The find succeeded.
+//                print("Successfully retrieved \(objects!.count) rewards.")
+//                // Do something with the found objects gameScore["playerName"] as String
+//                var i = 0
+//                if let objects = objects {
+//                    for object in objects {
+//                        let rewardImageFiles = object["rewardImage"] as! PFFile
+//                        var imageData = NSData()
+//                        
+//                        do {
+//                            imageData = try rewardImageFiles.getData()
+//                        } catch {
+//                            print("There was an error getting the data")
+//                        }
+//                        
+//                        let rewardImage = UIImage(data: imageData)!
+//                        let reward = Reward(companyName: self.companyName!, pointCost: object["pointCost"] as! Int, rewardImage: rewardImage, rewardPrice: object["rewardPrice"] as! Int, rewardDescription: object["rewardDescription"] as! String, rewardName: object["rewardName"] as! String)
+//                        self.rewardsList.append(reward)
+//                        self.collectionView!.reloadData()
+//                        
+//                        i = i + 1
+//                    }
+//                    self.collectionView!.reloadData()
+//                }
+//            } else {
+//                // Log details of the failure
+//                print("Error: \(error!) \(error!.userInfo)")
+//            }
+//        }
         self.collectionView!.reloadData()
         
     }

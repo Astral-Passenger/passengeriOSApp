@@ -8,6 +8,7 @@
 
 import UIKit
 import Parse
+import Firebase
 
 class RewardsDetailTableViewController: UITableViewController {
     
@@ -18,7 +19,10 @@ class RewardsDetailTableViewController: UITableViewController {
     var currentTitle: String?
     var rewardType: String?
     
+    var rewardsRef = Firebase(url:"https://passenger-app.firebaseio.com/rewards/")
+    
     var company: PFObject?
+    var rewards: NSArray?
     
     private var companyName: String?
     
@@ -49,7 +53,7 @@ class RewardsDetailTableViewController: UITableViewController {
             let nav = segue.destinationViewController as! UINavigationController
             let dest = nav.topViewController as! DiscountCollectionViewController
             dest.companyName = companyName
-            dest.company = company
+            dest.rewards = rewards!
         }
 
     }
@@ -79,41 +83,55 @@ class RewardsDetailTableViewController: UITableViewController {
     
     func loadSampleProducts() {
         
-        let query = PFQuery(className:"Rewards")
-        query.fromLocalDatastore()
-        query.whereKey("rewardType", equalTo: rewardType!)
-        query.findObjectsInBackgroundWithBlock {
-            (objects: [PFObject]?, error: NSError?) -> Void in
-            if error == nil {
-                // The find succeeded.
-                print("Successfully retrieved \(objects!.count) rewards.")
-                // Do something with the found objects gameScore["playerName"] as String
-                var i = 0
-                if let objects = objects {
-                    for object in objects {
-                        var imageData = NSData()
-                        let rewardImageFiles = object["companyImage"] as! PFFile
-                        
-                        do {
-                            imageData = try rewardImageFiles.getData()
-                        } catch {
-                            print("There was a problem getting the data")
-                        }
-                        
-                        let companyImage = UIImage(data: imageData)!
-                        let rewardGroup = RewardGroup(rewardType: object["rewardType"] as! String, companyName: object["companyName"] as! String, backgroundImage: companyImage, crossStreets: object["crossStreets"] as! String, company: object)
-                        self.rewardsList.append(rewardGroup)
-                        self.tableView.reloadData()
-                        
-                        i = i + 1
-                    }
-                    self.tableView.reloadData()
-                }
-            } else {
-                // Log details of the failure
-                print("Error: \(error!) \(error!.userInfo)")
+        rewardsRef.observeEventType(.Value, withBlock: { snapshot in
+            for (var i = 0; i < snapshot.value.count; i++) {
+                let info = snapshot.value[i]["companyImage"] as! String
+                let decodedData = NSData(base64EncodedString: info, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
+                let decodedImage = UIImage(data: decodedData!)
+                let data = snapshot.value[i]["rewards"]
+                let rewardGroup  = RewardGroup(rewardType: "Discount", companyName: snapshot.value[i]["companyName"] as! String, backgroundImage: decodedImage!, crossStreets: snapshot.value[i]["crossStreets"] as! String, sixDigitIdentifier: snapshot.value[i]["sixDigitIdentifier"] as! Int, rewards: snapshot.value[i]["rewards"] as! NSArray)
+                self.rewardsList.append(rewardGroup)
+                self.tableView.reloadData()
             }
-        }
+            }, withCancelBlock: { error in
+                print(error.description)
+        })
+        
+//        let query = PFQuery(className:"Rewards")
+//        query.fromLocalDatastore()
+//        query.whereKey("rewardType", equalTo: rewardType!)
+//        query.findObjectsInBackgroundWithBlock {
+//            (objects: [PFObject]?, error: NSError?) -> Void in
+//            if error == nil {
+//                // The find succeeded.
+//                print("Successfully retrieved \(objects!.count) rewards.")
+//                // Do something with the found objects gameScore["playerName"] as String
+//                var i = 0
+//                if let objects = objects {
+//                    for object in objects {
+//                        var imageData = NSData()
+//                        let rewardImageFiles = object["companyImage"] as! PFFile
+//                        
+//                        do {
+//                            imageData = try rewardImageFiles.getData()
+//                        } catch {
+//                            print("There was a problem getting the data")
+//                        }
+//                        
+//                        let companyImage = UIImage(data: imageData)!
+//                        let rewardGroup = RewardGroup(rewardType: object["rewardType"] as! String, companyName: object["companyName"] as! String, backgroundImage: companyImage, crossStreets: object["crossStreets"] as! String, company: object)
+//                        self.rewardsList.append(rewardGroup)
+//                        self.tableView.reloadData()
+//                        
+//                        i = i + 1
+//                    }
+//                    self.tableView.reloadData()
+//                }
+//            } else {
+//                // Log details of the failure
+//                print("Error: \(error!) \(error!.userInfo)")
+//            }
+//        }
         self.tableView.reloadData()
     }
     
@@ -150,7 +168,7 @@ class RewardsDetailTableViewController: UITableViewController {
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         //CODE TO BE RUN ON CELL TOUCH
         companyName = rewardsList[indexPath.row].getCompanyName()
-        company = rewardsList[indexPath.row].getCompany()
+        rewards = rewardsList[indexPath.row].getRewards()
         performSegueWithIdentifier("rewardsToDiscounts", sender: nil)
         
     }

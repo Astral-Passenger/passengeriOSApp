@@ -25,7 +25,9 @@ class ViewController: UIViewController {
     @IBOutlet weak var totalPointsTextView: UILabel!
     @IBOutlet weak var profilePictureView: UIImageView!
     
-    var currentUser: PFUser?
+    // User information
+    
+    var name = ""
     
     var seconds = 0.0
     var distance = 0.0
@@ -34,6 +36,15 @@ class ViewController: UIViewController {
     
     var previousLocation: CLLocation?
     var currentLocation: CLLocation?
+    
+    var fullname: String = ""
+    var currentPoints  = 0
+    var totalPoints = 0
+    var profilePictureString: String = ""
+    var rewardsReceived: Int = 0
+    var timeSpentDriving: Double = 0.0
+    var email: String = ""
+    var distanceTraveled: Double = 0.0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -65,49 +76,45 @@ class ViewController: UIViewController {
     }
     
     func configureView() {
+        
+        let prefs = NSUserDefaults.standardUserDefaults()
+        
+        self.fullname = prefs.stringForKey("name")!
+        self.currentPoints = prefs.integerForKey("currentPoints")
+        self.profilePictureString = prefs.stringForKey("profilePictureString")!
+        
+        self.usernameTextView.text = self.fullname
+        self.totalPointsTextView.text = String(self.currentPoints)
+        
+        let decodedData = NSData(base64EncodedString: profilePictureString, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
+        
+        let decodedImage = UIImage(data: decodedData!)
+        
+        self.profilePictureView?.image = decodedImage
+        self.profilePictureView.layer.masksToBounds = true
+        self.profilePictureView.layer.cornerRadius = 33.33333
+        
+        let strDate = "2015-10-06T15:42:34Z" // "2015-10-06T15:42:34Z"
+        let dateFormatter = NSDateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+        let currentDate = NSDate()
+        let currentDateString:String = dateFormatter.stringFromDate(currentDate)
+        print("Here is the current date \(currentDateString)")
+        
         let hexConverter = HexToUIColor()
         self.navigationController!.navigationBar.barTintColor = hexConverter.hexStringToUIColor("ffffff")
         
         UIApplication.sharedApplication().statusBarStyle = .Default
         
-        usersRef.queryOrderedByChild("email").queryEqualToValue("\(ref.authData.providerData["email"]!)")
-            .observeEventType(.ChildAdded, withBlock: { snapshot in
-                let fullName = snapshot.value["name"] as! String!
-                let currentPoints = snapshot.value["totalPoints"] as! Int
-                self.usernameTextView.text = fullName
-                self.totalPointsTextView.text = String(currentPoints)
-                print("This is the key of the snapshot \(snapshot.value["profileImage"])")
-                let info = snapshot.value["profileImage"] as! String!
-                print(info)
-        })
-        
         let font = UIFont.systemFontOfSize(16, weight: UIFontWeightLight)
-        
         
         let navBarAttributesDictionary: [String: AnyObject]? = [
             NSForegroundColorAttributeName: UIColor(red:0.04, green:0.37, blue:0.76, alpha:1.0),
             NSFontAttributeName: font
         ]
-        //navigationController?.navigationBar.backgroundColor = UIColor.whiteColor()
         
         navigationController?.navigationBar.titleTextAttributes = navBarAttributesDictionary
-
-//            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
-//                
-//                if let profileImage = currentUser!["profile_picture"] as? PFFile {
-//                    profileImage.getDataInBackgroundWithBlock({ (imageData: NSData?, error: NSError?) -> Void in
-//                        let image: UIImage! = UIImage(data: imageData!)!
-//                        self.profilePictureView?.image = image
-//                        self.profilePictureView.layer.masksToBounds = true
-//                        self.profilePictureView.layer.cornerRadius = 33.33333
-//                    })
-//                }
-//                
-//            }
-//        }
-
     }
-
 
 }
 

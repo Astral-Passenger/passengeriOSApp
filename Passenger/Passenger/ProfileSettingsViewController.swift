@@ -11,8 +11,13 @@ import Parse
 import Bolts
 import FBSDKCoreKit
 import ParseFacebookUtilsV4
+import Firebase
 
 class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    let ref = Firebase(url: "https://passenger-app.firebaseio.com")
+    let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users/")
+    let helpRef = Firebase(url: "https://passenger-app.firebaseio.com/help/")
     
     let transitionManager = MenuTransitionManager()
     
@@ -27,6 +32,7 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
     var senderViewController: String?
     
     var didEditImage: Bool = false
+    var userId: String?
     
     @IBOutlet weak var profileImage: UIImageView!
     @IBOutlet weak var nameTextField: UITextField!
@@ -125,30 +131,26 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
         
         UIApplication.sharedApplication().statusBarStyle = .Default
         
-        let fullName = currentUser!["full_name"] as! String
-        let username = currentUser!.username
+        let prefs = NSUserDefaults.standardUserDefaults()
         
-        let email = currentUser!.email
+        let fullname = prefs.stringForKey("name")!
+        let username = prefs.stringForKey("username")!
+        let email = prefs.stringForKey("email")!
+        let profilePictureString = prefs.stringForKey("profilePictureString")!
         
-        nameTextField.text = fullName
-        emailTextField.text = email
-        usernameTextField.text = username
+        self.nameTextField.text = fullname
+        self.usernameTextField.text = username
+        self.emailTextField.text = email
+        //self.usernameTextField.text = username
         
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
-            
-            if let profileImage = self.currentUser!["profile_picture"] as? PFFile {
-                profileImage.getDataInBackgroundWithBlock({ (imageData: NSData?, error: NSError?) -> Void in
-                    let image: UIImage! = UIImage(data: imageData!)!
-                    self.profileImage?.image = image
-                    self.profileImage.layer.masksToBounds = true
-                    self.profileImage.layer.cornerRadius = 62.5
-                    self.cameraImageView.hidden = false
-                })
-            } else {
-                self.cameraImageView.hidden = true
-            }
-            
-        }
+        let decodedData = NSData(base64EncodedString: profilePictureString, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
+        
+        let decodedImage = UIImage(data: decodedData!)
+        
+        self.profileImage?.image = decodedImage
+        self.profileImage.layer.masksToBounds = true
+        self.profileImage.layer.cornerRadius = 62.5
+        self.cameraImageView.hidden = false
         
     }
     
@@ -202,112 +204,30 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
     @IBAction func saveButtonTap(sender: AnyObject) {
         activityIndicator.hidden = false
         activityIndicator.startAnimating()
-        let fullName = nameTextField.text
-        let email = emailTextField.text
+        let fullName: String = nameTextField.text!
+        let email: String = emailTextField.text!
+         
+        let username:String = usernameTextField.text!
         
-        let username = usernameTextField.text
+        let currentUserRef = usersRef.childByAppendingPath(userId!)
         
-        //var parsedPhoneNumber: String = ""
+        let usernameUpdated = ["username": username]
+        let nameUpdated = ["name": fullName]
+        let emailUpdated = ["email": email]
         
-        //let letters = phoneNumber!.characters.map { String($0) }
-
+        self.nameTextField.text = fullName
+        self.emailTextField.text = email
+        self.usernameTextField.text = username
         
-        //var iterator = 0
-
-//        // Parse the phone number to make sure it fits the same format
-//        if (phoneNumber?.characters.count < 11 && phoneNumber?.characters.count > 9) {
-//            for (var i = 0; i < 12; i++) {
-//                if (i == 0) {
-//                    parsedPhoneNumber = parsedPhoneNumber + "+"
-//                } else if (i == 1) {
-//                    parsedPhoneNumber = parsedPhoneNumber + "1"
-//                } else if (i == 2) {
-//                    parsedPhoneNumber = parsedPhoneNumber + " "
-//                } else if (i < 6) {
-//                    let char = letters[iterator]
-//                    parsedPhoneNumber = parsedPhoneNumber + String(UTF8String: char)!
-//                    iterator++
-//                } else if (i == 6) {
-//                    parsedPhoneNumber = parsedPhoneNumber + "-"
-//                } else {
-//                    let char = letters[iterator]
-//                    parsedPhoneNumber = parsedPhoneNumber + String(UTF8String: char)!
-//                    iterator++
-//                }
-//            }
-//
-//        } else if (phoneNumber?.characters.count > 1){
-//            let alert = UIAlertController(title: "EDIT PROFILE", message: "Please enter a phone number with an area code.", preferredStyle: UIAlertControllerStyle.Alert)
-//            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
-//            self.presentViewController(alert, animated: true, completion: nil)
-//        }
-        let query = PFQuery(className:"_User")
-        print(username)
-        query.whereKey("username", equalTo: username!)
-        query.findObjectsInBackgroundWithBlock {
-            (objects: [PFObject]?, error: NSError?) -> Void in
-            if error == nil {
-                // The find succeeded.
-                print("Successfully retrieved \(objects!.count) users.")
-                if (objects!.count > 0) {
-                    // There was already a user
-                    let alert = UIAlertController(title: "USERNAME", message: "The username \(username!) has already been taken choose another one.", preferredStyle: UIAlertControllerStyle.Alert)
-                    alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
-                    self.presentViewController(alert, animated: true, completion: nil)
-                    self.activityIndicator.hidden = true
-                    self.activityIndicator.stopAnimating()
-                } else {
-                    
-                    
-                    self.currentUser!["full_name"] = fullName
-                    self.currentUser!.email = email
-                    self.currentUser!.username = username
-                    
-                    if (self.didEditImage) {
-                        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
-                            
-                            let imageData = UIImageJPEGRepresentation(self.updatedImage!,0.05)
-                            
-                            if(imageData != nil)
-                            {
-                                let profileFileObject = PFFile(data:imageData!)
-                                self.currentUser?.setObject(profileFileObject!, forKey: "profile_picture")
-                            }
-                            
-                            
-                            self.currentUser?.saveInBackgroundWithBlock({ (success:Bool, error:NSError?) -> Void in
-                                
-                                if(success)
-                                {
-                                    self.activityIndicator.hidden = true
-                                    self.activityIndicator.stopAnimating()
-                                }
-                                
-                            })
-                            
-                        }
-                    } else {
-                        self.currentUser?.saveInBackgroundWithBlock({ (success:Bool, error:NSError?) -> Void in
-                            
-                            if(success)
-                            {
-                                self.activityIndicator.hidden = true
-                                self.activityIndicator.stopAnimating()
-                            }
-                            
-                        })
-                    }
-                    
-                    
-                    self.nameTextField.text = fullName
-                    self.emailTextField.text = email
-                }
-            } else {
-                // Log details of the failure
-                print("Error: \(error!) \(error!.userInfo)")
-            }
-
-        }
+        currentUserRef.updateChildValues(usernameUpdated)
+        currentUserRef.updateChildValues(nameUpdated)
+        currentUserRef.updateChildValues(emailUpdated)
+        
+        self.activityIndicator.hidden = true
+        self.activityIndicator.stopAnimating()
+        
+        // We wtill need to check if the username was taken or not.
+        
     }
 
 }

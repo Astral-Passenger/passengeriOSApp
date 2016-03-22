@@ -7,8 +7,12 @@
 //
 
 import UIKit
+import Firebase
 
 class HelpExpandedTableViewController: UITableViewController {
+    
+    let ref = Firebase(url: "https://passenger-app.firebaseio.com")
+    let helpQuestionsRef = Firebase(url: "https://passenger-app.firebaseio.com/help/")
     
     let transitionManager = MenuTransitionManager()
     
@@ -51,31 +55,12 @@ class HelpExpandedTableViewController: UITableViewController {
     
     func loadQuestions() {
         
-        let query = PFQuery(className:"HelpQuestions")
-        query.fromLocalDatastore()
-        query.whereKey("questionType", equalTo: questionType!)
-        query.findObjectsInBackgroundWithBlock {
-            (objects: [PFObject]?, error: NSError?) -> Void in
-            if error == nil {
-                // The find succeeded.
-                print("Successfully retrieved \(objects!.count) rewards.")
-                // Do something with the found objects gameScore["playerName"] as String
-                var i = 0
-                if let objects = objects {
-                    var i = 0
-                    for object in objects {
-                        self.questions.append(object["question"] as! String)
-                        self.answers.append(object["questionDescription"] as! String)
-                        print(self.questions)
-                        i++
-                    }
-                    self.tableView.reloadData()
-                }
-            } else {
-                // Log details of the failure
-                print("Error: \(error!) \(error!.userInfo)")
-            }
-        }
+        helpQuestionsRef.queryOrderedByChild("questionType").queryEqualToValue(questionType)
+            .observeEventType(.ChildAdded, withBlock: { snapshot in
+                self.questions.append(snapshot.value["question"] as! String)
+                self.answers.append(snapshot.value["answer"] as! String)
+                self.tableView.reloadData()
+            })
         self.tableView.reloadData()
 
     }

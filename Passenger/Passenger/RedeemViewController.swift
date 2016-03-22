@@ -8,28 +8,36 @@
 
 import UIKit
 import Parse
+import Firebase
 import Bolts
 import Foundation
 
 class RedeemViewController: UIViewController {
     
     let transitionManager = MenuTransitionManager()
+
+    let ref = Firebase(url: "https://passenger-app.firebaseio.com/")
+    let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users/")
+    let rewardsRef = Firebase(url: "https://passenger-app.firebaseio.com/rewards/")
     
     var rewardPointCost: Int?
     var rewardDescription: String?
     var rewardImage: UIImage?
+    var rewardImageString: String?
     var companyName: String?
     var rewardName: String?
+    var rewardsList: NSArray?
+    
+    var newRewardRedeemed: NSDictionary = [:]
     
     var redeemedRewards = [PFObject]()
-    
-    var currentUser: PFUser?
     
     var isEditable = false
     
     var company: PFObject?
     
     var localData = ParseLocalData()
+    
     
     private var sixDigitString = ""
     private var currentTotalPoints: Int?
@@ -57,8 +65,6 @@ class RedeemViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        currentUser = PFUser.currentUser()
 
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "closePopUp")
         view.addGestureRecognizer(tap)
@@ -84,7 +90,13 @@ class RedeemViewController: UIViewController {
         self.view.addGestureRecognizer(swipeGestureRecognizer) */
         // Change the font and size of nav bar text
         
-        self.currentTotalPoints = currentUser!["currentPoints"] as! Int
+        usersRef.queryOrderedByChild("email").queryEqualToValue("\(ref.authData.providerData["email"]!)")
+            .observeEventType(.ChildAdded, withBlock: { snapshot in
+                let fullName = snapshot.value["name"] as! String!
+                let currentPoints = snapshot.value["currentPoints"] as! Int
+                print(currentPoints)
+                self.currentTotalPoints = snapshot.value["currentPoints"] as! Int
+            })
         
         let font = UIFont.systemFontOfSize(16, weight: UIFontWeightLight)
         
@@ -138,7 +150,7 @@ class RedeemViewController: UIViewController {
                 self.transitionManager.menuViewController = menu
                 let dest = menu.topViewController as! DiscountCollectionViewController
                 dest.companyName = self.companyName
-                dest.company = company
+                dest.rewards = self.rewardsList
         }
     
     
@@ -309,89 +321,69 @@ class RedeemViewController: UIViewController {
         } else {
             activityIndicator.startAnimating()
             activityIndicator.hidden = false
-            let query = PFQuery(className:"Rewards")
-            query.whereKey("companyName", equalTo: self.companyName!)
-            query.findObjectsInBackgroundWithBlock {
-                (objects: [PFObject]?, error: NSError?) -> Void in
-                if error == nil {
-                    let company = objects![0]
-                    let companyIdentifier = company["sixDigitIdentifier"] as! String
-                    if (companyIdentifier == self.sixDigitString) {
-                        
-                        // Log the transaction for the business in parse so that we know if this business created a transaction so we can bill them in the future.
-                        let businessTransaction = PFObject(className:"BusinessTranscation")
-                        businessTransaction["company"] = company
-                        businessTransaction["rewardItem"] = self.rewardName
-                        businessTransaction["rewardDescription"] = self.rewardDescription
-                        businessTransaction.saveInBackgroundWithBlock {
-                            (success: Bool, error: NSError?) -> Void in
-                            if (success) {
-                                // The object has been saved.
-                                print("The transaction was saved in the database")
-                            } else {
-                                // There was a problem, check error.description
-                                print("There was an error saving the object")
-                            }
+            
+            var iteration = 0
+            
+            var currentBusinessMonthlyTransactions: NSArray?
+            
+            var currentBusinessMonthlyTransactionsAppended = [NSDictionary]()
+            var currentUserRewardsList: NSArray?
+            var currentUserRewardsListAppended = [NSDictionary]()
+            
+            rewardsRef.queryOrderedByChild("companyName").queryEqualToValue(companyName)
+                .observeEventType(.ChildAdded, withBlock: { snapshot in
+                    
+                    // Handling the storing of the transaction for the businesses
+                    
+                    iteration = Int(snapshot.key!)!
+                    currentBusinessMonthlyTransactions = snapshot.value["monthlyTransactions"] as? NSArray
+                    if (currentBusinessMonthlyTransactions != nil) {
+                        for (var i = 0; i < currentBusinessMonthlyTransactions!.count; i++) {
+                            currentBusinessMonthlyTransactionsAppended.append(currentBusinessMonthlyTransactions![i] as! NSDictionary)
                         }
-                        
-                        
-                        
-                        // If they are verified, then subtract the points from the user and log the entry in the rewards table for this user
-                        let imageData = UIImageJPEGRepresentation(self.rewardImage!,0.05)
-
-                        let rewardFileObject = PFFile(data:imageData!)
-                        
-                        let rewardTransaction = PFObject(className: "RewardsHistory")
-                        rewardTransaction["userId"] = self.currentUser!
-                        rewardTransaction["pointCost"] = self.rewardPointCost!
-                        rewardTransaction["companyName"] = self.companyName!
-                        rewardTransaction["rewardItem"] = self.rewardName!
-                        rewardTransaction["rewardText"] = self.rewardDescription!
-                        rewardTransaction.setObject(rewardFileObject!, forKey: "rewardImage")
-                        rewardTransaction.saveInBackgroundWithBlock {
-                            (success: Bool, error: NSError?) -> Void in
-                            if (success) {
-                                // The object has been saved.
-                                print("The transaction was saved in the database")
-                                self.currentUser!["currentPoints"] = self.currentUser!["currentPoints"] as! Int - self.rewardPointCost!
-                                self.currentUser!["rewardsReceived"] = self.currentUser!["rewardsReceived"] as! Int + 1
-                                self.currentUser?.saveInBackgroundWithBlock{
-                                    (success: Bool, error: NSError?) -> Void in
-                                    if (success) {
-                                        // The object has been saved.
-                                        print("The user was saved")
-                                        self.performSegueWithIdentifier("redeemToRewardsHistory", sender: nil)
-                                        self.localData.loadDataDescending("RewardsHistory", descendingBy: "createdAt")
-                                        
-                                    } else {
-                                        // There was a problem, check error.description
-                                    }
-                                }
-                            } else {
-                                // There was a problem, check error.description
-                                print("There was an error saving the object")
-                            }
-                        }
-                        
-                        
-                    } else {
-                        let alertController = UIAlertController(title: "Wrong ID Number", message: "Please enter the six digit number for your company", preferredStyle: .Alert)
-                        
-                        let defaultAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
-                        alertController.addAction(defaultAction)
-                        
-                        self.presentViewController(alertController, animated: true, completion: nil)
-
                     }
-                } else {
-                    // Log details of the failure
-                    print("Error: \(error!) \(error!.userInfo)")
-                }
-
-            }
-            
-            
-
+                    
+                    var date = NSDate()
+                    let dateFormatter = NSDateFormatter()
+                    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+                    let dateToRecordString = dateFormatter.stringFromDate(date)
+                    
+                    self.newRewardRedeemed = ["dateRecorded": "\(dateToRecordString)", "rewardDescription": "\(self.rewardDescription!)", "rewardItem": "\(self.rewardName!)", "userEmail": "\(self.ref.authData.providerData["email"]!)"]
+                    currentBusinessMonthlyTransactionsAppended.append(self.newRewardRedeemed)
+                    
+                    let currentBusinessRef = Firebase(url: "https://passenger-app.firebaseio.com/rewards/\(iteration)/monthlyTransactions")
+                    
+                    //currentBusinessRef.setValue(currentBusinessMonthlyTransactionsAppended)
+                    
+                    // Handling the storing of the transaction for the user
+                    
+                    self.usersRef.queryOrderedByChild("email").queryEqualToValue("\(self.ref.authData.providerData["email"]!)")
+                        .observeEventType(.ChildAdded, withBlock: { snapshot in
+                            let id = snapshot.key
+                            print(id)
+                            
+                            var currentPoints = snapshot.value["currentPoints"] as! Int
+                            currentPoints = currentPoints - self.rewardPointCost!
+                            currentUserRewardsList = snapshot.value["rewardsHistory"] as? NSArray
+                            if (currentUserRewardsList != nil) {
+                                for (var i = 0; i < currentUserRewardsList!.count; i++) {
+                                    currentUserRewardsListAppended.append(currentUserRewardsList![i] as! NSDictionary)
+                                }
+                            }
+                            
+                            let currentReward: NSDictionary = ["companyName": "", "pointCost": self.rewardPointCost!, "rewardImage": self.rewardImageString!, "rewardItem": self.rewardName!, "rewardText": self.rewardDescription!]
+                            
+                            currentUserRewardsListAppended.append(currentReward)
+                            
+                            let currentUserRef = Firebase(url: "https://passenger-app.firebaseio.com/users/\(id)/currentPoints/")
+                            let currentUserRewardsRef = Firebase(url: "https://passenger-app.firebaseio.com/users/\(id)/rewardsHistory/")
+                            currentUserRef.setValue(currentPoints)
+                            currentUserRewardsRef.setValue(currentUserRewardsListAppended)
+                            
+                            self.performSegueWithIdentifier("redeemToRewardsHistory", sender: nil)
+                        })
+                    
+                })
         }
     }
     

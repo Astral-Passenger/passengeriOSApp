@@ -8,8 +8,12 @@
 
 import UIKit
 import Darwin
+import Firebase
 
 class ProfileViewController: UIViewController {
+    
+    let ref = Firebase(url: "https://passenger-app.firebaseio.com")
+    let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users/")
 
     @IBOutlet weak var profileTopBackground: UIImageView!
 
@@ -48,61 +52,33 @@ class ProfileViewController: UIViewController {
     
     func configureView() {
         
-        currentUser = PFUser.currentUser()
+        let prefs = NSUserDefaults.standardUserDefaults()
         
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
-            
-            if let profileImage = self.currentUser!["profile_picture"] as? PFFile {
-                profileImage.getDataInBackgroundWithBlock({ (imageData: NSData?, error: NSError?) -> Void in
-                    let image: UIImage! = UIImage(data: imageData!)!
-                    self.profilePicture?.image = image
-                    self.profilePicture.layer.masksToBounds = true
-                    self.profilePicture.layer.cornerRadius = 50
-                })
-            }
-            
-        }
+        let fullname = prefs.stringForKey("name")!
+        let username = prefs.stringForKey("username")!
+        let currentPoints = prefs.integerForKey("currentPoints")
+        let profilePictureString = prefs.stringForKey("profilePictureString")!
+        let totalPoints = prefs.integerForKey("totalPoints")
+        let distanceTraveled = prefs.integerForKey("distanceTraveled")
+        let rewardsReceived = prefs.integerForKey("rewardsReceived")
+        let timeSpentDriving = prefs.integerForKey("timeSpentDriving")
+
+        self.fullNameLabel.text = fullname
+        self.usernameLabel.text = username
+        self.totalPointsLabel.text = String(totalPoints)
+        self.totalCurrentPointsLabel.text = String(currentPoints)
+        self.milesDrivenLabel.text = String(distanceTraveled)
+        self.rewardsReceivedLabel.text = String(rewardsReceived)
+        self.timeSpentDrivingLabel.text = self.calculateTimeSpentDriving(timeSpentDriving)
         
-        if let totalPoints = self.currentUser!["totalPoints"] as? Int,
-        let currentTotalPoints = self.currentUser!["currentPoints"] as? Int
-        {
-            totalCurrentPointsLabel.text = String(currentTotalPoints)
-            totalPointsLabel.text = String(totalPoints)
-        } else {
-            // Either one of the points was nil.
-        }
+        let decodedData = NSData(base64EncodedString: profilePictureString, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
         
-        if let distanceTraveled = self.currentUser!["distanceTraveled"] as? Int {
-            milesDrivenLabel.text = String(distanceTraveled)
-        } else {
-            // The distance traveled was nil
-        }
+        let decodedImage = UIImage(data: decodedData!)
         
-        if let rewardsReceived = self.currentUser!["rewardsReceived"] as? Int {
-            rewardsReceivedLabel.text = String(rewardsReceived)
-        } else {
-            // The rewards received was nil
-        }
-        
-        if let fullName = self.currentUser!["full_name"] as? String
-         {
-            fullNameLabel.text = fullName
-        } else {
-            // The first or last name is nil
-        }
-        
-        if let username = self.currentUser!.username {
-            usernameLabel.text = username
-        } else {
-            // The username came back as nil
-        }
-        
-        if let timeSpentDriving = self.currentUser!["timeSpendDriving"] as? Int {
-            timeSpentDrivingLabel.text = calculateTimeSpentDriving(timeSpentDriving)
-        } else {
-            // Couldn't get the time spent driving
-        }
-        
+        self.profilePicture?.image = decodedImage
+        self.profilePicture.layer.masksToBounds = true
+        self.profilePicture.layer.cornerRadius = 50
+
 
         let font = UIFont.systemFontOfSize(16, weight: UIFontWeightLight)
         
@@ -145,6 +121,8 @@ class ProfileViewController: UIViewController {
     func calculateTimeSpentDriving(totalTime: Int) -> String {
         var finalString: String?
         self.hoursFull = (Double(totalTime)/3600.0)
+        
+        print(self.hoursFull)
         
         if(hoursFull! > 23.999) {
             self.days = Int(hoursFull!/24.0)

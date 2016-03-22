@@ -17,9 +17,15 @@ import Firebase
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-    let ref = Firebase(url: "https://passenger-app.firebaseio.com")
+    let ref = Firebase(url: "https://passenger-app.firebaseio.com/")
+    let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users/")
     
     var window: UIWindow?
+    
+    var currentUserPointsList: NSArray?
+    var currentUserPointsListAppended = [NSDictionary]()
+    
+    var userId = ""
 
     var currentUser: PFUser?
     
@@ -40,6 +46,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var seconds = 0.0
     var distance = 0.0
+    var secondsToAddToUser = 0.0
     
     var currentSpeed = 0.0
     var averageSpeedOverTen = 0.0
@@ -78,6 +85,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         
+        self.locationManager.requestAlwaysAuthorization()
+        
         Parse.enableLocalDatastore()
         
         // Initialize Parse.
@@ -102,17 +111,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 // user authenticated
                 let initialViewController = storyboard.instantiateViewControllerWithIdentifier("homeViewController")
                 
-                self.window?.rootViewController = initialViewController
-                self.window?.makeKeyAndVisible()
-                locationManager.requestAlwaysAuthorization()
+                self.usersRef.queryOrderedByChild("email").queryEqualToValue("\(self.ref.authData.providerData["email"]!)")
+                    .observeEventType(.ChildAdded, withBlock: { snapshot in
+
+                        self.userId = snapshot.key
+                        self.currentUserCurrentPoints = snapshot.value["currentPoints"] as! Double!
+                        self.currentUserTotalPoints = snapshot.value["totalPoints"] as! Double!
+                        self.currentUserTimeSpentDriving = snapshot.value["timeSpentDriving"] as! Double!
+                        self.currentUserCurrentDistance = snapshot.value["currentPoints"] as! Double!
+                        self.currentUserPointsList = snapshot.value["pointsHistory"] as! NSArray!
+                        
+                    })
                 
-                print("This is the login data for the user \(ref.authData)")
+                self.window?.rootViewController = initialViewController
                 
                 // Need to comment the below until the database has been completely switched over to parse to get this data
-                
-//                currentUserTotalPoints = currentUser!["totalPoints"] as! Double
-//                currentUserCurrentPoints = currentUser!["currentPoints"] as! Double
-//                print("The users current points \(currentUserCurrentPoints)")
                 
             } else {
                 // No user is signed in
@@ -121,28 +134,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 
                 self.window?.rootViewController = initialViewController
                 self.window?.makeKeyAndVisible()
-                print("This is the login data for the user \(ref.authData)")
             }
-            
-//            currentUser = PFUser.currentUser()
-//            if currentUser != nil {
-//                // Do stuff with the user
-//                let initialViewController = storyboard.instantiateViewControllerWithIdentifier("homeViewController")
-//                
-//                self.window?.rootViewController = initialViewController
-//                self.window?.makeKeyAndVisible()
-//                locationManager.requestAlwaysAuthorization()
-//                currentUserTotalPoints = currentUser!["totalPoints"] as! Double
-//                currentUserCurrentPoints = currentUser!["currentPoints"] as! Double
-//                print("The users current points \(currentUserCurrentPoints)")
-//                
-//            } else {
-//                // Show the first screen
-//                let initialViewController = storyboard.instantiateViewControllerWithIdentifier("firstViewController")
-//                
-//                self.window?.rootViewController = initialViewController
-//                self.window?.makeKeyAndVisible()
-//            }
             
             seconds = 0.0
             distance = 0.0
@@ -164,6 +156,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             self.window?.rootViewController = initialViewController
             self.window?.makeKeyAndVisible()
+            
+            seconds = 0.0
+            distance = 0.0
+            locations.removeAll(keepCapacity: false)
+            timer = NSTimer.scheduledTimerWithTimeInterval(1,
+                target: self,
+                selector: "eachSecond:",
+                userInfo: nil,
+                repeats: true)
+            startLocationUpdates()
         }
 
         return true
@@ -207,41 +209,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
         
         if (totalCurrentPoints > 0.75) {
-            let pointRecord = PFObject(className:"PointsHistory")
-            pointRecord["distanceTraveled"] = distance * 0.000189394
-            pointRecord["pointsGenerated"] = totalCurrentPoints
-            pointRecord["userID"] = currentUser!
-            pointRecord.saveInBackgroundWithBlock {
-                (success: Bool, error: NSError?) -> Void in
-                if (success) {
-                    // The object has been saved.
-                    print("The record was saved now time to save the users data.")
-                } else {
-                    // There was a problem, check error.description
-                    print("There was an error sabing the object")
-                }
-            }
             
-            // When the user is about to exit the app, we need to save the amount of points that they have gained before the app dies.
-            self.currentUserTotalPoints = currentUser!["totalPoints"] as! Double
-            self.currentUserCurrentPoints = currentUser!["currentPoints"] as! Double
-            self.currentUserCurrentDistance = currentUser!["distanceTraveled"] as! Double
-            self.currentUserTimeSpentDriving = currentUser!["timeSpendDriving"] as! Double
-            // The user is finished driving. Save the drive in parse and begin to wait till they start moving again.
-            self.currentUser?["totalPoints"] = currentUserTotalPoints + totalCurrentPoints
-            self.currentUser?["currentPoints"] = currentUserCurrentPoints + totalCurrentPoints
-            self.currentUser?["distanceTraveled"] = currentUserCurrentDistance + ((distance * 3.28084) * 0.000189394) // Conversion from feet to miles
-            self.currentUser?["timeSpendDriving"] = seconds + currentUserTimeSpentDriving
-            currentUser?.saveInBackgroundWithBlock{
-                (success: Bool, error: NSError?) -> Void in
-                if (success) {
-                    // The object has been saved.
-                    print("The user was saved before the app was shut down completely")
-                } else {
-                    // There was a problem, check error.description
+            if (ref.authData != nil) {
+            
+                var date = NSDate()
+                let dateFormatter = NSDateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+                let dateToRecordString = dateFormatter.stringFromDate(date)
+                
+                let currentPointRecord: NSDictionary = ["distanceTraveled": distance * 0.000189394, "pointsGenerated": totalCurrentPoints, "createdAt": dateToRecordString]
+                
+                if (self.currentUserPointsList != nil && self.currentUserPointsListAppended.count == 0) {
+                    for (var i = 0; i < self.currentUserPointsList!.count; i++) {
+                        self.currentUserPointsListAppended.append(self.currentUserPointsList![i] as! NSDictionary)
+                    }
                 }
+                
+                self.currentUserPointsListAppended.append(currentPointRecord)
+                usersRef.childByAppendingPath("\(userId)/pointsHistory").setValue(currentPointRecord)
+                
+                currentUserCurrentPoints = currentUserCurrentPoints + totalCurrentPoints
+                currentUserTotalPoints = currentUserTotalPoints + totalCurrentPoints
+                currentUserCurrentDistance = currentUserCurrentDistance + ((distance * 3.28084) * 0.000189394)
+                currentUserTimeSpentDriving = secondsToAddToUser + currentUserTimeSpentDriving
+                
+                usersRef.childByAppendingPath("\(userId)/currentPoints").setValue(currentUserCurrentPoints)
+                usersRef.childByAppendingPath("\(userId)/totalPoints").setValue(currentUserTotalPoints)
+                usersRef.childByAppendingPath("\(userId)/distanceTraveled").setValue(currentUserCurrentDistance)
+                usersRef.childByAppendingPath("\(userId)/timeSpentDriving").setValue(currentUserTimeSpentDriving)
             }
-
         }
         
     }
@@ -257,8 +253,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             self.addScreenOffPoints()
             phoneScreenIsOff = true
             distanceTraveledInTen = 0
-            print(totalCurrentPoints)
+            secondsToAddToUser += 10
             
+        } else if (isLocked == false) {
+            self.totalCurrentPoints = 0
+            self.distance = 0
+            self.seconds = 0
         }
 
         seconds++
@@ -266,60 +266,51 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if (distanceTraveledInTen < 50) {
             currentSpeed = 0.0
             isSittingStillCount++
-            if (isSittingStillCount > 120 && stoppedDriving) {
-                if (totalCurrentPoints > 0.75) {
+            if (isSittingStillCount > 10 && stoppedDriving) {
+                if (totalCurrentPoints > 0.75 && ref.authData != nil) {
                     self.isSittingStillCount = 0
                     self.stoppedDriving = true
-                    let pointRecord = PFObject(className:"PointsHistory")
-                    pointRecord["distanceTraveled"] = (distance * 3.28084) * 0.000189394
-                    pointRecord["pointsGenerated"] = totalCurrentPoints
-                    pointRecord["userID"] = currentUser!
                     
-                    do {
-                        try pointRecord.save()
-                        print("The record was saved now time to save the users data.")
-                    } catch {
-                        print("There was an error sabing the object")
-                    }
-                    pointRecord.saveInBackgroundWithBlock {
-                        (success: Bool, error: NSError?) -> Void in
-                        if (success) {
-                            // The object has been saved.
-                            
-                        } else {
-                            // There was a problem, check error.description
-                            
+                    let date = NSDate()
+                    let dateFormatter = NSDateFormatter()
+                    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+                    let dateToRecordString = dateFormatter.stringFromDate(date)
+                    
+                    let currentPointRecord: NSDictionary = ["distanceTraveled": distance * 0.000189394, "pointsGenerated": totalCurrentPoints, "createdAt": dateToRecordString]
+                    
+                    if (self.currentUserPointsList != nil && self.currentUserPointsListAppended.count == 0) {
+                        for (var i = 0; i < self.currentUserPointsList!.count; i++) {
+                            self.currentUserPointsListAppended.append(self.currentUserPointsList![i] as! NSDictionary)
                         }
                     }
                     
-                    self.currentUserTotalPoints = currentUser!["totalPoints"] as! Double
-                    self.currentUserCurrentPoints = currentUser!["currentPoints"] as! Double
-                    self.currentUserCurrentDistance = currentUser!["distanceTraveled"] as! Double
-                    self.currentUserTimeSpentDriving = currentUser!["timeSpendDriving"] as! Double
-                    // The user is finished driving. Save the drive in parse and begin to wait till they start moving again.
-                    self.currentUser?["totalPoints"] = currentUserTotalPoints + totalCurrentPoints
-                    self.currentUser?["currentPoints"] = currentUserCurrentPoints + totalCurrentPoints
-                    self.currentUser?["distanceTraveled"] = currentUserCurrentDistance + ((distance * 3.28084) * 0.000189394) // Conversion from feet to miles
-                    self.currentUser?["timeSpendDriving"] = seconds + currentUserTimeSpentDriving
+                    self.currentUserPointsListAppended.append(currentPointRecord)
                     
-                    do {
-                        try self.currentUser?.save()
-                        print("The points have been saved for this user but the location services are still looking out to see if they begin driving")
-                        self.totalCurrentPoints = 0
-                        self.distance = 0.0
-                        self.seconds = 0.0
-                    } catch {
-                        
-                    }
-//                    currentUser?.saveInBackgroundWithBlock{
-//                        (success: Bool, error: NSError?) -> Void in
-//                        if (success) {
-//                            // The object has been saved.
-//
-//                        } else {
-//                            // There was a problem, check error.description
-//                        }
-//                    }
+                    print("Here is the normal list: \(self.currentUserPointsList)")
+                    print("Here is the appended list: \(self.currentUserPointsListAppended)")
+                    
+                    usersRef.childByAppendingPath("\(userId)/pointsHistory").setValue(currentUserPointsListAppended)
+                    
+                    currentUserCurrentPoints = currentUserCurrentPoints + totalCurrentPoints
+                    currentUserTotalPoints = currentUserTotalPoints + totalCurrentPoints
+                    currentUserCurrentDistance = currentUserCurrentDistance + ((distance * 3.28084) * 0.000189394)
+                    currentUserTimeSpentDriving = secondsToAddToUser + currentUserTimeSpentDriving
+                    
+                    usersRef.childByAppendingPath("\(userId)/currentPoints").setValue(currentUserCurrentPoints)
+                    usersRef.childByAppendingPath("\(userId)/totalPoints").setValue(currentUserTotalPoints)
+                    usersRef.childByAppendingPath("\(userId)/distanceTraveled").setValue(currentUserCurrentDistance)
+                    usersRef.childByAppendingPath("\(userId)/timeSpentDriving").setValue(currentUserTimeSpentDriving)
+                    
+                    let prefs = NSUserDefaults.standardUserDefaults()
+                    
+                    prefs.setValue(self.currentUserCurrentPoints, forKey: "currentPoints")
+                    prefs.setValue(currentUserTotalPoints, forKey: "totalPoints")
+                    prefs.setValue(currentUserTimeSpentDriving, forKey: "timeSpentDriving")
+                    prefs.setValue(currentUserCurrentDistance, forKey: "distanceTraveled")
+                    
+                    self.totalCurrentPoints = 0
+                    self.distance = 0.0
+                    self.seconds = 0.0
    
                 } else {
                     totalCurrentPoints = 0.0
@@ -334,10 +325,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             isDriving = true
             self.stoppedDriving = false
             isSittingStillCount = 0
+            print(totalCurrentPoints)
         }
         
-        //print("Current speed: \(currentSpeed)")
-        //print("Current Distance: \(distanceTraveledInTen)")
+        print("Current speed: \(currentSpeed)")
+        print("Current Distance: \(distanceTraveledInTen)")
         //print("Is Driving: \(isDriving)")
         //print(isLocked)
         

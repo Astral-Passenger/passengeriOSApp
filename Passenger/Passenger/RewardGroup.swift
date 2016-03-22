@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Firebase
 
 class RewardGroup {
 
@@ -15,22 +16,20 @@ class RewardGroup {
     var companyName: String?
     var backgroundImage: UIImage?
     var crossStreets: String?
-    var company: PFObject?
+    var sixDigitIdentifier: Int?
+    var rewards: NSArray?
     
-    init(rewardType: String, companyName: String, backgroundImage: UIImage, crossStreets: String, company: PFObject) {
+    init(rewardType: String, companyName: String, backgroundImage: UIImage, crossStreets: String, sixDigitIdentifier: Int, rewards: NSArray) {
         self.rewardType = rewardType
         self.companyName = companyName
         self.backgroundImage = backgroundImage
         self.crossStreets = crossStreets
-        self.company = company
+        self.sixDigitIdentifier = sixDigitIdentifier
+        self.rewards = rewards
     }
     
-    func getCompany() -> PFObject {
-        return self.company!
-    }
-    
-    func setCompany(company: PFObject) {
-        self.company = company
+    func getRewards() -> NSArray {
+        return self.rewards!
     }
     
     func getCrossStreets() -> String {

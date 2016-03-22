@@ -7,10 +7,14 @@
 //
 
 import UIKit
+import Firebase
 
 private let reuseIdentifier = "rewardsHistoryCell"
 
 class RewardsHistoryCollectionViewController: UICollectionViewController {
+    
+    let ref = Firebase(url: "https://passenger-app.firebaseio.com")
+    let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users/")
     
     var counter = 0
     let sectionInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 0.0, right: 0.0)
@@ -18,6 +22,8 @@ class RewardsHistoryCollectionViewController: UICollectionViewController {
     var senderViewController: String?
     
     let transitionManager = MenuTransitionManager()
+    
+    var rewardsHistory: NSArray?
     
     private var statusBarBackground: UIView!
     
@@ -67,45 +73,34 @@ class RewardsHistoryCollectionViewController: UICollectionViewController {
     }
     
     func loadRewards() {
-        let rewardsQuery = PFQuery(className:"RewardsHistory")
-        if let user = PFUser.currentUser() {
-            rewardsQuery.fromLocalDatastore()
-            //rewardsQuery.whereKey("userId", equalTo: user)
-            rewardsQuery.orderByDescending("createdAt")
-            rewardsQuery.findObjectsInBackgroundWithBlock {
-                (objects: [PFObject]?, error: NSError?) -> Void in
-                if error == nil {
-                    print("Successfully retrieved \(objects!.count) rewards.")
-                    if let objects = objects {
-                        for object in objects {
-                            let rewardImageFiles = object["rewardImage"] as! PFFile
-                            var imageData = NSData()
-                            do {
-                                imageData = try rewardImageFiles.getData()
-                            } catch {
-                                print("There was a problem getting the data")
-                            }
-                            let reward = Reward()
-                            reward.companyName = (object["companyName"] as? String)!
-                            reward.pointCost = (object["pointCost"] as? Int)!
-    
-                            reward.rewardDescription = (object["rewardText"] as? String)!
-                            reward.rewardName = object["rewardItem"] as! String
-                            let rewardImage = UIImage(data: imageData)!
-                            reward.rewardImage = rewardImage
-                            self.redeemedRewards.append(reward)
-                            self.collectionView!.reloadData()
-                        }
+        
+        usersRef.queryOrderedByChild("email").queryEqualToValue("\(ref.authData.providerData["email"]!)")
+            .observeEventType(.ChildAdded, withBlock: { snapshot in
+                
+                if let rewardsHistory = snapshot.value["rewardsHistory"] as? NSArray {
+                    
+                    self.rewardsHistory = rewardsHistory
+                    
+                    for(var i = self.rewardsHistory!.count - 1; i >= 0; i--) {
+                        let imageString = self.rewardsHistory![i]["rewardImage"] as! String
+                        let decodedData = NSData(base64EncodedString: imageString, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
+                        let decodedImage = UIImage(data: decodedData!)
+                        let reward = Reward()
+                        reward.companyName = self.rewardsHistory![i]["companyName"] as! String
+                        reward.pointCost = self.rewardsHistory![i]["pointCost"] as! Int
+                        reward.rewardDescription = self.rewardsHistory![i]["rewardText"] as! String
+                        reward.rewardName = self.rewardsHistory![i]["rewardItem"] as! String
+                        reward.rewardImage = decodedImage
+                        self.redeemedRewards.append(reward)
                         self.collectionView!.reloadData()
+                        
                     }
                 } else {
-                    // Log details of the failure
-                    print("Error: \(error!) \(error!.userInfo)")
+                    // The user does not yet have any rewards that they have redeemed yet.
                 }
-            }
-            
-        }
-        
+                
+            })
+        collectionView?.reloadData()
         
     }
     

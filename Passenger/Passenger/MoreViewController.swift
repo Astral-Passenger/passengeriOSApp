@@ -13,6 +13,7 @@ import Bolts
 class MoreViewController: UIViewController {
     
     let ref = Firebase(url: "https://passenger-app.firebaseio.com")
+    let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users/")
 
     @IBOutlet weak var helpSupportButton: UIButton!
     @IBOutlet weak var profileSettingsButton: UIButton!
@@ -56,6 +57,22 @@ class MoreViewController: UIViewController {
     }
     
     func configureView() {
+        
+        let prefs = NSUserDefaults.standardUserDefaults()
+        
+        let fullname = prefs.stringForKey("name")!
+        let profilePictureString = prefs.stringForKey("profilePictureString")!
+        
+        self.currentUserNameLabel.text = fullname
+        
+        let decodedData = NSData(base64EncodedString: profilePictureString, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
+        
+        let decodedImage = UIImage(data: decodedData!)
+        
+        self.profilePicture?.image = decodedImage
+        self.profilePicture.layer.masksToBounds = true
+        self.profilePicture.layer.cornerRadius = 20
+        
         helpSupportButton.adjustsImageWhenHighlighted = true;
         let font = UIFont.systemFontOfSize(16, weight: UIFontWeightLight)
         
@@ -67,23 +84,6 @@ class MoreViewController: UIViewController {
         
         navigationController?.navigationBar.titleTextAttributes = navBarAttributesDictionary
         UINavigationBar.appearance().tintColor = UIColor.blackColor()
-        
-//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
-//            
-//            if let profileImage = self.currentUser!["profile_picture"] as? PFFile {
-//                profileImage.getDataInBackgroundWithBlock({ (imageData: NSData?, error: NSError?) -> Void in
-//                    let image: UIImage! = UIImage(data: imageData!)!
-//                    self.profilePicture?.image = image
-//                    self.profilePicture.layer.masksToBounds = true
-//                    self.profilePicture.layer.cornerRadius = 20
-//                })
-//            }
-//            
-//        }
-//        
-//        let userFullName = self.currentUser!["full_name"] as! String
-//        
-//        self.currentUserNameLabel.text = userFullName
         
     }
 

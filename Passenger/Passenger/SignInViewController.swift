@@ -15,10 +15,22 @@ import Firebase
 class SignInViewController: UIViewController {
     
     let ref = Firebase(url: "https://passenger-app.firebaseio.com")
-        let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users")
+    let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users")
     
     let transitionManager = MenuTransitionManager()
     let facebookLogin = FBSDKLoginManager()
+    
+    var fullName: String?
+    var username: String?
+    var currentPoints: Int?
+    var totalPoints: Int?
+    var profilePictureString: String?
+    var rewardsReceived: Int?
+    var timeSpentDriving: Double?
+    var email: String?
+    var distanceTraveled: Double?
+    var userExists: Bool = false
+    var firebaseUserId: String?
     
     var base64String: NSString!
 
@@ -50,12 +62,26 @@ class SignInViewController: UIViewController {
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        
         if(segue.identifier == "presentMenu") {
             // set transition delegate for our menu view controller
             let menu = segue.destinationViewController as! FirstScreenViewController
             menu.transitioningDelegate = self.transitionManager
             self.transitionManager.menuViewController = menu
+        } else if(segue.identifier == "signInSegue") {
+            let prefs = NSUserDefaults.standardUserDefaults()
+            
+            prefs.setValue(fullName!, forKey: "name")
+            prefs.setValue(username!, forKey: "username")
+            prefs.setValue(currentPoints!, forKey: "currentPoints")
+            prefs.setValue(totalPoints!, forKey: "totalPoints")
+            prefs.setValue(profilePictureString!, forKey: "profilePictureString")
+            prefs.setValue(rewardsReceived!, forKey: "rewardsReceived")
+            prefs.setValue(timeSpentDriving!, forKey: "timeSpentDriving")
+            prefs.setValue(email!, forKey: "email")
+            prefs.setValue(distanceTraveled!, forKey: "distanceTraveled")
         }
+        
     }
 
 
@@ -116,9 +142,28 @@ class SignInViewController: UIViewController {
                 self.presentViewController(alert, animated: true, completion: nil)
                 
             } else {
-                // user is logged in, check authData for data
+                // user is logged in, check authData for data and send it to the view controller
                 
-                self.performSegueWithIdentifier("signInSegue", sender: nil)
+                self.usersRef.queryOrderedByChild("email").queryEqualToValue("\(self.ref.authData.providerData["email"]!)")
+                    .observeEventType(.ChildAdded, withBlock: { snapshot in
+                        self.userExists = true
+                        self.firebaseUserId = snapshot.key
+                        
+                        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+                        appDelegate.userId = self.firebaseUserId!
+                        self.fullName = snapshot.value["name"] as! String!
+                        self.username = snapshot.value["username"] as! String!
+                        self.currentPoints = snapshot.value["currentPoints"] as! Int!
+                        self.totalPoints = snapshot.value["totalPoints"] as! Int!
+                        self.profilePictureString = snapshot.value["profileImage"] as! String!
+                        self.rewardsReceived = snapshot.value["rewardsReceived"] as! Int!
+                        self.timeSpentDriving = snapshot.value["timeSpentDriving"] as! Double!
+                        self.email = snapshot.value["email"] as! String!
+                        self.distanceTraveled = snapshot.value["currentPoints"] as! Double!
+                        self.registerUserInformation()
+
+                        self.performSegueWithIdentifier("signInSegue", sender: nil)
+                    })
                 
                 //self.localData.loadDataDescending("RewardsHistory", descendingBy: "createdAt")
                 //self.localData.loadData("Rewards")
@@ -144,8 +189,28 @@ class SignInViewController: UIViewController {
                             print("Login failed. \(error)")
                         } else {
                             print("Logged in! \(authData)")
+                            
                             self.registerUserInformation()
-                            self.performSegueWithIdentifier("signInSegue", sender: nil)
+                            
+//                            self.usersRef.queryOrderedByChild("email").queryEqualToValue("\(self.ref.authData.providerData["email"]!)")
+//                                .observeEventType(.Value, withBlock: { snapshot in
+//                                    self.userExists = true
+//                                    self.fullName = snapshot.value["name"] as! String!
+//                                    self.username = snapshot.value["username"] as! String
+//                                    self.currentPoints = snapshot.value["currentPoints"] as! Int
+//                                    self.totalPoints = snapshot.value["totalPoints"] as! Int
+//                                    self.profilePictureString = snapshot.value["profileImage"] as! String
+//                                    self.rewardsReceived = snapshot.value["rewardsReceived"] as! Int
+//                                    self.timeSpentDriving = snapshot.value["timeSpentDriving"] as! Double
+//                                    self.email = snapshot.value["email"] as! String
+//                                    self.distanceTraveled = snapshot.value["currentPoints"] as! Double
+//                                    if (!(self.userExists)) {
+//                                        
+//                                    }
+//                                    
+//                                    self.performSegueWithIdentifier("signInSegue", sender: nil)
+//                                
+//                                })
                         }
                 })
             }
@@ -167,15 +232,14 @@ class SignInViewController: UIViewController {
             
             if(result != nil)
             {
-                
+
                 let userId:String = result["id"] as! String
                 let userFirstName:String? = result["first_name"] as? String
                 let userLastName:String? = result["last_name"] as? String
                 let userEmail:String? = result["email"] as? String
                 
-                
                 print("\(userEmail)", terminator: "")
-                
+            
                 //let myUser:PFUser = PFUser.currentUser()!
                 
                 let fullName:String? = userFirstName! + " " + userLastName!
@@ -188,16 +252,49 @@ class SignInViewController: UIViewController {
                     let profilePictureUrl = NSURL(string: userProfile)
                     
                     let profilePictureData = NSData(contentsOfURL: profilePictureUrl!)
+                    let imageProfile: UIImage! = UIImage(data: profilePictureData!)!
+                    
+                    
+                    var data: NSData = NSData()
+                    
+                    if let image = imageProfile {
+                        data = UIImageJPEGRepresentation(image,0.1)!
+                    }
+                    
+                    let base64String = data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength)
                     
                     if(profilePictureData != nil && fullName != nil && userEmail != nil)
                     {
                         self.base64String = profilePictureData!.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
                         let currentUser = [
                             "\(userId)": [
-                                "username": "This is a test",
+                                "username": "",
                                 "name": "\(fullName!)",
                                 "email": "\(userEmail!)",
                                 "totalPoints": 0,
+                                "currentPoints": 0,
+                                "distanceTraveled": 0,
+                                "timeSpentDriving": 0,
+                                "rewardsReceived": 0,
+                                "phoneNumber": "",
+                                "profileImage": base64String
+                            ]
+                        ]
+                        
+                        self.usersRef.updateChildValues(currentUser)
+                    } else {
+                        
+                        let uploadImage = UIImage(named: "default-profile.png")
+                        let imageData: NSData = UIImagePNGRepresentation(uploadImage!)!
+                        self.base64String = imageData.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
+                        
+                        let currentUser = [
+                            "\(userId)": [
+                                "username": "",
+                                "name": "\(fullName!)",
+                                "email": "\(userEmail!)",
+                                "totalPoints": 0,
+                                "currentPoints": 0,
                                 "distanceTraveled": 0,
                                 "timeSpentDriving": 0,
                                 "rewardsReceived": 0,
@@ -207,24 +304,19 @@ class SignInViewController: UIViewController {
                         ]
                         
                         self.usersRef.updateChildValues(currentUser)
-                    } else {
-                        let currentUser = [
-                            "\(userId)": [
-                                "username": "This is a test",
-                                "name": "\(fullName!)",
-                                "email": "\(userEmail!)",
-                                "totalPoints": 0,
-                                "distanceTraveled": 0,
-                                "timeSpentDriving": 0,
-                                "rewardsReceived": 0,
-                                "phoneNumber": "",
-                                "profileImage": ""
-                            ]
-                        ]
                         
-                        self.usersRef.updateChildValues(currentUser)
                     }
                     
+                    self.fullName = fullName!
+                    self.username = ""
+                    self.currentPoints = 0
+                    self.totalPoints = 0
+                    self.profilePictureString = base64String
+                    self.rewardsReceived = 0
+                    self.timeSpentDriving = 0
+                    self.email = userEmail!
+                    self.distanceTraveled = 0
+
                 }
                 
             }

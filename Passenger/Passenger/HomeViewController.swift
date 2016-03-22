@@ -15,6 +15,15 @@ class HomeViewController: UITabBarController, UITabBarControllerDelegate {
     var helpSupport: Bool = false
     var profile: Bool = false
     
+    var fullname: String = ""
+    var currentPoints  = 0
+    var totalPoints = 0
+    var profilePictureString: String = ""
+    var rewardsReceived: Int = 0
+    var timeSpentDriving: Double = 0.0
+    var email: String = ""
+    var distanceTraveled: Double = 0.0
+    
     private var statusBarBackground: UIView!
     
     var colorGenerator = HexToUIColor()
@@ -52,6 +61,16 @@ class HomeViewController: UITabBarController, UITabBarControllerDelegate {
                 self.statusBarBackground.removeFromSuperview()
                 statusBarBackground = nil
             }
+            let viewController = ViewController()
+            viewController.fullname = fullname
+            viewController.currentPoints = currentPoints
+            viewController.totalPoints = totalPoints
+            viewController.profilePictureString = profilePictureString
+            viewController.rewardsReceived = rewardsReceived
+            viewController.timeSpentDriving = timeSpentDriving
+            viewController.email = email
+            viewController.distanceTraveled = distanceTraveled
+            
             UIApplication.sharedApplication().statusBarStyle = .Default
         } else if viewController is ProfileViewController {
             self.navigationController?.navigationBarHidden = true

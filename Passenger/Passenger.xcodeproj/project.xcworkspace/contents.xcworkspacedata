@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:Passenger.xcodeproj">
+      location = "self:/Users/connormyers/Desktop/PassengeriOS/Passenger/Passenger.xcodeproj">
    </FileRef>
 </Workspace>

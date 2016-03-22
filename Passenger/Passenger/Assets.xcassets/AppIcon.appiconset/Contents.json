@@ -38,13 +38,12 @@
     {
       "size" : "60x60",
       "idiom" : "iphone",
-      "filename" : "passenger_icon.png",
+      "filename" : "final_logo.png",
       "scale" : "2x"
     },
     {
-      "size" : "60x60",
       "idiom" : "iphone",
-      "filename" : "passenger_icon_large.png",
+      "size" : "60x60",
       "scale" : "3x"
     }
   ],

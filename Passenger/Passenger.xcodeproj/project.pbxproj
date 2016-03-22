@@ -18,6 +18,8 @@
 		1E26E90C1C7FE91B00B1EE23 /* earn-rewards-image.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E26E9091C7FE91B00B1EE23 /* earn-rewards-image.png */; };
 		1E26E90D1C7FE91B00B1EE23 /* iphone_locked_image.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E26E90A1C7FE91B00B1EE23 /* iphone_locked_image.png */; };
 		1E2E3B741C3317EC008E3FB3 /* Notifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E2E3B731C3317EC008E3FB3 /* Notifier.m */; };
+		1E30E6921C9A0ADF00AF0470 /* SplashScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E30E6911C9A0ADF00AF0470 /* SplashScreenViewController.swift */; };
+		1E30E6941C9BA44E00AF0470 /* LaunchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E30E6931C9BA44E00AF0470 /* LaunchViewController.swift */; };
 		1E32FCAB1C481C0500F01EC4 /* ForgotPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E32FCAA1C481C0500F01EC4 /* ForgotPasswordViewController.swift */; };
 		1E32FCAD1C48271000F01EC4 /* ForgotPasswordLoggedInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E32FCAC1C48271000F01EC4 /* ForgotPasswordLoggedInViewController.swift */; };
 		1E36F7271C0E9403002259CA /* RewardsHistoryCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E36F7261C0E9403002259CA /* RewardsHistoryCollectionViewCell.swift */; };
@@ -40,6 +42,7 @@
 		1E406F071BF05A1400C3885F /* ParseFacebookUtilsV4.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E406F001BF05A1400C3885F /* ParseFacebookUtilsV4.framework */; };
 		1E406F081BF05A1400C3885F /* ParseTwitterUtils.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E406F011BF05A1400C3885F /* ParseTwitterUtils.framework */; };
 		1E406F091BF05A1400C3885F /* ParseUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E406F021BF05A1400C3885F /* ParseUI.framework */; };
+		1E4D6E871C9754E300FD826C /* logo-heart.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E4D6E861C9754E300FD826C /* logo-heart.png */; };
 		1E67B6801C027E9700B7C866 /* RankingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E67B67F1C027E9700B7C866 /* RankingViewController.swift */; };
 		1E67B6821C027EA300B7C866 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E67B6811C027EA300B7C866 /* ProfileViewController.swift */; };
 		1E67B6841C027EAB00B7C866 /* MoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E67B6831C027EAB00B7C866 /* MoreViewController.swift */; };
@@ -136,6 +139,8 @@
 		1E26E90A1C7FE91B00B1EE23 /* iphone_locked_image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iphone_locked_image.png; sourceTree = "<group>"; };
 		1E2E3B721C3317EC008E3FB3 /* Notifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Notifier.h; sourceTree = "<group>"; };
 		1E2E3B731C3317EC008E3FB3 /* Notifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Notifier.m; sourceTree = "<group>"; };
+		1E30E6911C9A0ADF00AF0470 /* SplashScreenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplashScreenViewController.swift; sourceTree = "<group>"; };
+		1E30E6931C9BA44E00AF0470 /* LaunchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LaunchViewController.swift; sourceTree = "<group>"; };
 		1E32FCAA1C481C0500F01EC4 /* ForgotPasswordViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForgotPasswordViewController.swift; sourceTree = "<group>"; };
 		1E32FCAC1C48271000F01EC4 /* ForgotPasswordLoggedInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForgotPasswordLoggedInViewController.swift; sourceTree = "<group>"; };
 		1E36F7261C0E9403002259CA /* RewardsHistoryCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RewardsHistoryCollectionViewCell.swift; sourceTree = "<group>"; };
@@ -158,6 +163,7 @@
 		1E406F001BF05A1400C3885F /* ParseFacebookUtilsV4.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ParseFacebookUtilsV4.framework; sourceTree = "<group>"; };
 		1E406F011BF05A1400C3885F /* ParseTwitterUtils.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ParseTwitterUtils.framework; sourceTree = "<group>"; };
 		1E406F021BF05A1400C3885F /* ParseUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ParseUI.framework; sourceTree = "<group>"; };
+		1E4D6E861C9754E300FD826C /* logo-heart.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo-heart.png"; sourceTree = "<group>"; };
 		1E67B67F1C027E9700B7C866 /* RankingViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RankingViewController.swift; sourceTree = "<group>"; };
 		1E67B6811C027EA300B7C866 /* ProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		1E67B6831C027EAB00B7C866 /* MoreViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoreViewController.swift; sourceTree = "<group>"; };
@@ -196,10 +202,10 @@
 		1EAC2D1C1BE861D200547515 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1EAC2D1F1BE861D200547515 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1EAC2D211BE861D200547515 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		1EAC2D261BE861D200547515 /* PassengerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PassengerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1EAC2D261BE861D200547515 /* Passenger.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Passenger.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1EAC2D2A1BE861D200547515 /* PassengerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassengerTests.swift; sourceTree = "<group>"; };
 		1EAC2D2C1BE861D200547515 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		1EAC2D311BE861D200547515 /* PassengerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PassengerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1EAC2D311BE861D200547515 /* Passenger.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Passenger.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1EAC2D351BE861D200547515 /* PassengerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassengerUITests.swift; sourceTree = "<group>"; };
 		1EAC2D371BE861D200547515 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1EB2230C1C2B3BF50034D7E4 /* MenuTransitionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuTransitionManager.swift; sourceTree = "<group>"; };
@@ -371,8 +377,8 @@
 			isa = PBXGroup;
 			children = (
 				1EAC2D121BE861D200547515 /* Passenger.app */,
-				1EAC2D261BE861D200547515 /* PassengerTests.xctest */,
-				1EAC2D311BE861D200547515 /* PassengerUITests.xctest */,
+				1EAC2D261BE861D200547515 /* Passenger.xctest */,
+				1EAC2D311BE861D200547515 /* Passenger.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -449,6 +455,8 @@
 				1EE174FB1C473F1B00F74773 /* InviteFriendsTableViewController.swift */,
 				1E32FCAA1C481C0500F01EC4 /* ForgotPasswordViewController.swift */,
 				1E32FCAC1C48271000F01EC4 /* ForgotPasswordLoggedInViewController.swift */,
+				1E30E6911C9A0ADF00AF0470 /* SplashScreenViewController.swift */,
+				1E30E6931C9BA44E00AF0470 /* LaunchViewController.swift */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -462,6 +470,7 @@
 				1E26E9041C7FDD7500B1EE23 /* default-profile.png */,
 				1E26E9061C7FE8EB00B1EE23 /* logo.png */,
 				1EF959921BFFE3BE0087F9E4 /* tmp-0.jpg */,
+				1E4D6E861C9754E300FD826C /* logo-heart.png */,
 				1EF959931BFFE3BE0087F9E4 /* tmp-1.jpg */,
 				1EF959941BFFE3BE0087F9E4 /* tmp-2.jpg */,
 				1EF959951BFFE3BE0087F9E4 /* tmp-3.jpg */,
@@ -510,7 +519,7 @@
 			);
 			name = PassengerTests;
 			productName = PassengerTests;
-			productReference = 1EAC2D261BE861D200547515 /* PassengerTests.xctest */;
+			productReference = 1EAC2D261BE861D200547515 /* Passenger.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		1EAC2D301BE861D200547515 /* PassengerUITests */ = {
@@ -528,7 +537,7 @@
 			);
 			name = PassengerUITests;
 			productName = PassengerUITests;
-			productReference = 1EAC2D311BE861D200547515 /* PassengerUITests.xctest */;
+			productReference = 1EAC2D311BE861D200547515 /* Passenger.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -589,6 +598,7 @@
 				1EAC2D201BE861D200547515 /* LaunchScreen.storyboard in Resources */,
 				1EAC2D1D1BE861D200547515 /* Assets.xcassets in Resources */,
 				1EF959A31BFFE3BE0087F9E4 /* tmp-7.jpg in Resources */,
+				1E4D6E871C9754E300FD826C /* logo-heart.png in Resources */,
 				1EF959A01BFFE3BE0087F9E4 /* tmp-4.jpg in Resources */,
 				1EF9599C1BFFE3BE0087F9E4 /* tmp-0.jpg in Resources */,
 				1EF9599E1BFFE3BE0087F9E4 /* tmp-2.jpg in Resources */,
@@ -667,6 +677,8 @@
 				1EA1F0331C22207E00845B2C /* HelpViewController.swift in Sources */,
 				1E76C7711BFEB57B00F03E74 /* PointsHistoryTableViewCell.swift in Sources */,
 				1E67B68E1C05091600B7C866 /* Reward.swift in Sources */,
+				1E30E6921C9A0ADF00AF0470 /* SplashScreenViewController.swift in Sources */,
+				1E30E6941C9BA44E00AF0470 /* LaunchViewController.swift in Sources */,
 				1ED2707C1C0D2AEA00F85E2B /* RewardsHistoryCollectionViewController.swift in Sources */,
 				1EA1F0371C22381400845B2C /* LegalViewController.swift in Sources */,
 				1E76C77F1BFF99FE00F03E74 /* FirstCustomSegueUnwind.swift in Sources */,
@@ -831,8 +843,8 @@
 				);
 				INFOPLIST_FILE = Passenger/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.Astral.Passenger;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.SpacebarTechnologies.Cherish;
+				PRODUCT_NAME = Passenger;
 				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Passenger/Passenger-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -852,8 +864,8 @@
 				);
 				INFOPLIST_FILE = Passenger/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.Astral.Passenger;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.SpacebarTechnologies.Cherish;
+				PRODUCT_NAME = Passenger;
 				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Passenger/Passenger-Bridging-Header.h";
 			};
@@ -866,7 +878,7 @@
 				INFOPLIST_FILE = PassengerTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.Astral.PassengerTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Passenger;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Passenger.app/Passenger";
 			};
 			name = Debug;
@@ -878,7 +890,7 @@
 				INFOPLIST_FILE = PassengerTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.Astral.PassengerTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Passenger;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Passenger.app/Passenger";
 			};
 			name = Release;
@@ -889,7 +901,7 @@
 				INFOPLIST_FILE = PassengerUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.Astral.PassengerUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Passenger;
 				TEST_TARGET_NAME = Passenger;
 				USES_XCTRUNNER = YES;
 			};
@@ -901,7 +913,7 @@
 				INFOPLIST_FILE = PassengerUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.Astral.PassengerUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Passenger;
 				TEST_TARGET_NAME = Passenger;
 				USES_XCTRUNNER = YES;
 			};
