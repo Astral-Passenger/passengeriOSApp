@@ -92,10 +92,9 @@ class RedeemViewController: UIViewController {
         
         usersRef.queryOrderedByChild("email").queryEqualToValue("\(ref.authData.providerData["email"]!)")
             .observeEventType(.ChildAdded, withBlock: { snapshot in
-                let fullName = snapshot.value["name"] as! String!
-                let currentPoints = snapshot.value["currentPoints"] as! Int
-                print(currentPoints)
-                self.currentTotalPoints = snapshot.value["currentPoints"] as! Int
+                let fullName = snapshot.value.objectForKey("name") as! String!
+                let currentPoints = snapshot.value.objectForKey("currentPoints") as! Int
+                self.currentTotalPoints = snapshot.value.objectForKey("currentPoints") as! Int
             })
         
         let font = UIFont.systemFontOfSize(16, weight: UIFontWeightLight)
@@ -127,6 +126,9 @@ class RedeemViewController: UIViewController {
         // Check to see if the user even has enough points saved to redeem it before they actually go to the pop up
         if(rewardPointCost < currentTotalPoints) {
             backgroundPopUpView.hidden = false
+            let alert = UIAlertController(title: "SHOW TO TELLER", message: "Show your phone to the teller so that they can enter in their 6 digit code to give you the reward.", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+            self.presentViewController(alert, animated: true, completion: nil)
         } else {
             // The user didn't have enough points show an alert
             let alertController = UIAlertController(title: "Passenger", message: "You do not have enough points built up to redeem this reward", preferredStyle: .Alert)
@@ -336,7 +338,7 @@ class RedeemViewController: UIViewController {
                     // Handling the storing of the transaction for the businesses
                     
                     iteration = Int(snapshot.key!)!
-                    currentBusinessMonthlyTransactions = snapshot.value["monthlyTransactions"] as? NSArray
+                    currentBusinessMonthlyTransactions = snapshot.value.objectForKey("monthlyTransactions") as? NSArray
                     if (currentBusinessMonthlyTransactions != nil) {
                         for (var i = 0; i < currentBusinessMonthlyTransactions!.count; i++) {
                             currentBusinessMonthlyTransactionsAppended.append(currentBusinessMonthlyTransactions![i] as! NSDictionary)
@@ -362,9 +364,9 @@ class RedeemViewController: UIViewController {
                             let id = snapshot.key
                             print(id)
                             
-                            var currentPoints = snapshot.value["currentPoints"] as! Int
+                            var currentPoints = snapshot.value.objectForKey("currentPoints") as! Int
                             currentPoints = currentPoints - self.rewardPointCost!
-                            currentUserRewardsList = snapshot.value["rewardsHistory"] as? NSArray
+                            currentUserRewardsList = snapshot.value.objectForKey("rewardsHistory") as? NSArray
                             if (currentUserRewardsList != nil) {
                                 for (var i = 0; i < currentUserRewardsList!.count; i++) {
                                     currentUserRewardsListAppended.append(currentUserRewardsList![i] as! NSDictionary)

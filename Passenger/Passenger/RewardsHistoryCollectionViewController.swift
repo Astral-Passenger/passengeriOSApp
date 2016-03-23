@@ -77,19 +77,19 @@ class RewardsHistoryCollectionViewController: UICollectionViewController {
         usersRef.queryOrderedByChild("email").queryEqualToValue("\(ref.authData.providerData["email"]!)")
             .observeEventType(.ChildAdded, withBlock: { snapshot in
                 
-                if let rewardsHistory = snapshot.value["rewardsHistory"] as? NSArray {
+                if let rewardsHistory = snapshot.value.objectForKey("rewardsHistory") as? NSArray {
                     
                     self.rewardsHistory = rewardsHistory
                     
                     for(var i = self.rewardsHistory!.count - 1; i >= 0; i--) {
-                        let imageString = self.rewardsHistory![i]["rewardImage"] as! String
+                        let imageString = self.rewardsHistory!.objectAtIndex(i).objectForKey("rewardImage") as! String
                         let decodedData = NSData(base64EncodedString: imageString, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
                         let decodedImage = UIImage(data: decodedData!)
                         let reward = Reward()
-                        reward.companyName = self.rewardsHistory![i]["companyName"] as! String
-                        reward.pointCost = self.rewardsHistory![i]["pointCost"] as! Int
-                        reward.rewardDescription = self.rewardsHistory![i]["rewardText"] as! String
-                        reward.rewardName = self.rewardsHistory![i]["rewardItem"] as! String
+                        reward.companyName = self.rewardsHistory!.objectAtIndex(i).objectForKey("companyName") as! String
+                        reward.pointCost = self.rewardsHistory!.objectAtIndex(i).objectForKey("pointCost") as! Int
+                        reward.rewardDescription = self.rewardsHistory!.objectAtIndex(i).objectForKey("rewardText") as! String
+                        reward.rewardName = self.rewardsHistory!.objectAtIndex(i).objectForKey("rewardItem") as! String
                         reward.rewardImage = decodedImage
                         self.redeemedRewards.append(reward)
                         self.collectionView!.reloadData()

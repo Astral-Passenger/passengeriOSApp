@@ -57,8 +57,8 @@ class HelpExpandedTableViewController: UITableViewController {
         
         helpQuestionsRef.queryOrderedByChild("questionType").queryEqualToValue(questionType)
             .observeEventType(.ChildAdded, withBlock: { snapshot in
-                self.questions.append(snapshot.value["question"] as! String)
-                self.answers.append(snapshot.value["answer"] as! String)
+                self.questions.append(snapshot.value.objectForKey("question") as! String)
+                self.answers.append(snapshot.value.objectForKey("answer") as! String)
                 self.tableView.reloadData()
             })
         self.tableView.reloadData()

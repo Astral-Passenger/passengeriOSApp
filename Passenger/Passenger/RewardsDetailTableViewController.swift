@@ -85,11 +85,11 @@ class RewardsDetailTableViewController: UITableViewController {
         
         rewardsRef.observeEventType(.Value, withBlock: { snapshot in
             for (var i = 0; i < snapshot.value.count; i++) {
-                let info = snapshot.value[i]["companyImage"] as! String
+                let info = snapshot.value.objectAtIndex(i).objectForKey("companyImage") as! String
                 let decodedData = NSData(base64EncodedString: info, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
                 let decodedImage = UIImage(data: decodedData!)
-                let data = snapshot.value[i]["rewards"]
-                let rewardGroup  = RewardGroup(rewardType: "Discount", companyName: snapshot.value[i]["companyName"] as! String, backgroundImage: decodedImage!, crossStreets: snapshot.value[i]["crossStreets"] as! String, sixDigitIdentifier: snapshot.value[i]["sixDigitIdentifier"] as! Int, rewards: snapshot.value[i]["rewards"] as! NSArray)
+                let data = snapshot.value.objectAtIndex(i).objectForKey("rewards")
+                let rewardGroup  = RewardGroup(rewardType: "Discount", companyName: snapshot.value.objectAtIndex(i).objectForKey("companyName") as! String, backgroundImage: decodedImage!, crossStreets: snapshot.value.objectAtIndex(i).objectForKey("crossStreets") as! String, sixDigitIdentifier: snapshot.value.objectAtIndex(i).objectForKey("sixDigitIdentifier") as! Int, rewards: snapshot.value.objectAtIndex(i).objectForKey("rewards") as! NSArray)
                 self.rewardsList.append(rewardGroup)
                 self.tableView.reloadData()
             }

@@ -11,6 +11,7 @@ import Bolts
 import FBSDKCoreKit
 import ParseFacebookUtilsV4
 import CoreLocation
+import CoreMotion
 import HealthKit
 import Firebase
 
@@ -19,7 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     let ref = Firebase(url: "https://passenger-app.firebaseio.com/")
     let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users/")
-    
+    let activityManager = CMMotionActivityManager()
     var window: UIWindow?
     
     var currentUserPointsList: NSArray?
@@ -42,6 +43,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var isSittingStillCount = 0
     var isDriving = true
+    var updatesAlreadyStarted = false
     var stoppedDriving = true
     
     var seconds = 0.0
@@ -87,8 +89,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         self.locationManager.requestAlwaysAuthorization()
         
-        Parse.enableLocalDatastore()
-        
         // Initialize Parse.
         Parse.setApplicationId("kGhDAAyw5RwtYNrm70j8cYHlOPj60A9rnJ0UI0o1",
             clientKey: "JeIYcqqk1S8nNaJ1SChjSPemYlyxPbA8Z4p8CB8b")
@@ -115,11 +115,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     .observeEventType(.ChildAdded, withBlock: { snapshot in
 
                         self.userId = snapshot.key
-                        self.currentUserCurrentPoints = snapshot.value["currentPoints"] as! Double!
-                        self.currentUserTotalPoints = snapshot.value["totalPoints"] as! Double!
-                        self.currentUserTimeSpentDriving = snapshot.value["timeSpentDriving"] as! Double!
-                        self.currentUserCurrentDistance = snapshot.value["currentPoints"] as! Double!
-                        self.currentUserPointsList = snapshot.value["pointsHistory"] as! NSArray!
+                        self.currentUserCurrentPoints = snapshot.value.objectForKey("currentPoints") as! Double!
+                        self.currentUserTotalPoints = snapshot.value.objectForKey("totalPoints") as! Double!
+                        self.currentUserTimeSpentDriving = snapshot.value.objectForKey("timeSpentDriving") as! Double!
+                        self.currentUserCurrentDistance = snapshot.value.objectForKey("currentPoints") as! Double!
+                        self.currentUserPointsList = snapshot.value.objectForKey("pointsHistory") as! NSArray!
                         
                     })
                 
@@ -212,7 +212,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             if (ref.authData != nil) {
             
-                var date = NSDate()
+                let date = NSDate()
                 let dateFormatter = NSDateFormatter()
                 dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
                 let dateToRecordString = dateFormatter.stringFromDate(date)
@@ -261,12 +261,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             self.seconds = 0
         }
 
-        seconds++
+        seconds += 1
         
         if (distanceTraveledInTen < 50) {
             currentSpeed = 0.0
-            isSittingStillCount++
-            if (isSittingStillCount > 10 && stoppedDriving) {
+            isSittingStillCount += 1
+            if (isSittingStillCount > 120 && stoppedDriving) {
                 if (totalCurrentPoints > 0.75 && ref.authData != nil) {
                     self.isSittingStillCount = 0
                     self.stoppedDriving = true
@@ -285,9 +285,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     }
                     
                     self.currentUserPointsListAppended.append(currentPointRecord)
-                    
-                    print("Here is the normal list: \(self.currentUserPointsList)")
-                    print("Here is the appended list: \(self.currentUserPointsListAppended)")
                     
                     usersRef.childByAppendingPath("\(userId)/pointsHistory").setValue(currentUserPointsListAppended)
                     
@@ -333,12 +330,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //print("Is Driving: \(isDriving)")
         //print(isLocked)
         
-        everyTenSeconds++
+        everyTenSeconds += 1
     }
     
     func startLocationUpdates() {
+        //self.locationManager.startUpdatingLocation()
         // Here, the location manager will be lazily instantiated
-        locationManager.startUpdatingLocation()
+        
+        self.activityManager.startActivityUpdatesToQueue(NSOperationQueue.mainQueue()) { data in
+            if let data = data {
+                dispatch_async(dispatch_get_main_queue()) {
+                    if(data.stationary == true && self.updatesAlreadyStarted && self.isSittingStillCount > 120){
+                        print("Stationary: Location updating in the background has been stopped until the user drives again.")
+                        self.updatesAlreadyStarted = false
+                        self.locationManager.stopUpdatingLocation()
+                    } else if (data.walking == true) {
+                        print("Walking")
+                    } else if (data.automotive == true && self.updatesAlreadyStarted == false && (self.isSittingStillCount > 120 || self.isSittingStillCount == 0)){
+                        print("Driving: The location updating has been started and wont stop until the user is stationary again.")
+                        self.updatesAlreadyStarted = true
+                        self.locationManager.startUpdatingLocation()
+                    }
+                }
+            }
+        }
     }
     
     func addScreenOffPoints() {

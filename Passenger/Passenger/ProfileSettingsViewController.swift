@@ -13,7 +13,7 @@ import FBSDKCoreKit
 import ParseFacebookUtilsV4
 import Firebase
 
-class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
     
     let ref = Firebase(url: "https://passenger-app.firebaseio.com")
     let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users/")
@@ -30,6 +30,7 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
     private var updatedImage: UIImage?
     
     var senderViewController: String?
+    var kbHeight: CGFloat!
     
     var didEditImage: Bool = false
     var userId: String?
@@ -57,9 +58,53 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
         profileImage.addGestureRecognizer(profileImageTap)
         
         self.transitionManager.sourceViewController = self
+        nameTextField.delegate = self
+        emailTextField.delegate = self
+        usernameTextField.delegate = self
         
         imagePicker.delegate = self
     }
+    
+    override func viewWillAppear(animated:Bool) {
+        super.viewWillAppear(animated)
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillShow:"), name: UIKeyboardWillShowNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillHide:"), name: UIKeyboardWillHideNotification, object: nil)
+    }
+    
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+    
+    func keyboardWillShow(notification: NSNotification) {
+        if let userInfo = notification.userInfo {
+            if let keyboardSize =  (userInfo[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.CGRectValue() {
+                kbHeight = 0
+                self.animateTextField(true)
+            }
+        }
+    }
+    
+    func keyboardWillHide(notification: NSNotification) {
+        self.animateTextField(false)
+    }
+    
+    func animateTextField(up: Bool) {
+        var movement = (up ? -kbHeight : kbHeight)
+        
+        UIView.animateWithDuration(0.3, animations: {
+            self.view.frame = CGRectOffset(self.view.frame, 0, movement)
+        })
+    }
+    
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        
+        return true
+    }
+
     
     @IBAction func connectToFacebookTap(sender: AnyObject) {
         if !PFFacebookUtils.isLinkedWithUser(currentUser!) {

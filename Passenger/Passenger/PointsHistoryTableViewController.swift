@@ -69,7 +69,7 @@ class PointsHistoryTableViewController: UITableViewController {
         usersRef.queryOrderedByChild("email").queryEqualToValue("\(ref.authData.providerData["email"]!)")
             .observeEventType(.ChildAdded, withBlock: { snapshot in
                 
-                if let pointsHistory = snapshot.value["pointsHistory"] as? NSArray {
+                if let pointsHistory = snapshot.value.objectForKey("pointsHistory") as? NSArray {
                     
                     self.pointsHistory = pointsHistory
                     
@@ -85,9 +85,9 @@ class PointsHistoryTableViewController: UITableViewController {
                     
                     for (var i = self.pointsHistory!.count - 1; i >= 0; i--) {
                         
-                        distanceTraveled = self.pointsHistory![i]["distanceTraveled"] as! Double
-                        pointsGenerated = self.pointsHistory![i]["pointsGenerated"] as! Int
-                        dateRecordedString = self.pointsHistory![i]["createdAt"] as! String
+                        distanceTraveled = self.pointsHistory!.objectAtIndex(i).objectForKey("distanceTraveled") as! Double
+                        pointsGenerated = self.pointsHistory!.objectAtIndex(i).objectForKey("pointsGenerated") as! Int
+                        dateRecordedString = self.pointsHistory!.objectAtIndex(i).objectForKey("createdAt") as! String
                         let dateFormatter = NSDateFormatter()
                         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
                         dateRecorded = dateFormatter.dateFromString(dateRecordedString!)!
