@@ -56,7 +56,7 @@ class DiscountCollectionViewController: UICollectionViewController {
             menu.transitioningDelegate = self.transitionManager
             self.transitionManager.menuViewController = menu
             let dest = menu.topViewController as! RewardsDetailTableViewController
-            dest.currentTitle = "DISCOUNTS"
+            dest.currentTitle = "CHOOSE COMPANY"
             dest.rewardType = "Discounts"
         } else if(segue.identifier == "discountsToRedeem") {
             let nav = segue.destinationViewController as! UINavigationController
@@ -74,11 +74,6 @@ class DiscountCollectionViewController: UICollectionViewController {
     }
     
     func configureView() {
-        // Change the font and size of nav bar text
-        /*
-        let swipeGestureRecognizer: UISwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: "showRewardsViewController")
-        swipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.Right
-        self.view.addGestureRecognizer(swipeGestureRecognizer) */
         // Change the font and size of nav bar text
         
         let font = UIFont.systemFontOfSize(16, weight: UIFontWeightLight)

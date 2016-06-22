@@ -82,20 +82,30 @@ class RewardsDetailTableViewController: UITableViewController {
     }
     
     func loadSampleProducts() {
-        
-        rewardsRef.observeEventType(.Value, withBlock: { snapshot in
-            for (var i = 0; i < snapshot.value.count; i++) {
-                let info = snapshot.value.objectAtIndex(i).objectForKey("companyImage") as! String
-                let decodedData = NSData(base64EncodedString: info, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
-                let decodedImage = UIImage(data: decodedData!)
-                let data = snapshot.value.objectAtIndex(i).objectForKey("rewards")
-                let rewardGroup  = RewardGroup(rewardType: "Discount", companyName: snapshot.value.objectAtIndex(i).objectForKey("companyName") as! String, backgroundImage: decodedImage!, crossStreets: snapshot.value.objectAtIndex(i).objectForKey("crossStreets") as! String, sixDigitIdentifier: snapshot.value.objectAtIndex(i).objectForKey("sixDigitIdentifier") as! Int, rewards: snapshot.value.objectAtIndex(i).objectForKey("rewards") as! NSArray)
-                self.rewardsList.append(rewardGroup)
-                self.tableView.reloadData()
-            }
-            }, withCancelBlock: { error in
-                print(error.description)
-        })
+        let reachable = Reachability()
+        if !(reachable.isConnectedToNetwork()) {
+            var emptyLabel = UILabel(frame: CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height))
+            emptyLabel.text = "No internet connection"
+            emptyLabel.textAlignment = NSTextAlignment.Center
+            let hexChanger = HexToUIColor()
+            emptyLabel.textColor = hexChanger.hexStringToUIColor("#5c5c5c")
+            self.tableView!.backgroundView = emptyLabel
+        } else {
+            rewardsRef.observeEventType(.Value, withBlock: { snapshot in
+                for (var i = 0; i < snapshot.value.count; i++) {
+                    let info = snapshot.value.objectAtIndex(i).objectForKey("companyImage") as! String
+                    let decodedData = NSData(base64EncodedString: info, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
+                    let decodedImage = UIImage(data: decodedData!)
+                    let data = snapshot.value.objectAtIndex(i).objectForKey("rewards")
+                    let rewardGroup  = RewardGroup(rewardType: "Discount", companyName: snapshot.value.objectAtIndex(i).objectForKey("companyName") as! String, backgroundImage: decodedImage!, crossStreets: snapshot.value.objectAtIndex(i).objectForKey("crossStreets") as! String, sixDigitIdentifier: snapshot.value.objectAtIndex(i).objectForKey("sixDigitIdentifier") as! Int, rewards: snapshot.value.objectAtIndex(i).objectForKey("rewards") as! NSArray)
+                    self.rewardsList.append(rewardGroup)
+                    self.tableView.reloadData()
+                }
+                }, withCancelBlock: { error in
+                    print(error.description)
+            })
+        }
+
         
 //        let query = PFQuery(className:"Rewards")
 //        query.fromLocalDatastore()

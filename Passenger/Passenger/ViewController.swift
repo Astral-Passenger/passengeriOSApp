@@ -32,6 +32,8 @@ class ViewController: UIViewController {
     var seconds = 0.0
     var distance = 0.0
     
+    var appDelegate = AppDelegate()
+    
     var currentSpeed = 0.0
     
     var previousLocation: CLLocation?
@@ -49,14 +51,26 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Do any additional setup after loading the view, typically from a nib.
-        
-        configureView()
-        let gpsConvert = GpsCoordinateConverter()
-        gpsConvert.gpsToAddress(36.8080762, longitude: -119.7274735) {
-            (result: String) in
-            print(result)
+        let reachable = Reachability()
+        if !(reachable.isConnectedToNetwork()) {
+            let alert = UIAlertController(title: "INTERNET CONNECTION", message: "You are currently not connected to the internet. Passenger requires that you have an internet connection in order to record your driving and give you points. Please make sure you have a connection to the internet.", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+            self.presentViewController(alert, animated: true, completion: nil)
         }
+
+        configureView()
+//        let gpsConvert = GpsCoordinateConverter()
+//        gpsConvert.gpsToAddress(36.8080762, longitude: -119.7274735) {
+//            (result: String) in
+//            print(result)
+//        }
+        let userId = self.ref.authData.uid.stringByReplacingOccurrencesOfString(
+            "facebook:",
+            withString: "",// or just nil
+            range: nil)
+        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+        appDelegate.userId = userId
+        print("Here is the id for the user \(userId)")
     }
 
     override func didReceiveMemoryWarning() {
@@ -69,7 +83,7 @@ class ViewController: UIViewController {
         if(segue.identifier == "homeToRewards") {
             let nav = segue.destinationViewController as! UINavigationController
             let dest = nav.topViewController as! RewardsDetailTableViewController
-            dest.currentTitle = "DISCOUNTS"
+            dest.currentTitle = "CHOOSE COMPANY"
             dest.rewardType = "Discounts"
         }
         

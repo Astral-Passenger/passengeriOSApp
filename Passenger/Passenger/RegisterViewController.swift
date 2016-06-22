@@ -49,6 +49,7 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var nameView: UIView!
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var loadingView: UIView!
     
     var imageList = [UIImage]()
     
@@ -177,110 +178,138 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
     }
     
     func registerUser() {
-        
-        let username = usernameTextField.text!
-        let password = passwordTextField.text!
-        let email = emailTextField.text!
-        let name = nameTextField.text!
-        
-        var isEmail: Bool = false
-        
-        if email.rangeOfString("@") != nil {
-            isEmail = true
-        }
-        
-        self.usersRef.queryOrderedByChild("username").queryEqualToValue("\(username)")
-            .observeEventType(.Value, withBlock: { snapshot in
-                print("This is called")
-                if snapshot.value is NSNull {
-                    // The username is not currently taken
-                    
-                    if (username.characters.count < 4) {
-                        let alert = UIAlertController(title: "USERNAME", message: "Enter a username that is longer than 4 characters.", preferredStyle: UIAlertControllerStyle.Alert)
-                        alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
-                        self.presentViewController(alert, animated: true, completion: nil)
-                        self.activityIndicator.hidden = true
-                        self.activityIndicator.stopAnimating()
-                    } else if (email.characters.count < 5 && isEmail == false) {
-                        let alert = UIAlertController(title: "EMAIL", message: "Please enter a valid email", preferredStyle: UIAlertControllerStyle.Alert)
-                        alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
-                        self.presentViewController(alert, animated: true, completion: nil)
-                        self.activityIndicator.hidden = true
-                        self.activityIndicator.stopAnimating()
-                    } else if (password.characters.count < 6) {
-                        let alert = UIAlertController(title: "PASSWORD", message: "Please enter a password longer than 6 characters for security purposes.", preferredStyle: UIAlertControllerStyle.Alert)
-                        alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
-                        self.presentViewController(alert, animated: true, completion: nil)
-                        self.activityIndicator.hidden = true
-                        self.activityIndicator.stopAnimating()
-                    } else {
-                        // Register & Authenticate user
-                        self.ref.createUser(email, password: password) { (error: NSError!) in
-                            if error == nil {
-                                self.ref.authUser(email, password: password,
-                                    withCompletionBlock: {
-                                        (error, auth) -> Void in
-                                        
-                                        
-                                        let uploadImage = UIImage(named: "default-profile.png")
-                                        let imageData: NSData = UIImagePNGRepresentation(uploadImage!)!
-                                        self.base64String = imageData.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
-                                        
-                                        
-                                        let currentUser = [
-                                            "\(auth.uid)": [
-                                                "username": username,
-                                                "name": name,
-                                                "email": email,
-                                                "totalPoints": 0,
-                                                "currentPoints": 0,
-                                                "distanceTraveled": 0,
-                                                "timeSpentDriving": 0,
-                                                "rewardsReceived": 0,
-                                                "phoneNumber": "",
-                                                "profileImage": self.base64String
-                                            ]
-                                        ]
-                                        
-                                        self.usersRef.updateChildValues(currentUser)
-                                        
-                                        self.fullName = name
-                                        self.username = ""
-                                        self.currentPoints = 0
-                                        self.totalPoints = 0
-                                        self.profilePictureString = "\(self.base64String)"
-                                        self.rewardsReceived = 0
-                                        self.timeSpentDriving = 0
-                                        self.email = email
-                                        self.distanceTraveled = 0
-                                        
-                                        self.activityIndicator.hidden = true
-                                        self.activityIndicator.stopAnimating()
-                                        
-                                        self.performSegueWithIdentifier("finishedSigningUp", sender: nil)
-                                })
-                            } else {
-                                self.activityIndicator.hidden = true
-                                self.activityIndicator.stopAnimating()
-                                let alert = UIAlertController(title: "SIGN UP", message: "\(error!.localizedDescription)", preferredStyle: UIAlertControllerStyle.Alert)
+        let reachable = Reachability()
+        if !(reachable.isConnectedToNetwork()) {
+            let alert = UIAlertController(title: "INTERNET CONNECTION", message: "You are currently not connected to the internet. Make sure you are connected and try again.", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+            self.presentViewController(alert, animated: true, completion: nil)
+            self.loadingView.hidden = true
+            self.activityIndicator.hidden = true
+            self.activityIndicator.stopAnimating()
+        } else {
+            loadingView.hidden = false
+            activityIndicator.startAnimating()
+            activityIndicator.hidden = false
+            let username = usernameTextField.text!
+            let password = passwordTextField.text!
+            let email = emailTextField.text!
+            let name = nameTextField.text!
+            
+            var isEmail: Bool = false
+            
+            if email.rangeOfString("@") != nil {
+                isEmail = true
+            }
+            
+            if (username == "" || password == "" || email == "" || name == "") {
+                let alert = UIAlertController(title: "REGISTRATION ERROR", message: "Make sure you fill out all of the fields.", preferredStyle: UIAlertControllerStyle.Alert)
+                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+                self.presentViewController(alert, animated: true, completion: nil)
+                self.loadingView.hidden = true
+                self.activityIndicator.hidden = true
+                self.activityIndicator.stopAnimating()
+            } else {
+                self.usersRef.queryOrderedByChild("username").queryEqualToValue("\(username)")
+                    .observeEventType(.Value, withBlock: { snapshot in
+                        print("This is called")
+                        if snapshot.value is NSNull {
+                            // The username is not currently taken
+                            
+                            if (username.characters.count < 4) {
+                                let alert = UIAlertController(title: "USERNAME", message: "Enter a username that is longer than 4 characters.", preferredStyle: UIAlertControllerStyle.Alert)
                                 alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
                                 self.presentViewController(alert, animated: true, completion: nil)
+                                self.loadingView.hidden = true
+                                self.activityIndicator.hidden = true
+                                self.activityIndicator.stopAnimating()
+                            } else if (email.characters.count < 5 && isEmail == false) {
+                                let alert = UIAlertController(title: "EMAIL", message: "Please enter a valid email", preferredStyle: UIAlertControllerStyle.Alert)
+                                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+                                self.presentViewController(alert, animated: true, completion: nil)
+                                self.loadingView.hidden = true
+                                self.activityIndicator.hidden = true
+                                self.activityIndicator.stopAnimating()
+                            } else if (password.characters.count < 6) {
+                                let alert = UIAlertController(title: "PASSWORD", message: "Please enter a password longer than 6 characters for security purposes.", preferredStyle: UIAlertControllerStyle.Alert)
+                                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+                                self.presentViewController(alert, animated: true, completion: nil)
+                                self.loadingView.hidden = true
+                                self.activityIndicator.hidden = true
+                                self.activityIndicator.stopAnimating()
+                            } else {
+                                // Register & Authenticate user
+                                self.ref.createUser(email, password: password) { (error: NSError!) in
+                                    if error == nil {
+                                        self.ref.authUser(email, password: password,
+                                            withCompletionBlock: {
+                                                (error, auth) -> Void in
+                                                
+                                                
+                                                let uploadImage = UIImage(named: "default-profile.png")
+                                                let imageData: NSData = UIImagePNGRepresentation(uploadImage!)!
+                                                self.base64String = imageData.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
+                                                
+                                                
+                                                let currentUser = [
+                                                    "\(auth.uid)": [
+                                                        "username": username,
+                                                        "name": name,
+                                                        "email": email,
+                                                        "totalPoints": 0,
+                                                        "currentPoints": 0,
+                                                        "distanceTraveled": 0,
+                                                        "timeSpentDriving": 0,
+                                                        "rewardsReceived": 0,
+                                                        "phoneNumber": "",
+                                                        "profileImage": self.base64String
+                                                    ]
+                                                ]
+                                                
+                                                self.usersRef.updateChildValues(currentUser)
+                                                
+                                                self.fullName = name
+                                                self.username = ""
+                                                self.currentPoints = 0
+                                                self.totalPoints = 0
+                                                self.profilePictureString = "\(self.base64String)"
+                                                self.rewardsReceived = 0
+                                                self.timeSpentDriving = 0
+                                                self.email = email
+                                                self.distanceTraveled = 0
+                                                
+                                                self.activityIndicator.hidden = true
+                                                self.activityIndicator.stopAnimating()
+                                                
+                                                let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+                                                appDelegate.userId = auth.uid
+                                                
+                                                self.performSegueWithIdentifier("finishedSigningUp", sender: nil)
+                                        })
+                                    } else {
+                                        self.activityIndicator.hidden = true
+                                        self.activityIndicator.stopAnimating()
+                                        let alert = UIAlertController(title: "SIGN UP", message: "\(error!.localizedDescription)", preferredStyle: UIAlertControllerStyle.Alert)
+                                        alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+                                        self.presentViewController(alert, animated: true, completion: nil)
+                                    }
+                                }
                             }
+                            
+                        } else {
+                            
+                            // The username is taken choose another one
+                            let alert = UIAlertController(title: "USERNAME", message: "This username has already been taken, please choose another one.", preferredStyle: UIAlertControllerStyle.Alert)
+                            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+                            self.presentViewController(alert, animated: true, completion: nil)
+                            self.loadingView.hidden = true
+                            self.activityIndicator.hidden = true
+                            self.activityIndicator.stopAnimating()
                         }
-                    }
+                        
+                    })
+            }
 
-                } else {
-                    
-                    // The username is taken choose another one
-                    let alert = UIAlertController(title: "USERNAME", message: "This username has already been taken, please choose another one.", preferredStyle: UIAlertControllerStyle.Alert)
-                    alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
-                    self.presentViewController(alert, animated: true, completion: nil)
-                    self.activityIndicator.hidden = true
-                    self.activityIndicator.stopAnimating()
-                }
-    
-            })
-        
+        }
     }
 
 
@@ -292,32 +321,40 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
     
     
     @IBAction func createAccountWithFacebook(sender: AnyObject) {
-        
-        facebookLogin.logInWithReadPermissions(["email"], handler: {
-            (facebookResult, facebookError) -> Void in
-            if facebookError != nil {
-                print("Facebook login failed. Error \(facebookError)")
-            } else if facebookResult.isCancelled {
-                print("Facebook login was cancelled.")
-            } else {
-                let accessToken = FBSDKAccessToken.currentAccessToken().tokenString
-                self.ref.authWithOAuthProvider("facebook", token: accessToken,
-                    withCompletionBlock: { error, authData in
-                        if error != nil {
-                            print("Login failed. \(error)")
-                        } else {
-                            print("Logged in! \(authData)")
-                            
-                            self.registerUserInformation()
-                        
-                        }
-                })
-            }
-        })
-    }
-    
-    func createNewUserInDatabase() {
-        
+        let reachable = Reachability()
+        if !(reachable.isConnectedToNetwork()) {
+            let alert = UIAlertController(title: "INTERNET CONNECTION", message: "You are currently not connected to the internet. Make sure you are connected and try again.", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+            self.presentViewController(alert, animated: true, completion: nil)
+            self.loadingView.hidden = true
+            self.activityIndicator.hidden = true
+            self.activityIndicator.stopAnimating()
+        } else {
+            loadingView.hidden = false
+            activityIndicator.startAnimating()
+            activityIndicator.hidden = false
+            facebookLogin.logInWithReadPermissions(["email"], handler: {
+                (facebookResult, facebookError) -> Void in
+                if facebookError != nil {
+                    print("Facebook login failed. Error \(facebookError)")
+                } else if facebookResult.isCancelled {
+                    print("Facebook login was cancelled.")
+                } else {
+                    let accessToken = FBSDKAccessToken.currentAccessToken().tokenString
+                    self.ref.authWithOAuthProvider("facebook", token: accessToken,
+                        withCompletionBlock: { error, authData in
+                            if error != nil {
+                                print("Login failed. \(error)")
+                            } else {
+                                print("Logged in! \(authData)")
+                                
+                                self.registerUserInformation()
+                                
+                            }
+                    })
+                }
+            })
+        }
     }
     
     func registerUserInformation() {
@@ -425,6 +462,9 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
                             self.email = userEmail!
                             self.distanceTraveled = 0
                             
+                            let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+                            appDelegate.userId = userId
+                            
                             self.performSegueWithIdentifier("finishedSigningUp", sender: nil)
                         }
                         
@@ -453,6 +493,9 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
                     self.timeSpentDriving = currentUser!.objectForKey("timeSpentDriving") as! Double
                     self.email = currentUser!.objectForKey("email") as! String
                     self.distanceTraveled = currentUser!.objectForKey("distanceTraveled") as! Double
+                    
+                    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+                    appDelegate.userId = userId
                     
                     self.performSegueWithIdentifier("finishedSigningUp", sender: nil)
                     

@@ -43,6 +43,8 @@
 		1E406F081BF05A1400C3885F /* ParseTwitterUtils.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E406F011BF05A1400C3885F /* ParseTwitterUtils.framework */; };
 		1E406F091BF05A1400C3885F /* ParseUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E406F021BF05A1400C3885F /* ParseUI.framework */; };
 		1E4D6E871C9754E300FD826C /* logo-heart.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E4D6E861C9754E300FD826C /* logo-heart.png */; };
+		1E5A03DA1CA49D0B00260EE4 /* passenger_app_homescreen.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E5A03D91CA49D0B00260EE4 /* passenger_app_homescreen.png */; };
+		1E5A03DC1CAC6E8A00260EE4 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E5A03DB1CAC6E8A00260EE4 /* Reachability.swift */; };
 		1E67B6801C027E9700B7C866 /* RankingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E67B67F1C027E9700B7C866 /* RankingViewController.swift */; };
 		1E67B6821C027EA300B7C866 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E67B6811C027EA300B7C866 /* ProfileViewController.swift */; };
 		1E67B6841C027EAB00B7C866 /* MoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E67B6831C027EAB00B7C866 /* MoreViewController.swift */; };
@@ -164,6 +166,8 @@
 		1E406F011BF05A1400C3885F /* ParseTwitterUtils.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ParseTwitterUtils.framework; sourceTree = "<group>"; };
 		1E406F021BF05A1400C3885F /* ParseUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ParseUI.framework; sourceTree = "<group>"; };
 		1E4D6E861C9754E300FD826C /* logo-heart.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo-heart.png"; sourceTree = "<group>"; };
+		1E5A03D91CA49D0B00260EE4 /* passenger_app_homescreen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = passenger_app_homescreen.png; sourceTree = "<group>"; };
+		1E5A03DB1CAC6E8A00260EE4 /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
 		1E67B67F1C027E9700B7C866 /* RankingViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RankingViewController.swift; sourceTree = "<group>"; };
 		1E67B6811C027EA300B7C866 /* ProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		1E67B6831C027EAB00B7C866 /* MoreViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoreViewController.swift; sourceTree = "<group>"; };
@@ -341,6 +345,7 @@
 				1EB2230E1C2B45F70034D7E4 /* HexToUIColor.swift */,
 				1E0B6DC51C4C18680050ABF0 /* GpsCoordinateConverter.swift */,
 				1E0B6DC71C4C2B890050ABF0 /* ParseLocalData.swift */,
+				1E5A03DB1CAC6E8A00260EE4 /* Reachability.swift */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -465,12 +470,13 @@
 			isa = PBXGroup;
 			children = (
 				1E26E9081C7FE91B00B1EE23 /* earn-points-image.png */,
+				1E5A03D91CA49D0B00260EE4 /* passenger_app_homescreen.png */,
 				1E26E9091C7FE91B00B1EE23 /* earn-rewards-image.png */,
 				1E26E90A1C7FE91B00B1EE23 /* iphone_locked_image.png */,
 				1E26E9041C7FDD7500B1EE23 /* default-profile.png */,
 				1E26E9061C7FE8EB00B1EE23 /* logo.png */,
-				1EF959921BFFE3BE0087F9E4 /* tmp-0.jpg */,
 				1E4D6E861C9754E300FD826C /* logo-heart.png */,
+				1EF959921BFFE3BE0087F9E4 /* tmp-0.jpg */,
 				1EF959931BFFE3BE0087F9E4 /* tmp-1.jpg */,
 				1EF959941BFFE3BE0087F9E4 /* tmp-2.jpg */,
 				1EF959951BFFE3BE0087F9E4 /* tmp-3.jpg */,
@@ -607,6 +613,7 @@
 				1E26E90D1C7FE91B00B1EE23 /* iphone_locked_image.png in Resources */,
 				1EF959A41BFFE3BE0087F9E4 /* tmp-8.jpg in Resources */,
 				1E76C7781BFED70C00F03E74 /* PointsHistoryTableViewController.xib in Resources */,
+				1E5A03DA1CA49D0B00260EE4 /* passenger_app_homescreen.png in Resources */,
 				1E26E90C1C7FE91B00B1EE23 /* earn-rewards-image.png in Resources */,
 				1E26E9071C7FE8EB00B1EE23 /* logo.png in Resources */,
 				1EF959A11BFFE3BE0087F9E4 /* tmp-5.jpg in Resources */,
@@ -644,6 +651,7 @@
 				1E67B6841C027EAB00B7C866 /* MoreViewController.swift in Sources */,
 				1E67B6861C05068500B7C866 /* RewardsDetailTableViewController.swift in Sources */,
 				1EAB38A91BF6720A008E568E /* RegisterViewController.swift in Sources */,
+				1E5A03DC1CAC6E8A00260EE4 /* Reachability.swift in Sources */,
 				1EF62EC61BF2DA6800AFE2F3 /* RewardsViewController.swift in Sources */,
 				1ED8F7CD1C0C02110063B001 /* MotionKit.swift in Sources */,
 				1E4010781C3F1262001221C4 /* RedeemViewController.swift in Sources */,

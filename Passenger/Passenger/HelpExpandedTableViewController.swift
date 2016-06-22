@@ -16,6 +16,8 @@ class HelpExpandedTableViewController: UITableViewController {
     
     let transitionManager = MenuTransitionManager()
     
+    var alreadyDisplayedInternetAlert = true
+    
     var helpTitle: String?
     var questions = [String]()
     var answers = [String]()
@@ -54,15 +56,24 @@ class HelpExpandedTableViewController: UITableViewController {
     }
     
     func loadQuestions() {
-        
-        helpQuestionsRef.queryOrderedByChild("questionType").queryEqualToValue(questionType)
-            .observeEventType(.ChildAdded, withBlock: { snapshot in
-                self.questions.append(snapshot.value.objectForKey("question") as! String)
-                self.answers.append(snapshot.value.objectForKey("answer") as! String)
-                self.tableView.reloadData()
-            })
-        self.tableView.reloadData()
-
+        let reachable = Reachability()
+        if !reachable.isConnectedToNetwork() {
+            var emptyLabel = UILabel(frame: CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height))
+            emptyLabel.text = "No internet connection"
+            emptyLabel.textAlignment = NSTextAlignment.Center
+            self.tableView.separatorStyle = UITableViewCellSeparatorStyle.None
+            let hexChanger = HexToUIColor()
+            emptyLabel.textColor = hexChanger.hexStringToUIColor("#5c5c5c")
+            self.tableView.backgroundView = emptyLabel
+        } else {
+            helpQuestionsRef.queryOrderedByChild("questionType").queryEqualToValue(questionType)
+                .observeEventType(.ChildAdded, withBlock: { snapshot in
+                    self.questions.append(snapshot.value.objectForKey("question") as! String)
+                    self.answers.append(snapshot.value.objectForKey("answer") as! String)
+                    self.tableView.reloadData()
+                })
+            self.tableView.reloadData()
+        }
     }
 
     

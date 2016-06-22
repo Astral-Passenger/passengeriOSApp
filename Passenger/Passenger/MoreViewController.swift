@@ -45,7 +45,14 @@ class MoreViewController: UIViewController {
         profileSettingsButton.backgroundColor = UIColor(red:0.89, green:0.89, blue:0.89, alpha:1.0)
     }
     @IBAction func logOutUser(sender: AnyObject) {
-        ref.unauth()
+        let reachable = Reachability()
+        if !(reachable.isConnectedToNetwork()) {
+            let alert = UIAlertController(title: "INTERNET CONNECTION", message: "You are currently not connected to the internet. Make sure you are connected and try again.", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+            self.presentViewController(alert, animated: true, completion: nil)
+        } else {
+            ref.unauth()
+        }
     }
 
     @IBAction func helpButtonDown(sender: AnyObject) {

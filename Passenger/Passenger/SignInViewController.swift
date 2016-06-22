@@ -29,6 +29,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     var timeSpentDriving: Double?
     var email: String?
     var distanceTraveled: Double?
+    var rewardsList: NSArray?
     var userExists: Bool = false
     var firebaseUserId: String?
         var kbHeight: CGFloat!
@@ -43,6 +44,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var passwordTextField: UITextField!
     @IBOutlet weak var signInBackground: UIImageView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var loadingView: UIView!
     
     var imageList = [UIImage]()
     
@@ -95,7 +97,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         var movement = (up ? -kbHeight : kbHeight)
         
         UIView.animateWithDuration(0.3, animations: {
-            self.view.frame = CGRectOffset(self.view.frame, 0, movement)
+            //self.view.frame = CGRectOffset(self.view.frame, 0, movement)
         })
     }
     
@@ -124,6 +126,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
             prefs.setValue(timeSpentDriving!, forKey: "timeSpentDriving")
             prefs.setValue(email!, forKey: "email")
             prefs.setValue(distanceTraveled!, forKey: "distanceTraveled")
+            //prefs.setValue(rewardsList!, forKey: "rewards")
         }
         
     }
@@ -175,71 +178,102 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     }
     
     @IBAction func signInUser(sender: AnyObject) {
-        activityIndicator.hidden = false
-        activityIndicator.startAnimating()
-        ref.authUser(usernameTextField.text!, password: passwordTextField.text!) {
-            error, authData in
-            if error != nil {
-                // an error occured while attempting login
-                self.activityIndicator.hidden = true
-                self.activityIndicator.stopAnimating()
-                let alert = UIAlertController(title: "SIGN IN FAILED", message: "Please make sure that you entered in the correct login infotmation", preferredStyle: UIAlertControllerStyle.Alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
-                self.presentViewController(alert, animated: true, completion: nil)
-                
-            } else {
-                // user is logged in, check authData for data and send it to the view controller
-                
-                self.usersRef.queryOrderedByChild("email").queryEqualToValue("\(self.ref.authData.providerData["email"]!)")
-                    .observeEventType(.ChildAdded, withBlock: { snapshot in
-                        self.userExists = true
-                        self.firebaseUserId = snapshot.key
-                        
-                        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-                        appDelegate.userId = self.firebaseUserId!
-                        self.fullName = snapshot.value.objectForKey("name") as! String!
-                        self.username = snapshot.value.objectForKey("username") as! String!
-                        self.currentPoints = snapshot.value.objectForKey("currentPoints") as! Int!
-                        self.totalPoints = snapshot.value.objectForKey("totalPoints") as! Int!
-                        self.profilePictureString = snapshot.value.objectForKey("profileImage") as! String!
-                        self.rewardsReceived = snapshot.value.objectForKey("rewardsReceived") as! Int!
-                        self.timeSpentDriving = snapshot.value.objectForKey("timeSpentDriving") as! Double!
-                        self.email = snapshot.value.objectForKey("email") as! String!
-                        self.distanceTraveled = snapshot.value.objectForKey("distanceTraveled") as! Double!
-                        self.registerUserInformation()
-
-                        self.performSegueWithIdentifier("signInSegue", sender: nil)
-                        self.activityIndicator.hidden = true
-                        self.activityIndicator.stopAnimating()
-                    })
+        
+        let reachable = Reachability()
+        if !(reachable.isConnectedToNetwork()) {
+            let alert = UIAlertController(title: "INTERNET CONNECTION", message: "You are currently not connected to the internet. Make sure you are connected and try again.", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+            self.presentViewController(alert, animated: true, completion: nil)
+            self.loadingView.hidden = true
+            self.activityIndicator.hidden = true
+            self.activityIndicator.stopAnimating()
+        } else {
+            loadingView.hidden = false
+            activityIndicator.hidden = false
+            activityIndicator.startAnimating()
+            ref.authUser(usernameTextField.text!, password: passwordTextField.text!) {
+                error, authData in
+                if error != nil {
+                    // an error occured while attempting login
+                    let alert = UIAlertController(title: "SIGN IN FAILED", message: "Please make sure that you entered in the correct login infotmation", preferredStyle: UIAlertControllerStyle.Alert)
+                    alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+                    self.presentViewController(alert, animated: true, completion: nil)
+                    self.loadingView.hidden = true
+                    self.activityIndicator.hidden = true
+                    self.activityIndicator.stopAnimating()
+                    
+                } else {
+                    // user is logged in, check authData for data and send it to the view controller
+                    
+                    self.usersRef.queryOrderedByChild("email").queryEqualToValue("\(self.ref.authData.providerData["email"]!)")
+                        .observeEventType(.ChildAdded, withBlock: { snapshot in
+                            self.userExists = true
+                            self.firebaseUserId = snapshot.key
+                            
+                            let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+                            appDelegate.userId = self.firebaseUserId!
+                            self.fullName = snapshot.value.objectForKey("name") as! String!
+                            self.username = snapshot.value.objectForKey("username") as! String!
+                            self.currentPoints = snapshot.value.objectForKey("currentPoints") as! Int!
+                            self.totalPoints = snapshot.value.objectForKey("totalPoints") as! Int!
+                            self.profilePictureString = snapshot.value.objectForKey("profileImage") as! String!
+                            self.rewardsReceived = snapshot.value.objectForKey("rewardsReceived") as! Int!
+                            self.timeSpentDriving = snapshot.value.objectForKey("timeSpentDriving") as! Double!
+                            self.email = snapshot.value.objectForKey("email") as! String!
+                            self.distanceTraveled = snapshot.value.objectForKey("distanceTraveled") as! Double!
+                            self.downloadRewards()
+                            self.registerUserInformation()
+                            
+                            self.performSegueWithIdentifier("signInSegue", sender: nil)
+                            self.loadingView.hidden = true
+                            self.activityIndicator.hidden = true
+                            self.activityIndicator.stopAnimating()
+                        })
+                }
             }
         }
         
     }
+    
+    func downloadRewards() {
+        
+    }
 
     @IBAction func loginUserWithFacebook(sender: AnyObject) {
-        activityIndicator.hidden = false
-        activityIndicator.startAnimating()
-        facebookLogin.logInWithReadPermissions(["email"], handler: {
-            (facebookResult, facebookError) -> Void in
-            if facebookError != nil {
-                print("Facebook login failed. Error \(facebookError)")
-            } else if facebookResult.isCancelled {
-                print("Facebook login was cancelled.")
-            } else {
-                let accessToken = FBSDKAccessToken.currentAccessToken().tokenString
-                self.ref.authWithOAuthProvider("facebook", token: accessToken,
-                    withCompletionBlock: { error, authData in
-                        if error != nil {
-                            print("Login failed. \(error)")
-                        } else {
-                            print("Logged in! \(authData)")
-                            
-                            self.registerUserInformation()
-                        }
-                })
-            }
-        })
+        
+        let reachable = Reachability()
+        if !(reachable.isConnectedToNetwork()) {
+            let alert = UIAlertController(title: "INTERNET CONNECTION", message: "You are currently not connected to the internet. Make sure you are connected and try again.", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+            self.presentViewController(alert, animated: true, completion: nil)
+            self.loadingView.hidden = true
+            self.activityIndicator.hidden = true
+            self.activityIndicator.stopAnimating()
+        } else {
+            loadingView.hidden = false
+            activityIndicator.hidden = false
+            activityIndicator.startAnimating()
+            facebookLogin.logInWithReadPermissions(["email"], handler: {
+                (facebookResult, facebookError) -> Void in
+                if facebookError != nil {
+                    print("Facebook login failed. Error \(facebookError)")
+                } else if facebookResult.isCancelled {
+                    print("Facebook login was cancelled.")
+                } else {
+                    let accessToken = FBSDKAccessToken.currentAccessToken().tokenString
+                    self.ref.authWithOAuthProvider("facebook", token: accessToken,
+                        withCompletionBlock: { error, authData in
+                            if error != nil {
+                                print("Login failed. \(error)")
+                            } else {
+                                print("Logged in! \(authData)")
+                                
+                                self.registerUserInformation()
+                            }
+                    })
+                }
+            })
+        }
     }
     
     func registerUserInformation() {
@@ -248,8 +282,6 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
                 
                 if snapshot.value is NSNull {
                     // The user is not currently in the database
-                    
-                    print("This user is not in the database")
                     
                     // Register user in the database function
                     
@@ -346,6 +378,9 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
                             self.email = userEmail!
                             self.distanceTraveled = 0
                             
+                            let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+                            appDelegate.userId = userId
+                            
                             self.performSegueWithIdentifier("signInSegue", sender: nil)
                         }
                         
@@ -354,17 +389,13 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
                 } else {
                     
                     // The user is in the datbase and simply logged in
-                    print("The user is in the database and is logged in")
-                    // Assign all variables from the data that we pull from the user
-                    print(snapshot.value)
-                    print("Before or after?")
                     self.userExists = true
                     let userId = self.ref.authData.uid.stringByReplacingOccurrencesOfString(
                         "facebook:",
                         withString: "",// or just nil
                         range: nil)
+                    
                     let currentUser = snapshot.value.objectForKey("\(userId)")
-                    print(currentUser)
                     self.fullName = currentUser!.objectForKey("name") as! String
                     self.username = currentUser!.objectForKey("username") as! String
                     self.currentPoints = currentUser!.objectForKey("currentPoints") as! Int
@@ -374,6 +405,9 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
                     self.timeSpentDriving = currentUser!.objectForKey("timeSpentDriving") as! Double
                     self.email = currentUser!.objectForKey("email") as! String
                     self.distanceTraveled = currentUser!.objectForKey("distanceTraveled") as! Double
+                    
+                    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+                    appDelegate.userId = userId
                     
                     self.performSegueWithIdentifier("signInSegue", sender: nil)
                     

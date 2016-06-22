@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 import Bolts
 import FBSDKCoreKit
 import ParseFacebookUtilsV4
@@ -27,6 +28,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var currentUserPointsListAppended = [NSDictionary]()
     
     var userId = ""
+    var email = ""
 
     var currentUser: PFUser?
     
@@ -45,6 +47,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var isDriving = true
     var updatesAlreadyStarted = false
     var stoppedDriving = true
+    var didUsePhoneAtStopLight = false
     
     var seconds = 0.0
     var distance = 0.0
@@ -62,6 +65,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var previousLocation: CLLocation?
     var currentLocation: CLLocation?
+    
+    var reachable = Reachability()
     
     lazy var locationManager: CLLocationManager = {
         var _locationManager = CLLocationManager()
@@ -81,22 +86,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     lazy var timer = NSTimer()
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        // Override point for customization after application launch.
-        // [Optional] Power your app with Local Datastore. For more info, go to
-        // https://parse.com/docs/ios_guide#localdatastore/iOS
         
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         
         self.locationManager.requestAlwaysAuthorization()
         
-        // Initialize Parse.
-        Parse.setApplicationId("kGhDAAyw5RwtYNrm70j8cYHlOPj60A9rnJ0UI0o1",
-            clientKey: "JeIYcqqk1S8nNaJ1SChjSPemYlyxPbA8Z4p8CB8b")
-        
-        // [Optional] Track statistics around application opens.
-        PFAnalytics.trackAppOpenedWithLaunchOptions(launchOptions)
-        
         PFFacebookUtils.initializeFacebookWithApplicationLaunchOptions(launchOptions)
+        
+//        if (reachable.isConnectedToNetwork()) {
+//            
+//        } else {
+//            
+//        }
         
         if(NSUserDefaults.standardUserDefaults().boolForKey("HasLaunchedOnce"))
         {
@@ -110,10 +111,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             if ref.authData != nil {
                 // user authenticated
                 let initialViewController = storyboard.instantiateViewControllerWithIdentifier("homeViewController")
-                
                 self.usersRef.queryOrderedByChild("email").queryEqualToValue("\(self.ref.authData.providerData["email"]!)")
                     .observeEventType(.ChildAdded, withBlock: { snapshot in
-
                         self.userId = snapshot.key
                         self.currentUserCurrentPoints = snapshot.value.objectForKey("currentPoints") as! Double!
                         self.currentUserTotalPoints = snapshot.value.objectForKey("totalPoints") as! Double!
@@ -198,11 +197,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationWillEnterForeground(application: UIApplication) {
-
-        if (currentUser != nil) {
-            self.currentUser?.fetchInBackground()
+        print("The app entered the foreground.")
+        if (updatesAlreadyStarted == false) {
+            updatesAlreadyStarted = true
+            print("Location has began to start")
+            startLocationUpdates()
         }
-        
+       
     }
 
     func applicationWillTerminate(application: UIApplication) {
@@ -217,13 +218,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
                 let dateToRecordString = dateFormatter.stringFromDate(date)
                 
-                let currentPointRecord: NSDictionary = ["distanceTraveled": distance * 0.000189394, "pointsGenerated": totalCurrentPoints, "createdAt": dateToRecordString]
+                let currentPointRecord: NSDictionary = ["distanceTraveled": ((distance * 3.28084) * 0.000189394), "pointsGenerated": totalCurrentPoints, "createdAt": dateToRecordString]
                 
                 if (self.currentUserPointsList != nil && self.currentUserPointsListAppended.count == 0) {
                     for (var i = 0; i < self.currentUserPointsList!.count; i++) {
                         self.currentUserPointsListAppended.append(self.currentUserPointsList![i] as! NSDictionary)
                     }
                 }
+                
                 
                 self.currentUserPointsListAppended.append(currentPointRecord)
                 usersRef.childByAppendingPath("\(userId)/pointsHistory").setValue(currentPointRecord)
@@ -255,19 +257,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             distanceTraveledInTen = 0
             secondsToAddToUser += 10
             
-        } else if (isLocked == false) {
+        } else if ( isLocked == false && currentSpeed > 0) {
+            
             self.totalCurrentPoints = 0
             self.distance = 0
             self.seconds = 0
+            
         }
 
         seconds += 1
+    
         
         if (distanceTraveledInTen < 50) {
             currentSpeed = 0.0
             isSittingStillCount += 1
-            if (isSittingStillCount > 120 && stoppedDriving) {
-                if (totalCurrentPoints > 0.75 && ref.authData != nil) {
+            if (isSittingStillCount > 20 && stoppedDriving) {
+                if (totalCurrentPoints > 0.75 && ref.authData != nil && self.userId != "" && self.reachable.isConnectedToNetwork()) {
                     self.isSittingStillCount = 0
                     self.stoppedDriving = true
                     
@@ -276,7 +281,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
                     let dateToRecordString = dateFormatter.stringFromDate(date)
                     
-                    let currentPointRecord: NSDictionary = ["distanceTraveled": distance * 0.000189394, "pointsGenerated": totalCurrentPoints, "createdAt": dateToRecordString]
+                    let currentPointRecord: NSDictionary = ["distanceTraveled": ((distance * 3.28084) * 0.000189394), "pointsGenerated": totalCurrentPoints, "createdAt": dateToRecordString]
                     
                     if (self.currentUserPointsList != nil && self.currentUserPointsListAppended.count == 0) {
                         for (var i = 0; i < self.currentUserPointsList!.count; i++) {
@@ -285,6 +290,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     }
                     
                     self.currentUserPointsListAppended.append(currentPointRecord)
+                    
+                    
+                    if (self.currentUserPointsListAppended.count == 200) {
+                        self.currentUserPointsListAppended.removeAtIndex(0)
+                    }
                     
                     usersRef.childByAppendingPath("\(userId)/pointsHistory").setValue(currentUserPointsListAppended)
                     
@@ -312,12 +322,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 } else {
                     totalCurrentPoints = 0.0
                 }
+                if (isSittingStillCount == 3600) {
+                    self.locationManager.stopUpdatingLocation()
+                    updatesAlreadyStarted = false
+                    self.isSittingStillCount = 0
+                }
+            } else if (isLocked == false) {
+                
+                self.stoppedDriving = true
+                self.didUsePhoneAtStopLight = true
+                print("The user used their phone while sitting at a stop light and drove after")
                 
             } else {
                 // The user may be at a stop light or something.
                 self.stoppedDriving = true
+                
             }
+
             isDriving = false
+        } else if (didUsePhoneAtStopLight) {
+            self.totalCurrentPoints = 0
+            isDriving = true
+            self.stoppedDriving = false
+            isSittingStillCount = 0
+            print(totalCurrentPoints)
+            didUsePhoneAtStopLight = false
         } else {
             isDriving = true
             self.stoppedDriving = false
@@ -326,34 +355,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         
         print("Current speed: \(currentSpeed)")
-        print("Current Distance: \(distanceTraveledInTen)")
-        //print("Is Driving: \(isDriving)")
-        //print(isLocked)
+        print("Sitting still count: \(isSittingStillCount)")
+        print("Distance in 10: \(distanceTraveledInTen)")
         
         everyTenSeconds += 1
     }
     
     func startLocationUpdates() {
-        //self.locationManager.startUpdatingLocation()
         // Here, the location manager will be lazily instantiated
-        
-        self.activityManager.startActivityUpdatesToQueue(NSOperationQueue.mainQueue()) { data in
-            if let data = data {
-                dispatch_async(dispatch_get_main_queue()) {
-                    if(data.stationary == true && self.updatesAlreadyStarted && self.isSittingStillCount > 120){
-                        print("Stationary: Location updating in the background has been stopped until the user drives again.")
-                        self.updatesAlreadyStarted = false
-                        self.locationManager.stopUpdatingLocation()
-                    } else if (data.walking == true) {
-                        print("Walking")
-                    } else if (data.automotive == true && self.updatesAlreadyStarted == false && (self.isSittingStillCount > 120 || self.isSittingStillCount == 0)){
-                        print("Driving: The location updating has been started and wont stop until the user is stationary again.")
-                        self.updatesAlreadyStarted = true
-                        self.locationManager.startUpdatingLocation()
-                    }
-                }
-            }
-        }
+        self.locationManager.startUpdatingLocation()
     }
     
     func addScreenOffPoints() {
@@ -375,7 +385,6 @@ extension AppDelegate: CLLocationManagerDelegate {
                 if self.locations.count > 0 {
                     distance += location.distanceFromLocation(self.locations.last!)
                     let currentDistance = location.distanceFromLocation(self.locations.last!)
-                    print(currentDistance)
                         currentSpeed = (location.distanceFromLocation(self.locations.last!)) * 2.23694
                         distanceTraveledInTen = distanceTraveledInTen + currentDistance
                 }

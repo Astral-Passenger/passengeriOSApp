@@ -38,6 +38,7 @@ class RedeemViewController: UIViewController {
     
     var localData = ParseLocalData()
     
+    var digitTextField: UITextField?
     
     private var sixDigitString = ""
     private var currentTotalPoints: Int?
@@ -65,7 +66,19 @@ class RedeemViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+//        var altMessage = UIAlertController(title: "Warning", message: "This is Alert Message", preferredStyle: UIAlertControllerStyle.Alert)
+//        altMessage.addAction(UIAlertAction(title: "Done", style: UIAlertActionStyle.Default, handler: nil))
+//        self.presentViewController(altMessage, animated: true, completion: nil)
+//        var alert = UIAlertController(title: "Title", message: "Your msg", preferredStyle: UIAlertControllerStyle.Alert)
+//        
+//        alert.addAction(UIAlertAction(title: "Close", style: UIAlertActionStyle.Cancel,
+//            handler:{(alert: UIAlertAction!) in self.identifierReceived()}))
+//        
 
+//        
+//        self.presentViewController(alert, animated: true, completion: nil)
+        
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "closePopUp")
         view.addGestureRecognizer(tap)
         
@@ -78,6 +91,90 @@ class RedeemViewController: UIViewController {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    func identifierReceived() {
+        print(digitTextField!.text!)
+        sixDigitString = digitTextField!.text!
+        if (sixDigitString.characters.count < 6) {
+            let alertController = UIAlertController(title: "Passenger", message: "Please enter a 6 digit number to verify your business", preferredStyle: .Alert)
+            
+            let defaultAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
+            alertController.addAction(defaultAction)
+            
+            presentViewController(alertController, animated: true, completion: nil)
+        } else {
+            activityIndicator.startAnimating()
+            activityIndicator.hidden = false
+            
+            var iteration = 0
+            
+            var currentBusinessMonthlyTransactions: NSArray?
+            
+            var currentBusinessMonthlyTransactionsAppended = [NSDictionary]()
+            var currentUserRewardsList: NSArray?
+            var currentUserRewardsListAppended = [NSDictionary]()
+            
+            rewardsRef.queryOrderedByChild("companyName").queryEqualToValue(companyName)
+                .observeEventType(.ChildAdded, withBlock: { snapshot in
+                    
+                    // Handling the storing of the transaction for the businesses
+                    
+                    iteration = Int(snapshot.key!)!
+                    currentBusinessMonthlyTransactions = snapshot.value.objectForKey("monthlyTransactions") as? NSArray
+                    if (currentBusinessMonthlyTransactions != nil) {
+                        for (var i = 0; i < currentBusinessMonthlyTransactions!.count; i++) {
+                            currentBusinessMonthlyTransactionsAppended.append(currentBusinessMonthlyTransactions![i] as! NSDictionary)
+                        }
+                    }
+                    
+                    var date = NSDate()
+                    let dateFormatter = NSDateFormatter()
+                    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+                    let dateToRecordString = dateFormatter.stringFromDate(date)
+                    
+                    self.newRewardRedeemed = ["dateRecorded": "\(dateToRecordString)", "rewardDescription": "\(self.rewardDescription!)", "rewardItem": "\(self.rewardName!)", "userEmail": "\(self.ref.authData.providerData["email"]!)"]
+                    currentBusinessMonthlyTransactionsAppended.append(self.newRewardRedeemed)
+                    
+                    let currentBusinessRef = Firebase(url: "https://passenger-app.firebaseio.com/rewards/\(iteration)/monthlyTransactions")
+                    
+                    currentBusinessRef.setValue(currentBusinessMonthlyTransactionsAppended)
+                    
+                    // Handling the storing of the transaction for the user
+                    
+                    self.usersRef.queryOrderedByChild("email").queryEqualToValue("\(self.ref.authData.providerData["email"]!)")
+                        .observeEventType(.ChildAdded, withBlock: { snapshot in
+                            let id = snapshot.key
+                            print(id)
+                            
+                            var currentPoints = snapshot.value.objectForKey("currentPoints") as! Int
+                            var rewardsReceived = snapshot.value.objectForKey("rewardsReceived") as! Int
+                            rewardsReceived = rewardsReceived + 1
+                            currentPoints = currentPoints - self.rewardPointCost!
+                            currentUserRewardsList = snapshot.value.objectForKey("rewardsHistory") as? NSArray
+                            if (currentUserRewardsList != nil) {
+                                for (var i = 0; i < currentUserRewardsList!.count; i++) {
+                                    currentUserRewardsListAppended.append(currentUserRewardsList![i] as! NSDictionary)
+                                }
+                            }
+                            
+                            let currentReward: NSDictionary = ["companyName": "", "pointCost": self.rewardPointCost!, "rewardImage": self.rewardImageString!, "rewardItem": self.rewardName!, "rewardText": self.rewardDescription!]
+                            
+                            currentUserRewardsListAppended.append(currentReward)
+                            
+                            let currentUserPointsRef = Firebase(url: "https://passenger-app.firebaseio.com/users/\(id)/currentPoints/")
+                            let currentUserRewardsRef = Firebase(url: "https://passenger-app.firebaseio.com/users/\(id)/rewardsHistory/")
+                            let currentUserRewardsReceivedRef = Firebase(url: "https://passenger-app.firebaseio.com/users/\(id)/rewardsReceived/")
+                            currentUserPointsRef.setValue(currentPoints)
+                            currentUserRewardsReceivedRef.setValue(rewardsReceived)
+                            currentUserRewardsRef.setValue(currentUserRewardsListAppended)
+                            
+                            self.performSegueWithIdentifier("redeemToRewardsHistory", sender: nil)
+                        })
+                    
+                })
+        }
+
     }
     
     func configureView() {
@@ -125,9 +222,15 @@ class RedeemViewController: UIViewController {
         
         // Check to see if the user even has enough points saved to redeem it before they actually go to the pop up
         if(rewardPointCost < currentTotalPoints) {
-            backgroundPopUpView.hidden = false
+            //backgroundPopUpView.hidden = false
             let alert = UIAlertController(title: "SHOW TO TELLER", message: "Show your phone to the teller so that they can enter in their 6 digit code to give you the reward.", preferredStyle: UIAlertControllerStyle.Alert)
-            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: {(alert: UIAlertAction!) in self.identifierReceived()}))
+            alert.addTextFieldWithConfigurationHandler({(textField) in
+                textField.placeholder = "Password"
+                textField.secureTextEntry = true  // setting the secured text for using password
+                textField.keyboardType = UIKeyboardType.NumberPad
+                self.digitTextField = textField
+            })
             self.presentViewController(alert, animated: true, completion: nil)
         } else {
             // The user didn't have enough points show an alert
@@ -313,80 +416,6 @@ class RedeemViewController: UIViewController {
     @IBAction func doneButtonClicked(sender: AnyObject) {
         //  Verfiy that the 6 digit code corresponds to an actual company on our list
         
-        if (sixDigitString.characters.count < 6) {
-            let alertController = UIAlertController(title: "Passenger", message: "Please enter a 6 digit number to verify your business", preferredStyle: .Alert)
-            
-            let defaultAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
-            alertController.addAction(defaultAction)
-            
-            presentViewController(alertController, animated: true, completion: nil)
-        } else {
-            activityIndicator.startAnimating()
-            activityIndicator.hidden = false
-            
-            var iteration = 0
-            
-            var currentBusinessMonthlyTransactions: NSArray?
-            
-            var currentBusinessMonthlyTransactionsAppended = [NSDictionary]()
-            var currentUserRewardsList: NSArray?
-            var currentUserRewardsListAppended = [NSDictionary]()
-            
-            rewardsRef.queryOrderedByChild("companyName").queryEqualToValue(companyName)
-                .observeEventType(.ChildAdded, withBlock: { snapshot in
-                    
-                    // Handling the storing of the transaction for the businesses
-                    
-                    iteration = Int(snapshot.key!)!
-                    currentBusinessMonthlyTransactions = snapshot.value.objectForKey("monthlyTransactions") as? NSArray
-                    if (currentBusinessMonthlyTransactions != nil) {
-                        for (var i = 0; i < currentBusinessMonthlyTransactions!.count; i++) {
-                            currentBusinessMonthlyTransactionsAppended.append(currentBusinessMonthlyTransactions![i] as! NSDictionary)
-                        }
-                    }
-                    
-                    var date = NSDate()
-                    let dateFormatter = NSDateFormatter()
-                    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
-                    let dateToRecordString = dateFormatter.stringFromDate(date)
-                    
-                    self.newRewardRedeemed = ["dateRecorded": "\(dateToRecordString)", "rewardDescription": "\(self.rewardDescription!)", "rewardItem": "\(self.rewardName!)", "userEmail": "\(self.ref.authData.providerData["email"]!)"]
-                    currentBusinessMonthlyTransactionsAppended.append(self.newRewardRedeemed)
-                    
-                    let currentBusinessRef = Firebase(url: "https://passenger-app.firebaseio.com/rewards/\(iteration)/monthlyTransactions")
-                    
-                    //currentBusinessRef.setValue(currentBusinessMonthlyTransactionsAppended)
-                    
-                    // Handling the storing of the transaction for the user
-                    
-                    self.usersRef.queryOrderedByChild("email").queryEqualToValue("\(self.ref.authData.providerData["email"]!)")
-                        .observeEventType(.ChildAdded, withBlock: { snapshot in
-                            let id = snapshot.key
-                            print(id)
-                            
-                            var currentPoints = snapshot.value.objectForKey("currentPoints") as! Int
-                            currentPoints = currentPoints - self.rewardPointCost!
-                            currentUserRewardsList = snapshot.value.objectForKey("rewardsHistory") as? NSArray
-                            if (currentUserRewardsList != nil) {
-                                for (var i = 0; i < currentUserRewardsList!.count; i++) {
-                                    currentUserRewardsListAppended.append(currentUserRewardsList![i] as! NSDictionary)
-                                }
-                            }
-                            
-                            let currentReward: NSDictionary = ["companyName": "", "pointCost": self.rewardPointCost!, "rewardImage": self.rewardImageString!, "rewardItem": self.rewardName!, "rewardText": self.rewardDescription!]
-                            
-                            currentUserRewardsListAppended.append(currentReward)
-                            
-                            let currentUserRef = Firebase(url: "https://passenger-app.firebaseio.com/users/\(id)/currentPoints/")
-                            let currentUserRewardsRef = Firebase(url: "https://passenger-app.firebaseio.com/users/\(id)/rewardsHistory/")
-                            currentUserRef.setValue(currentPoints)
-                            currentUserRewardsRef.setValue(currentUserRewardsListAppended)
-                            
-                            self.performSegueWithIdentifier("redeemToRewardsHistory", sender: nil)
-                        })
-                    
-                })
-        }
     }
     
 

@@ -39,7 +39,7 @@ class MenuTransitionManager: UIPercentDrivenInteractiveTransition, UIViewControl
     var menuViewController: UIViewController! {
         didSet {
             self.exitPanGesture = UIPanGestureRecognizer()
-            self.exitPanGesture.addTarget(self, action:"handleOffstagePan:")
+            //self.exitPanGesture.addTarget(self, action:"handleOffstagePan:")
             self.menuViewController.view.addGestureRecognizer(self.exitPanGesture)
         }
     }
@@ -87,32 +87,32 @@ class MenuTransitionManager: UIPercentDrivenInteractiveTransition, UIViewControl
     // we're panning from right to left
     // perfoming our exitSegeue to start the transition
     
-    func handleOffstagePan(pan: UIPanGestureRecognizer){
-        
-        let translation = pan.translationInView(pan.view!)
-        let d =  translation.x / CGRectGetWidth(pan.view!.bounds) * -0.5
-        
-        switch (pan.state) {
-            
-        case UIGestureRecognizerState.Began:
-            self.interactive = true
-            self.menuViewController.performSegueWithIdentifier("dismissMenu", sender: self)
-            break
-            
-        case UIGestureRecognizerState.Changed:
-            self.updateInteractiveTransition(d)
-            break
-            
-        default: // .Ended, .Cancelled, .Failed ...
-            self.interactive = false
-            if(d > 0.1){
-                self.finishInteractiveTransition()
-            }
-            else {
-                self.cancelInteractiveTransition()
-            }
-        }
-    } 
+//    func handleOffstagePan(pan: UIPanGestureRecognizer){
+//        
+//        let translation = pan.translationInView(pan.view!)
+//        let d =  translation.x / CGRectGetWidth(pan.view!.bounds) * -0.5
+//        
+//        switch (pan.state) {
+//            
+//        case UIGestureRecognizerState.Began:
+//            self.interactive = true
+//            self.menuViewController.performSegueWithIdentifier("dismissMenu", sender: self)
+//            break
+//            
+//        case UIGestureRecognizerState.Changed:
+//            self.updateInteractiveTransition(d)
+//            break
+//            
+//        default: // .Ended, .Cancelled, .Failed ...
+//            self.interactive = false
+//            if(d > 0.1){
+//                self.finishInteractiveTransition()
+//            }
+//            else {
+//                self.cancelInteractiveTransition()
+//            }
+//        }
+//    } 
     
     // MARK: UIViewControllerAnimatedTransitioning protocol methods
     
