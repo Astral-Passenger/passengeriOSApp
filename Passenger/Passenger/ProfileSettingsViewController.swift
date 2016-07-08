@@ -24,8 +24,6 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
     let imagePicker = UIImagePickerController()
     
     private var fullName: String = ""
-    private var email: String = ""
-    private var phoneNumber: String = ""
     private var updatedImage: UIImage?
     
     var senderViewController: String?
@@ -35,19 +33,17 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
     var userId: String?
     
     var initialFullName: String?
-    var initialUsername: String?
     var initialEmail: String?
     
     var base64String: NSString!
     
     @IBOutlet weak var profileImage: UIImageView!
     @IBOutlet weak var nameTextField: UITextField!
-    @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var connectToFacebookButton: UIButton!
     @IBOutlet weak var saveButton: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    @IBOutlet weak var usernameTextField: UITextField!
     @IBOutlet weak var cameraImageView: UIImageView!
+    @IBOutlet weak var profileSavedView: UIView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,9 +59,6 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
         
         self.transitionManager.sourceViewController = self
         nameTextField.delegate = self
-        emailTextField.delegate = self
-        usernameTextField.delegate = self
-        
         imagePicker.delegate = self
     }
     
@@ -154,7 +147,6 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
     }
     
     func configureView() {
-        activityIndicator.hidden = true
         let font = UIFont.systemFontOfSize(16, weight: UIFontWeightLight)
         
         let navBarAttributesDictionary: [String: AnyObject]? = [
@@ -170,14 +162,10 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
         let prefs = NSUserDefaults.standardUserDefaults()
         
         initialFullName = prefs.stringForKey("name")!
-        initialUsername = prefs.stringForKey("username")!
         initialEmail = prefs.stringForKey("email")!
         let profilePictureString = prefs.stringForKey("profilePictureString")!
         
         self.nameTextField.text = initialFullName
-        self.usernameTextField.text = initialUsername
-        self.emailTextField.text = initialEmail
-        //self.usernameTextField.text = username
         
         let decodedData = NSData(base64EncodedString: profilePictureString, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
         
@@ -189,6 +177,8 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
         self.cameraImageView.hidden = false
         
         userId = ref.authData.uid
+        
+        self.profileSavedView.layer.cornerRadius = 5
 
     }
     
@@ -225,7 +215,7 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
         
         profileImage.contentMode = .ScaleAspectFit
         profileImage.image = imageFinal
-        updatedImage = imageFinal
+        updatedImage = resizeImage(imageFinal, newWidth: 300)
         
         self.dismissViewControllerAnimated(true, completion: nil)
     }
@@ -238,6 +228,18 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
 
     }
     
+    func resizeImage(image: UIImage, newWidth: CGFloat) -> UIImage {
+        
+        let scale = newWidth / image.size.width
+        let newHeight = image.size.height * scale
+        UIGraphicsBeginImageContext(CGSizeMake(newWidth, newHeight))
+        image.drawInRect(CGRectMake(0, 0, newWidth, newHeight))
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return newImage
+    }
+    
     @IBAction func saveButtonTap(sender: AnyObject) {
         let reachable = Reachability()
         if !(reachable.isConnectedToNetwork()) {
@@ -247,89 +249,47 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
             activityIndicator.hidden = true
             activityIndicator.stopAnimating()
         } else {
-            activityIndicator.hidden = false
-            activityIndicator.startAnimating()
-            let fullName: String = nameTextField.text!
-            let email: String = emailTextField.text!
             
-            let username:String = usernameTextField.text!
-            
-            let currentUserRef = usersRef.childByAppendingPath(userId!)
-            
-            if (initialUsername != username) {
-                self.usersRef.queryOrderedByChild("username").queryEqualToValue("\(username)")
-                    .observeEventType(.Value, withBlock: { snapshot in
+            usersRef.queryOrderedByChild("email").queryEqualToValue("\(ref.authData.providerData["email"]!)")
+                .observeEventType(.ChildAdded, withBlock: { snapshot in
+
+                    let currentUserId = snapshot.key
+                    
+                    let fullName: String = self.nameTextField.text!
+                    
+                    let currentUserRef = self.usersRef.childByAppendingPath(currentUserId!)
+                    let prefs = NSUserDefaults.standardUserDefaults()
+                    if (self.updatedImage != nil) {
+                        print("The image is not nil")
+                        let imageData: NSData = UIImagePNGRepresentation(self.updatedImage!)!
                         
-                        if snapshot.value is NSNull {
-                            // The username is not currently taken
-                            
-                            let imageData: NSData = UIImagePNGRepresentation(self.updatedImage!)!
-                            self.base64String = imageData.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
-                            
-                            let usernameUpdated = ["username": username]
-                            let nameUpdated = ["name": fullName]
-                            let emailUpdated = ["email": email]
-                            let profileImageUpdated = ["profileImage": self.base64String]
-                            
-                            self.nameTextField.text = fullName
-                            self.emailTextField.text = email
-                            self.usernameTextField.text = username
-                            
-                            currentUserRef.updateChildValues(usernameUpdated)
-                            currentUserRef.updateChildValues(nameUpdated)
-                            currentUserRef.updateChildValues(emailUpdated)
-                            currentUserRef.updateChildValues(profileImageUpdated)
-                            
-                            self.activityIndicator.hidden = true
-                            self.activityIndicator.stopAnimating()
-                            
-                            let prefs = NSUserDefaults.standardUserDefaults()
-                            
-                            prefs.setValue(fullName, forKey: "name")
-                            prefs.setValue(username, forKey: "username")
-                            prefs.setValue(email, forKey: "email")
-                            prefs.setValue(self.base64String, forKey: "profilePictureString")
-                            
-                        } else {
-                            
-                            // The username is taken choose another one
-                            let alert = UIAlertController(title: "USERNAME", message: "This username has already been taken, please choose another one.", preferredStyle: UIAlertControllerStyle.Alert)
-                            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
-                            self.presentViewController(alert, animated: true, completion: nil)
-                            self.activityIndicator.hidden = true
-                            self.activityIndicator.stopAnimating()
-                        }
+                        self.base64String = imageData.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
+                        let nameUpdated = ["name": fullName]
+                        let profileImageUpdated = ["profileImage": self.base64String]
                         
+                        self.nameTextField.text = fullName
+                        
+                        currentUserRef.updateChildValues(nameUpdated)
+                        currentUserRef.updateChildValues(profileImageUpdated)
+                        prefs.setValue(fullName, forKey: "name")
+                        prefs.setValue(self.base64String, forKey: "profilePictureString")
+                    } else {
+                        print("The image is nil \(fullName)")
+                        let nameUpdated = ["name": fullName]
+                        
+                        self.nameTextField.text = fullName
+                        
+                        currentUserRef.updateChildValues(nameUpdated)
+                        prefs.setValue(fullName, forKey: "name")
+                    }
+                    
+                    self.profileSavedView.hidden = false
+                    let dispatchTime: dispatch_time_t = dispatch_time(DISPATCH_TIME_NOW, Int64(3.0 * Double(NSEC_PER_SEC)))
+                    dispatch_after(dispatchTime, dispatch_get_main_queue(), {
+                        // your function here
+                        self.profileSavedView.hidden = true
                     })
-                
-            } else {
-                let imageData: NSData = UIImagePNGRepresentation(self.updatedImage!)!
-                self.base64String = imageData.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
-                
-                let usernameUpdated = ["username": username]
-                let nameUpdated = ["name": fullName]
-                let emailUpdated = ["email": email]
-                let profileImageUpdated = ["profileImage": self.base64String]
-                
-                self.nameTextField.text = fullName
-                self.emailTextField.text = email
-                self.usernameTextField.text = username
-                
-                currentUserRef.updateChildValues(usernameUpdated)
-                currentUserRef.updateChildValues(nameUpdated)
-                currentUserRef.updateChildValues(emailUpdated)
-                currentUserRef.updateChildValues(profileImageUpdated)
-                
-                self.activityIndicator.hidden = true
-                self.activityIndicator.stopAnimating()
-                
-                let prefs = NSUserDefaults.standardUserDefaults()
-                
-                prefs.setValue(fullName, forKey: "name")
-                prefs.setValue(username, forKey: "username")
-                prefs.setValue(email, forKey: "email")
-                prefs.setValue(self.base64String, forKey: "profilePictureString")
-            }
+                })
    
         }
     }

@@ -12,6 +12,8 @@ import Firebase
 
 class RewardsDetailTableViewController: UITableViewController {
     
+    weak var activityIndicatorView: UIActivityIndicatorView!
+    
     let cellIdentifier = "rewardsDetailedCell"
     
     let transitionManager = MenuTransitionManager()
@@ -19,18 +21,68 @@ class RewardsDetailTableViewController: UITableViewController {
     var currentTitle: String?
     var rewardType: String?
     
+    var currentLongitude: Double?
+    var currentLatitude: Double?
+    
     var rewardsRef = Firebase(url:"https://passenger-app.firebaseio.com/rewards/")
     
     var company: PFObject?
     var rewards: NSArray?
+    var companyImage: UIImage?
     
     private var companyName: String?
     
     var rewardsList = [RewardGroup]()
     
+    override func viewDidAppear(animated: Bool) {
+        
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadSampleProducts()
+        
+        definesPresentationContext = true
+        
+        let activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.Gray)
+        tableView.backgroundView = activityIndicatorView
+        tableView.separatorStyle = UITableViewCellSeparatorStyle.None
+        self.activityIndicatorView = activityIndicatorView
+
+        
+        var locManager = CLLocationManager()
+        locManager.requestWhenInUseAuthorization()
+        var currentLocation = CLLocation()
+        
+        if( CLLocationManager.authorizationStatus() == CLAuthorizationStatus.AuthorizedWhenInUse ||
+            CLLocationManager.authorizationStatus() == CLAuthorizationStatus.Authorized){
+            
+            currentLocation = locManager.location!
+            
+        }
+        
+        currentLongitude = currentLocation.coordinate.longitude
+        currentLatitude = currentLocation.coordinate.latitude
+        configureView()
+        
+        if (-119.533779 > currentLongitude && currentLongitude > -120.001937 && 36.917322 > currentLatitude && currentLatitude > 36.660517) {
+            activityIndicatorView.startAnimating()
+            loadSampleProducts()
+        } else {
+            // The user didn't have enough points show an alert
+            let alertController = UIAlertController(title: "Passenger", message: "We currently only offer rewards in Fresno, CA. We will soon be expanding to more cities around the United States so stay tuned. If you want to recommend your city send us an email through our website and we will get your city on board as soon as possible!", preferredStyle: .Alert)
+            
+            let defaultAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
+            alertController.addAction(defaultAction)
+            
+            let dispatchTime: dispatch_time_t = dispatch_time(DISPATCH_TIME_NOW, Int64(1.0 * Double(NSEC_PER_SEC)))
+            dispatch_after(dispatchTime, dispatch_get_main_queue(), {
+                // your function here
+                self.presentViewController(alertController, animated: true, completion: self.completePopUp)
+            })
+            
+        }
+        
+        
 
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
@@ -38,9 +90,13 @@ class RewardsDetailTableViewController: UITableViewController {
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
         
-        configureView()
+        
         
         self.transitionManager.sourceViewController = self
+    }
+    
+    func completePopUp() {
+        performSegueWithIdentifier("presentMenu", sender: nil)
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
@@ -54,6 +110,7 @@ class RewardsDetailTableViewController: UITableViewController {
             let dest = nav.topViewController as! DiscountCollectionViewController
             dest.companyName = companyName
             dest.rewards = rewards!
+            dest.companyImage = companyImage
         }
 
     }
@@ -73,7 +130,7 @@ class RewardsDetailTableViewController: UITableViewController {
         navigationController?.navigationBar.titleTextAttributes = navBarAttributesDictionary
         UINavigationBar.appearance().tintColor = UIColor.blackColor()
         
-        self.title = currentTitle
+        self.title = "Fresno, CA"
     }
 
     override func didReceiveMemoryWarning() {
@@ -82,6 +139,7 @@ class RewardsDetailTableViewController: UITableViewController {
     }
     
     func loadSampleProducts() {
+        
         let reachable = Reachability()
         if !(reachable.isConnectedToNetwork()) {
             var emptyLabel = UILabel(frame: CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height))
@@ -97,7 +155,13 @@ class RewardsDetailTableViewController: UITableViewController {
                     let decodedData = NSData(base64EncodedString: info, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
                     let decodedImage = UIImage(data: decodedData!)
                     let data = snapshot.value.objectAtIndex(i).objectForKey("rewards")
-                    let rewardGroup  = RewardGroup(rewardType: "Discount", companyName: snapshot.value.objectAtIndex(i).objectForKey("companyName") as! String, backgroundImage: decodedImage!, crossStreets: snapshot.value.objectAtIndex(i).objectForKey("crossStreets") as! String, sixDigitIdentifier: snapshot.value.objectAtIndex(i).objectForKey("sixDigitIdentifier") as! Int, rewards: snapshot.value.objectAtIndex(i).objectForKey("rewards") as! NSArray)
+                    let rewardGroup  = RewardGroup(
+                        rewardType: "Discount",
+                        companyName: snapshot.value.objectAtIndex(i).objectForKey("companyName") as! String,
+                        backgroundImage: decodedImage!,
+                        crossStreets: snapshot.value.objectAtIndex(i).objectForKey("crossStreets") as! String,
+                        sixDigitIdentifier: snapshot.value.objectAtIndex(i).objectForKey("sixDigitIdentifier") as! Int,
+                        rewards: snapshot.value.objectAtIndex(i).objectForKey("rewards") as! NSArray)
                     self.rewardsList.append(rewardGroup)
                     self.tableView.reloadData()
                 }
@@ -106,42 +170,6 @@ class RewardsDetailTableViewController: UITableViewController {
             })
         }
 
-        
-//        let query = PFQuery(className:"Rewards")
-//        query.fromLocalDatastore()
-//        query.whereKey("rewardType", equalTo: rewardType!)
-//        query.findObjectsInBackgroundWithBlock {
-//            (objects: [PFObject]?, error: NSError?) -> Void in
-//            if error == nil {
-//                // The find succeeded.
-//                print("Successfully retrieved \(objects!.count) rewards.")
-//                // Do something with the found objects gameScore["playerName"] as String
-//                var i = 0
-//                if let objects = objects {
-//                    for object in objects {
-//                        var imageData = NSData()
-//                        let rewardImageFiles = object["companyImage"] as! PFFile
-//                        
-//                        do {
-//                            imageData = try rewardImageFiles.getData()
-//                        } catch {
-//                            print("There was a problem getting the data")
-//                        }
-//                        
-//                        let companyImage = UIImage(data: imageData)!
-//                        let rewardGroup = RewardGroup(rewardType: object["rewardType"] as! String, companyName: object["companyName"] as! String, backgroundImage: companyImage, crossStreets: object["crossStreets"] as! String, company: object)
-//                        self.rewardsList.append(rewardGroup)
-//                        self.tableView.reloadData()
-//                        
-//                        i = i + 1
-//                    }
-//                    self.tableView.reloadData()
-//                }
-//            } else {
-//                // Log details of the failure
-//                print("Error: \(error!) \(error!.userInfo)")
-//            }
-//        }
         self.tableView.reloadData()
     }
     
@@ -179,6 +207,7 @@ class RewardsDetailTableViewController: UITableViewController {
         //CODE TO BE RUN ON CELL TOUCH
         companyName = rewardsList[indexPath.row].getCompanyName()
         rewards = rewardsList[indexPath.row].getRewards()
+        companyImage = rewardsList[indexPath.row].getBackgroundImage()
         performSegueWithIdentifier("rewardsToDiscounts", sender: nil)
         
     }

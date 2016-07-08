@@ -93,12 +93,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         PFFacebookUtils.initializeFacebookWithApplicationLaunchOptions(launchOptions)
         
-//        if (reachable.isConnectedToNetwork()) {
-//            
-//        } else {
-//            
-//        }
-        
         if(NSUserDefaults.standardUserDefaults().boolForKey("HasLaunchedOnce"))
         {
             // app already launched
@@ -110,21 +104,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
             if ref.authData != nil {
                 // user authenticated
-                let initialViewController = storyboard.instantiateViewControllerWithIdentifier("homeViewController")
+                let launchViewController = storyboard.instantiateViewControllerWithIdentifier("launchViewController")
                 self.usersRef.queryOrderedByChild("email").queryEqualToValue("\(self.ref.authData.providerData["email"]!)")
                     .observeEventType(.ChildAdded, withBlock: { snapshot in
                         self.userId = snapshot.key
                         self.currentUserCurrentPoints = snapshot.value.objectForKey("currentPoints") as! Double!
                         self.currentUserTotalPoints = snapshot.value.objectForKey("totalPoints") as! Double!
                         self.currentUserTimeSpentDriving = snapshot.value.objectForKey("timeSpentDriving") as! Double!
-                        self.currentUserCurrentDistance = snapshot.value.objectForKey("currentPoints") as! Double!
+                        self.currentUserCurrentDistance = snapshot.value.objectForKey("distanceTraveled") as! Double!
                         self.currentUserPointsList = snapshot.value.objectForKey("pointsHistory") as! NSArray!
                         
                     })
+
+                self.window?.rootViewController = launchViewController
                 
-                self.window?.rootViewController = initialViewController
-                
-                // Need to comment the below until the database has been completely switched over to parse to get this data
                 
             } else {
                 // No user is signed in
@@ -209,7 +202,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
         
-        if (totalCurrentPoints > 0.75) {
+        if (totalCurrentPoints > 0.9) {
             
             if (ref.authData != nil) {
             
@@ -235,6 +228,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 currentUserCurrentDistance = currentUserCurrentDistance + ((distance * 3.28084) * 0.000189394)
                 currentUserTimeSpentDriving = secondsToAddToUser + currentUserTimeSpentDriving
                 
+                secondsToAddToUser = 0
+                
                 usersRef.childByAppendingPath("\(userId)/currentPoints").setValue(currentUserCurrentPoints)
                 usersRef.childByAppendingPath("\(userId)/totalPoints").setValue(currentUserTotalPoints)
                 usersRef.childByAppendingPath("\(userId)/distanceTraveled").setValue(currentUserCurrentDistance)
@@ -257,7 +252,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             distanceTraveledInTen = 0
             secondsToAddToUser += 10
             
-        } else if ( isLocked == false && currentSpeed > 0) {
+        } else if (((everyTenSeconds % 10) == 0 && isLocked == false) && !isDriving && seconds > 1.0) {
+            
+            distanceTraveledInTen = 0
+            //secondsToAddToUser += 10
+            
+        } else if(((everyTenSeconds % 10) == 0 && isLocked) && !isDriving && seconds > 1.0) {
+            
+            distanceTraveledInTen = 0
+            //secondsToAddToUser += 10
+            
+        } else if(((everyTenSeconds % 10) == 0 && isLocked == false) && isDriving && seconds > 1.0) {
+            
+            distanceTraveledInTen = 0
+            //secondsToAddToUser += 10
+            
+        }
+        
+        if ( isLocked == false && currentSpeed > 10) {
             
             self.totalCurrentPoints = 0
             self.distance = 0
@@ -267,12 +279,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         seconds += 1
     
-        
         if (distanceTraveledInTen < 50) {
             currentSpeed = 0.0
             isSittingStillCount += 1
-            if (isSittingStillCount > 20 && stoppedDriving) {
-                if (totalCurrentPoints > 0.75 && ref.authData != nil && self.userId != "" && self.reachable.isConnectedToNetwork()) {
+            if (isSittingStillCount > 120 && stoppedDriving) {
+                if (totalCurrentPoints > 0.9 && ref.authData != nil && self.userId != "" && self.reachable.isConnectedToNetwork()) {
                     self.isSittingStillCount = 0
                     self.stoppedDriving = true
                     
@@ -291,7 +302,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     
                     self.currentUserPointsListAppended.append(currentPointRecord)
                     
-                    
                     if (self.currentUserPointsListAppended.count == 200) {
                         self.currentUserPointsListAppended.removeAtIndex(0)
                     }
@@ -302,6 +312,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     currentUserTotalPoints = currentUserTotalPoints + totalCurrentPoints
                     currentUserCurrentDistance = currentUserCurrentDistance + ((distance * 3.28084) * 0.000189394)
                     currentUserTimeSpentDriving = secondsToAddToUser + currentUserTimeSpentDriving
+                    secondsToAddToUser = 0
                     
                     usersRef.childByAppendingPath("\(userId)/currentPoints").setValue(currentUserCurrentPoints)
                     usersRef.childByAppendingPath("\(userId)/totalPoints").setValue(currentUserTotalPoints)
@@ -321,17 +332,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
    
                 } else {
                     totalCurrentPoints = 0.0
+                    self.distance = 0.0
+                    self.seconds = 0.0
                 }
                 if (isSittingStillCount == 3600) {
                     self.locationManager.stopUpdatingLocation()
                     updatesAlreadyStarted = false
                     self.isSittingStillCount = 0
                 }
-            } else if (isLocked == false) {
+            } else if (isSittingStillCount > 9 && isLocked == false) {
                 
                 self.stoppedDriving = true
                 self.didUsePhoneAtStopLight = true
-                print("The user used their phone while sitting at a stop light and drove after")
+                //print("The user used their phone while sitting at a stop light or right when they got out of the car")
                 
             } else {
                 // The user may be at a stop light or something.
@@ -370,7 +383,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Calculate the points for the phone being off
         
-        totalCurrentPoints = totalCurrentPoints + (10 * 0.025)
+        totalCurrentPoints = totalCurrentPoints + (10 * 0.015)
 
     }
     

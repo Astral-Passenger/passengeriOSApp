@@ -15,6 +15,8 @@ class DiscountCollectionViewController: UICollectionViewController {
     let transitionManager = MenuTransitionManager()
     
     var companyName: String?
+    var companyImage: UIImage?
+    var couponCodes = [NSArray]()
     
     var rewards: NSArray?
     
@@ -68,6 +70,9 @@ class DiscountCollectionViewController: UICollectionViewController {
             dest.rewardsList = self.rewards
             dest.rewardName = rewardsList[rowSelected].getRewardName()
             dest.rewardImageString = rewardsList[rowSelected].getRewardImageString()
+            dest.companyImage = self.companyImage
+            dest.couponCodes = couponCodes[rowSelected]
+            dest.couponCodesToReturn = couponCodes
         }
 
         
@@ -96,10 +101,11 @@ class DiscountCollectionViewController: UICollectionViewController {
             let decodedData = NSData(base64EncodedString: info, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
             let decodedImage = UIImage(data: decodedData!)
             let reward = Reward(companyName: self.companyName!, pointCost: rewards!.objectAtIndex(i).objectForKey("pointCost") as! Int, rewardImage: decodedImage!, rewardPrice: rewards!.objectAtIndex(i).objectForKey("rewardPrice") as! Int, rewardDescription: rewards!.objectAtIndex(i).objectForKey("rewardDescription") as! String, rewardName: rewards!.objectAtIndex(i).objectForKey("rewardsName") as! String, rewardImageString: info)
+            couponCodes.append(rewards!.objectAtIndex(i).objectForKey("couponCodes") as! NSArray)
             self.rewardsList.append(reward)
             self.collectionView!.reloadData()
         }
-        
+
         self.collectionView!.reloadData()
         
     }

@@ -72,6 +72,7 @@
 		1EA1F0371C22381400845B2C /* LegalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA1F0361C22381400845B2C /* LegalViewController.swift */; };
 		1EA1F0391C22382500845B2C /* SettignsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA1F0381C22382500845B2C /* SettignsViewController.swift */; };
 		1EA1F03B1C22383200845B2C /* ProfileSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA1F03A1C22383200845B2C /* ProfileSettingsViewController.swift */; };
+		1EA4D5631D1B35330044C45F /* UIDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA4D5621D1B35330044C45F /* UIDevice.swift */; };
 		1EA5EDAA1C3EDC4C0066B332 /* DiscountCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA5EDA91C3EDC4C0066B332 /* DiscountCollectionViewController.swift */; };
 		1EAB38A51BF671F1008E568E /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAB38A41BF671F1008E568E /* SignInViewController.swift */; };
 		1EAB38A71BF671FE008E568E /* FirstScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAB38A61BF671FE008E568E /* FirstScreenViewController.swift */; };
@@ -195,6 +196,7 @@
 		1EA1F0361C22381400845B2C /* LegalViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegalViewController.swift; sourceTree = "<group>"; };
 		1EA1F0381C22382500845B2C /* SettignsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettignsViewController.swift; sourceTree = "<group>"; };
 		1EA1F03A1C22383200845B2C /* ProfileSettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileSettingsViewController.swift; sourceTree = "<group>"; };
+		1EA4D5621D1B35330044C45F /* UIDevice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIDevice.swift; sourceTree = "<group>"; };
 		1EA5EDA91C3EDC4C0066B332 /* DiscountCollectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscountCollectionViewController.swift; sourceTree = "<group>"; };
 		1EAB38A41BF671F1008E568E /* SignInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
 		1EAB38A61BF671FE008E568E /* FirstScreenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FirstScreenViewController.swift; sourceTree = "<group>"; };
@@ -346,6 +348,7 @@
 				1E0B6DC51C4C18680050ABF0 /* GpsCoordinateConverter.swift */,
 				1E0B6DC71C4C2B890050ABF0 /* ParseLocalData.swift */,
 				1E5A03DB1CAC6E8A00260EE4 /* Reachability.swift */,
+				1EA4D5621D1B35330044C45F /* UIDevice.swift */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -431,11 +434,15 @@
 				1EF62EC21BF2D6C100AFE2F3 /* CurrentDriveViewController.swift */,
 				1EF62EC51BF2DA6800AFE2F3 /* RewardsViewController.swift */,
 				1E67B6851C05068500B7C866 /* RewardsDetailTableViewController.swift */,
+				1EA5EDA91C3EDC4C0066B332 /* DiscountCollectionViewController.swift */,
+				1E4010731C3EEB25001221C4 /* DiscountsCollectionViewCell.swift */,
+				1E4010771C3F1262001221C4 /* RedeemViewController.swift */,
 				1EAB38A41BF671F1008E568E /* SignInViewController.swift */,
 				1EAB38A61BF671FE008E568E /* FirstScreenViewController.swift */,
 				1EAB38A81BF6720A008E568E /* RegisterViewController.swift */,
 				1E76C7751BFED70C00F03E74 /* PointsHistoryTableViewController.swift */,
 				1E76C7701BFEB57B00F03E74 /* PointsHistoryTableViewCell.swift */,
+				1EA1F0341C2230BA00845B2C /* HomeNavigationViewController.swift */,
 				1E76C7881BFFC2DC00F03E74 /* HomeViewController.swift */,
 				1E67B6811C027EA300B7C866 /* ProfileViewController.swift */,
 				1E67B6831C027EAB00B7C866 /* MoreViewController.swift */,
@@ -444,7 +451,6 @@
 				1ED8F7BC1C0BB1290063B001 /* RankingTableViewCell.swift */,
 				1ED2707B1C0D2AEA00F85E2B /* RewardsHistoryCollectionViewController.swift */,
 				1E36F7261C0E9403002259CA /* RewardsHistoryCollectionViewCell.swift */,
-				1EA1F0341C2230BA00845B2C /* HomeNavigationViewController.swift */,
 				1EA1F0321C22207D00845B2C /* HelpViewController.swift */,
 				1EA1F0361C22381400845B2C /* LegalViewController.swift */,
 				1EA1F0381C22382500845B2C /* SettignsViewController.swift */,
@@ -452,9 +458,6 @@
 				1E92404B1C25D53500F8D2DA /* HelpExpandedTableViewController.swift */,
 				1E92404D1C25DC6700F8D2DA /* HelpExpandedTableViewCell.swift */,
 				1E92404F1C25F73F00F8D2DA /* HelpFinalViewController.swift */,
-				1EA5EDA91C3EDC4C0066B332 /* DiscountCollectionViewController.swift */,
-				1E4010731C3EEB25001221C4 /* DiscountsCollectionViewCell.swift */,
-				1E4010771C3F1262001221C4 /* RedeemViewController.swift */,
 				1E7059461C431AEE00936C0D /* FirstLaunchViewController.swift */,
 				1E7059481C431B0F00936C0D /* PageViewDetailedViewController.swift */,
 				1EE174FB1C473F1B00F74773 /* InviteFriendsTableViewController.swift */,
@@ -683,6 +686,7 @@
 				1E92404C1C25D53500F8D2DA /* HelpExpandedTableViewController.swift in Sources */,
 				1EAC2D181BE861D200547515 /* ViewController.swift in Sources */,
 				1EA1F0331C22207E00845B2C /* HelpViewController.swift in Sources */,
+				1EA4D5631D1B35330044C45F /* UIDevice.swift in Sources */,
 				1E76C7711BFEB57B00F03E74 /* PointsHistoryTableViewCell.swift in Sources */,
 				1E67B68E1C05091600B7C866 /* Reward.swift in Sources */,
 				1E30E6921C9A0ADF00AF0470 /* SplashScreenViewController.swift in Sources */,
@@ -851,7 +855,7 @@
 				);
 				INFOPLIST_FILE = Passenger/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.SpacebarTechnologies.Cherish;
+				PRODUCT_BUNDLE_IDENTIFIER = com.SpacebarTechnologies.Passenger;
 				PRODUCT_NAME = Passenger;
 				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Passenger/Passenger-Bridging-Header.h";
@@ -872,7 +876,7 @@
 				);
 				INFOPLIST_FILE = Passenger/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.SpacebarTechnologies.Cherish;
+				PRODUCT_BUNDLE_IDENTIFIER = com.SpacebarTechnologies.Passenger;
 				PRODUCT_NAME = Passenger;
 				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Passenger/Passenger-Bridging-Header.h";

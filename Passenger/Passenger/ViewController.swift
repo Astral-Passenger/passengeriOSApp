@@ -16,6 +16,7 @@ class ViewController: UIViewController {
     
     let ref = Firebase(url: "https://passenger-app.firebaseio.com")
     let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users/")
+    let rewardsRef = Firebase(url: "https://passenger-app.firebaseio.com/rewards/")
 
     @IBOutlet weak var homeProfileLayout: UIView!
     @IBOutlet weak var rewardsButtonView: UIView!
@@ -59,6 +60,7 @@ class ViewController: UIViewController {
         }
 
         configureView()
+
 //        let gpsConvert = GpsCoordinateConverter()
 //        gpsConvert.gpsToAddress(36.8080762, longitude: -119.7274735) {
 //            (result: String) in

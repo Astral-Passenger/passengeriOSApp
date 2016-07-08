@@ -19,7 +19,6 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
     var base64String: NSString!
     
     var fullName: String?
-    var username: String?
     var currentPoints: Int?
     var totalPoints: Int?
     var profilePictureString: String?
@@ -44,8 +43,6 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
     @IBOutlet weak var registerBackground: UIImageView!
-    @IBOutlet weak var usernameView: UIView!
-    @IBOutlet weak var usernameTextField: UITextField!
     @IBOutlet weak var nameView: UIView!
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
@@ -64,7 +61,6 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
         
         self.transitionManager.sourceViewController = self
         nameTextField.delegate = self
-        usernameTextField.delegate = self
         emailTextField.delegate = self
         passwordTextField.delegate = self
     
@@ -120,7 +116,6 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
             let prefs = NSUserDefaults.standardUserDefaults()
             
             prefs.setValue(fullName!, forKey: "name")
-            prefs.setValue(username!, forKey: "username")
             prefs.setValue(currentPoints!, forKey: "currentPoints")
             prefs.setValue(totalPoints!, forKey: "totalPoints")
             prefs.setValue(profilePictureString!, forKey: "profilePictureString")
@@ -160,7 +155,6 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
         emailTextFieldView.layer.cornerRadius = 5
         passwordTextFieldView.layer.cornerRadius = 5
         nameView.layer.cornerRadius = 5
-        usernameView.layer.cornerRadius = 5
 
         navigationController?.navigationBar.setBackgroundImage(UIImage(), forBarMetrics: UIBarMetrics.Default)
         navigationController?.navigationBar.shadowImage = UIImage()
@@ -190,7 +184,6 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
             loadingView.hidden = false
             activityIndicator.startAnimating()
             activityIndicator.hidden = false
-            let username = usernameTextField.text!
             let password = passwordTextField.text!
             let email = emailTextField.text!
             let name = nameTextField.text!
@@ -201,7 +194,7 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
                 isEmail = true
             }
             
-            if (username == "" || password == "" || email == "" || name == "") {
+            if (password == "" || email == "" || name == "") {
                 let alert = UIAlertController(title: "REGISTRATION ERROR", message: "Make sure you fill out all of the fields.", preferredStyle: UIAlertControllerStyle.Alert)
                 alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
                 self.presentViewController(alert, animated: true, completion: nil)
@@ -209,39 +202,26 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
                 self.activityIndicator.hidden = true
                 self.activityIndicator.stopAnimating()
             } else {
-                self.usersRef.queryOrderedByChild("username").queryEqualToValue("\(username)")
-                    .observeEventType(.Value, withBlock: { snapshot in
-                        print("This is called")
-                        if snapshot.value is NSNull {
-                            // The username is not currently taken
-                            
-                            if (username.characters.count < 4) {
-                                let alert = UIAlertController(title: "USERNAME", message: "Enter a username that is longer than 4 characters.", preferredStyle: UIAlertControllerStyle.Alert)
-                                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
-                                self.presentViewController(alert, animated: true, completion: nil)
-                                self.loadingView.hidden = true
-                                self.activityIndicator.hidden = true
-                                self.activityIndicator.stopAnimating()
-                            } else if (email.characters.count < 5 && isEmail == false) {
-                                let alert = UIAlertController(title: "EMAIL", message: "Please enter a valid email", preferredStyle: UIAlertControllerStyle.Alert)
-                                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
-                                self.presentViewController(alert, animated: true, completion: nil)
-                                self.loadingView.hidden = true
-                                self.activityIndicator.hidden = true
-                                self.activityIndicator.stopAnimating()
-                            } else if (password.characters.count < 6) {
-                                let alert = UIAlertController(title: "PASSWORD", message: "Please enter a password longer than 6 characters for security purposes.", preferredStyle: UIAlertControllerStyle.Alert)
-                                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
-                                self.presentViewController(alert, animated: true, completion: nil)
-                                self.loadingView.hidden = true
-                                self.activityIndicator.hidden = true
-                                self.activityIndicator.stopAnimating()
-                            } else {
-                                // Register & Authenticate user
-                                self.ref.createUser(email, password: password) { (error: NSError!) in
-                                    if error == nil {
-                                        self.ref.authUser(email, password: password,
-                                            withCompletionBlock: {
+                if (email.characters.count < 5 && isEmail == false) {
+                    let alert = UIAlertController(title: "EMAIL", message: "Please enter a valid email", preferredStyle: UIAlertControllerStyle.Alert)
+                    alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+                    self.presentViewController(alert, animated: true, completion: nil)
+                    self.loadingView.hidden = true
+                    self.activityIndicator.hidden = true
+                    self.activityIndicator.stopAnimating()
+                } else if (password.characters.count < 6) {
+                    let alert = UIAlertController(title: "PASSWORD", message: "Please enter a password longer than 6 characters for security purposes.", preferredStyle: UIAlertControllerStyle.Alert)
+                    alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+                    self.presentViewController(alert, animated: true, completion: nil)
+                    self.loadingView.hidden = true
+                    self.activityIndicator.hidden = true
+                    self.activityIndicator.stopAnimating()
+                } else {
+                    // Register & Authenticate user
+                    self.ref.createUser(email, password: password) { (error: NSError!) in
+                        if error == nil {
+                            self.ref.authUser(email, password: password,
+                                              withCompletionBlock: {
                                                 (error, auth) -> Void in
                                                 
                                                 
@@ -252,7 +232,6 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
                                                 
                                                 let currentUser = [
                                                     "\(auth.uid)": [
-                                                        "username": username,
                                                         "name": name,
                                                         "email": email,
                                                         "totalPoints": 0,
@@ -268,7 +247,6 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
                                                 self.usersRef.updateChildValues(currentUser)
                                                 
                                                 self.fullName = name
-                                                self.username = ""
                                                 self.currentPoints = 0
                                                 self.totalPoints = 0
                                                 self.profilePictureString = "\(self.base64String)"
@@ -284,29 +262,16 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
                                                 appDelegate.userId = auth.uid
                                                 
                                                 self.performSegueWithIdentifier("finishedSigningUp", sender: nil)
-                                        })
-                                    } else {
-                                        self.activityIndicator.hidden = true
-                                        self.activityIndicator.stopAnimating()
-                                        let alert = UIAlertController(title: "SIGN UP", message: "\(error!.localizedDescription)", preferredStyle: UIAlertControllerStyle.Alert)
-                                        alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
-                                        self.presentViewController(alert, animated: true, completion: nil)
-                                    }
-                                }
-                            }
-                            
+                            })
                         } else {
-                            
-                            // The username is taken choose another one
-                            let alert = UIAlertController(title: "USERNAME", message: "This username has already been taken, please choose another one.", preferredStyle: UIAlertControllerStyle.Alert)
-                            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
-                            self.presentViewController(alert, animated: true, completion: nil)
-                            self.loadingView.hidden = true
                             self.activityIndicator.hidden = true
                             self.activityIndicator.stopAnimating()
+                            let alert = UIAlertController(title: "SIGN UP", message: "\(error!.localizedDescription)", preferredStyle: UIAlertControllerStyle.Alert)
+                            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+                            self.presentViewController(alert, animated: true, completion: nil)
                         }
-                        
-                    })
+                    }
+                }
             }
 
         }
@@ -339,6 +304,10 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
                     print("Facebook login failed. Error \(facebookError)")
                 } else if facebookResult.isCancelled {
                     print("Facebook login was cancelled.")
+                    
+                    self.loadingView.hidden = true
+                    self.activityIndicator.hidden = true
+                    self.activityIndicator.stopAnimating()
                 } else {
                     let accessToken = FBSDKAccessToken.currentAccessToken().tokenString
                     self.ref.authWithOAuthProvider("facebook", token: accessToken,
@@ -413,7 +382,6 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
                                     self.base64String = profilePictureData!.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
                                     let currentUser = [
                                         "\(userId)": [
-                                            "username": "",
                                             "name": "\(fullName!)",
                                             "email": "\(userEmail!)",
                                             "totalPoints": 0,
@@ -435,7 +403,6 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
                                     
                                     let currentUser = [
                                         "\(userId)": [
-                                            "username": "",
                                             "name": "\(fullName!)",
                                             "email": "\(userEmail!)",
                                             "totalPoints": 0,
@@ -453,7 +420,6 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
                                 }
                             
                             self.fullName = fullName!
-                            self.username = ""
                             self.currentPoints = 0
                             self.totalPoints = 0
                             self.profilePictureString = base64String
@@ -485,7 +451,6 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
                     let currentUser = snapshot.value.objectForKey("\(userId)")
                     print(currentUser)
                     self.fullName = currentUser!.objectForKey("name") as! String
-                    self.username = currentUser!.objectForKey("username") as! String
                     self.currentPoints = currentUser!.objectForKey("currentPoints") as! Int
                     self.totalPoints = currentUser!.objectForKey("totalPoints") as! Int
                     self.profilePictureString = currentUser!.objectForKey("profileImage") as! String

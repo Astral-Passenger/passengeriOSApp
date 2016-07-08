@@ -259,6 +259,9 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
                     print("Facebook login failed. Error \(facebookError)")
                 } else if facebookResult.isCancelled {
                     print("Facebook login was cancelled.")
+                    self.loadingView.hidden = true
+                    self.activityIndicator.stopAnimating()
+                    self.activityIndicator.hidden = true
                 } else {
                     let accessToken = FBSDKAccessToken.currentAccessToken().tokenString
                     self.ref.authWithOAuthProvider("facebook", token: accessToken,

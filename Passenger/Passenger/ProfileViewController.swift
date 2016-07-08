@@ -55,7 +55,6 @@ class ProfileViewController: UIViewController {
         let prefs = NSUserDefaults.standardUserDefaults()
         
         let fullname = prefs.stringForKey("name")!
-        let username = prefs.stringForKey("username")!
         let currentPoints = prefs.integerForKey("currentPoints")
         let profilePictureString = prefs.stringForKey("profilePictureString")!
         let totalPoints = prefs.integerForKey("totalPoints")
@@ -64,7 +63,6 @@ class ProfileViewController: UIViewController {
         let timeSpentDriving = prefs.integerForKey("timeSpentDriving")
 
         self.fullNameLabel.text = fullname
-        self.usernameLabel.text = username
         self.totalPointsLabel.text = String(totalPoints)
         self.totalCurrentPointsLabel.text = String(currentPoints)
         self.milesDrivenLabel.text = String(distanceTraveled)

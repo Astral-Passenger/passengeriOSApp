@@ -35,7 +35,17 @@ class HomeViewController: UITabBarController, UITabBarControllerDelegate {
             self.navigationItem.titleView = nil
             self.navigationItem.title = "MORE"
         } else if (profile) {
+            self.selectedIndex = 1
+            profile = false
+            self.navigationController?.navigationBarHidden = true
+            // create view to go behind statusbar
+            self.statusBarBackground = UIView()
+            self.statusBarBackground.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 20)
+            self.statusBarBackground.backgroundColor = UIColor.clearColor()
             
+            // add to window rather than view controller
+            UIApplication.sharedApplication().keyWindow!.addSubview(self.statusBarBackground)
+            UIApplication.sharedApplication().statusBarStyle = .LightContent
         } else {
             let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 28, height: 28))
             imageView.contentMode = .ScaleAspectFit
