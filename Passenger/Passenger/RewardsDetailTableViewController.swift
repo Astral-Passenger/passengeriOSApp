@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import Parse
 import Firebase
 
 class RewardsDetailTableViewController: UITableViewController {
@@ -25,8 +24,6 @@ class RewardsDetailTableViewController: UITableViewController {
     var currentLatitude: Double?
     
     var rewardsRef = Firebase(url:"https://passenger-app.firebaseio.com/rewards/")
-    
-    var company: PFObject?
     var rewards: NSArray?
     var companyImage: UIImage?
     
@@ -68,7 +65,7 @@ class RewardsDetailTableViewController: UITableViewController {
             activityIndicatorView.startAnimating()
             loadSampleProducts()
         } else {
-            // The user didn't have enough points show an alert
+            
             let alertController = UIAlertController(title: "Passenger", message: "We currently only offer rewards in Fresno, CA. We will soon be expanding to more cities around the United States so stay tuned. If you want to recommend your city send us an email through our website and we will get your city on board as soon as possible!", preferredStyle: .Alert)
             
             let defaultAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
@@ -165,6 +162,7 @@ class RewardsDetailTableViewController: UITableViewController {
                     self.rewardsList.append(rewardGroup)
                     self.tableView.reloadData()
                 }
+                self.activityIndicatorView.hidden = true
                 }, withCancelBlock: { error in
                     print(error.description)
             })

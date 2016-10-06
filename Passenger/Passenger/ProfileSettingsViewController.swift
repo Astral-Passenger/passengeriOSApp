@@ -7,10 +7,8 @@
 //
 
 import UIKit
-import Parse
 import Bolts
 import FBSDKCoreKit
-import ParseFacebookUtilsV4
 import Firebase
 
 class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
@@ -159,15 +157,15 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
         
         UIApplication.sharedApplication().statusBarStyle = .Default
         
-        let prefs = NSUserDefaults.standardUserDefaults()
+        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
         
-        initialFullName = prefs.stringForKey("name")!
-        initialEmail = prefs.stringForKey("email")!
-        let profilePictureString = prefs.stringForKey("profilePictureString")!
+        initialFullName = appDelegate.usersName
+        initialEmail = appDelegate.usersEmail
+        let profilePictureString = appDelegate.profilePictureString
         
         self.nameTextField.text = initialFullName
         
-        let decodedData = NSData(base64EncodedString: profilePictureString, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
+        let decodedData = NSData(base64EncodedString: profilePictureString!, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
         
         let decodedImage = UIImage(data: decodedData!)
         
@@ -176,7 +174,7 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
         self.profileImage.layer.cornerRadius = 62.5
         self.cameraImageView.hidden = false
         
-        userId = ref.authData.uid
+        userId = appDelegate.userId
         
         self.profileSavedView.layer.cornerRadius = 5
 
@@ -207,7 +205,7 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
         let rect: CGRect = CGRectMake(posX, posY, width, height)
         
         // Create bitmap image from context using the rect
-        let imageRef: CGImageRef = CGImageCreateWithImageInRect(image.CGImage, rect)!
+        let imageRef: CGImageRef = CGImageCreateWithImageInRect(image.CGImage!, rect)!
         
         // Create a new image based on the imageRef and rotate back to the original orientation
         let imageFinal: UIImage = UIImage(CGImage: imageRef, scale: image.scale, orientation: image.imageOrientation)
@@ -237,7 +235,7 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
         let newImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
-        return newImage
+        return newImage!
     }
     
     @IBAction func saveButtonTap(sender: AnyObject) {
@@ -249,16 +247,16 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
             activityIndicator.hidden = true
             activityIndicator.stopAnimating()
         } else {
-            
+            print(ref.authData.providerData["email"]!)
             usersRef.queryOrderedByChild("email").queryEqualToValue("\(ref.authData.providerData["email"]!)")
-                .observeEventType(.ChildAdded, withBlock: { snapshot in
+                .observeEventType(.Value, withBlock: { snapshot in
 
                     let currentUserId = snapshot.key
                     
                     let fullName: String = self.nameTextField.text!
+                    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+                    let currentUserRef = self.usersRef.childByAppendingPath(self.userId!)
                     
-                    let currentUserRef = self.usersRef.childByAppendingPath(currentUserId!)
-                    let prefs = NSUserDefaults.standardUserDefaults()
                     if (self.updatedImage != nil) {
                         print("The image is not nil")
                         let imageData: NSData = UIImagePNGRepresentation(self.updatedImage!)!
@@ -271,8 +269,8 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
                         
                         currentUserRef.updateChildValues(nameUpdated)
                         currentUserRef.updateChildValues(profileImageUpdated)
-                        prefs.setValue(fullName, forKey: "name")
-                        prefs.setValue(self.base64String, forKey: "profilePictureString")
+                        appDelegate.usersName = fullName
+                        appDelegate.profilePictureString = self.base64String as String
                     } else {
                         print("The image is nil \(fullName)")
                         let nameUpdated = ["name": fullName]
@@ -280,7 +278,7 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
                         self.nameTextField.text = fullName
                         
                         currentUserRef.updateChildValues(nameUpdated)
-                        prefs.setValue(fullName, forKey: "name")
+                        appDelegate.usersName = fullName
                     }
                     
                     self.profileSavedView.hidden = false

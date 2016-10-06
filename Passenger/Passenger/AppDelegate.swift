@@ -10,7 +10,6 @@ import UIKit
 import CoreData
 import Bolts
 import FBSDKCoreKit
-import ParseFacebookUtilsV4
 import CoreLocation
 import CoreMotion
 import HealthKit
@@ -24,13 +23,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let activityManager = CMMotionActivityManager()
     var window: UIWindow?
     
+    // UsersInformation
+    
+    var usersName: String?
+    var rewardsReceived: Int?
+    var currentUserTotalPoints = 0.0
+    var currentUserCurrentPoints = 0.0
+    var currentUserCurrentDistance = 0.0
+    var currentUserTimeSpentDriving = 0.0
+    var profilePictureString: String?
+    var usersEmail: String?
+    
     var currentUserPointsList: NSArray?
     var currentUserPointsListAppended = [NSDictionary]()
     
     var userId = ""
     var email = ""
-
-    var currentUser: PFUser?
     
     var pointsPerMinute = 0.0055
     var pointsPerMile = 0.5
@@ -57,11 +65,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var averageSpeedOverTen = 0.0
     
     var boolean: Bool?
-    
-    var currentUserTotalPoints = 0.0
-    var currentUserCurrentPoints = 0.0
-    var currentUserCurrentDistance = 0.0
-    var currentUserTimeSpentDriving = 0.0
     
     var previousLocation: CLLocation?
     var currentLocation: CLLocation?
@@ -91,7 +94,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         self.locationManager.requestAlwaysAuthorization()
         
-        PFFacebookUtils.initializeFacebookWithApplicationLaunchOptions(launchOptions)
+        // Configure tracker from GoogleService-Info.plist.
+        var configureError:NSError?
+        GGLContext.sharedInstance().configureWithError(&configureError)
+        assert(configureError == nil, "Error configuring Google services: \(configureError)")
+        
+        // Optional: configure GAI options.
+        let gai = GAI.sharedInstance()
+        gai.trackUncaughtExceptions = true  // report uncaught exceptions
+        gai.logger.logLevel = GAILogLevel.Verbose  // remove before app release
+        GAI.sharedInstance().trackerWithTrackingId("UA-80527181-1")
         
         if(NSUserDefaults.standardUserDefaults().boolForKey("HasLaunchedOnce"))
         {
@@ -113,8 +125,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         self.currentUserTimeSpentDriving = snapshot.value.objectForKey("timeSpentDriving") as! Double!
                         self.currentUserCurrentDistance = snapshot.value.objectForKey("distanceTraveled") as! Double!
                         self.currentUserPointsList = snapshot.value.objectForKey("pointsHistory") as! NSArray!
-                        
-                    })
+                        self.usersName = snapshot.value.objectForKey("name") as! String
+                        self.rewardsReceived = snapshot.value.objectForKey("rewardsReceived") as! Int
+                })
 
                 self.window?.rootViewController = launchViewController
                 
@@ -190,10 +203,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationWillEnterForeground(application: UIApplication) {
-        print("The app entered the foreground.")
         if (updatesAlreadyStarted == false) {
             updatesAlreadyStarted = true
-            print("Location has began to start")
             startLocationUpdates()
         }
        
@@ -201,41 +212,41 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-        
-        if (totalCurrentPoints > 0.9) {
-            
-            if (ref.authData != nil) {
-            
-                let date = NSDate()
-                let dateFormatter = NSDateFormatter()
-                dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
-                let dateToRecordString = dateFormatter.stringFromDate(date)
-                
-                let currentPointRecord: NSDictionary = ["distanceTraveled": ((distance * 3.28084) * 0.000189394), "pointsGenerated": totalCurrentPoints, "createdAt": dateToRecordString]
-                
-                if (self.currentUserPointsList != nil && self.currentUserPointsListAppended.count == 0) {
-                    for (var i = 0; i < self.currentUserPointsList!.count; i++) {
-                        self.currentUserPointsListAppended.append(self.currentUserPointsList![i] as! NSDictionary)
-                    }
-                }
-                
-                
-                self.currentUserPointsListAppended.append(currentPointRecord)
-                usersRef.childByAppendingPath("\(userId)/pointsHistory").setValue(currentPointRecord)
-                
-                currentUserCurrentPoints = currentUserCurrentPoints + totalCurrentPoints
-                currentUserTotalPoints = currentUserTotalPoints + totalCurrentPoints
-                currentUserCurrentDistance = currentUserCurrentDistance + ((distance * 3.28084) * 0.000189394)
-                currentUserTimeSpentDriving = secondsToAddToUser + currentUserTimeSpentDriving
-                
-                secondsToAddToUser = 0
-                
-                usersRef.childByAppendingPath("\(userId)/currentPoints").setValue(currentUserCurrentPoints)
-                usersRef.childByAppendingPath("\(userId)/totalPoints").setValue(currentUserTotalPoints)
-                usersRef.childByAppendingPath("\(userId)/distanceTraveled").setValue(currentUserCurrentDistance)
-                usersRef.childByAppendingPath("\(userId)/timeSpentDriving").setValue(currentUserTimeSpentDriving)
-            }
-        }
+//        
+//        if (totalCurrentPoints > 0.9) {
+//            
+//            if (ref.authData != nil) {
+//            
+//                let date = NSDate()
+//                let dateFormatter = NSDateFormatter()
+//                dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+//                let dateToRecordString = dateFormatter.stringFromDate(date)
+//                
+//                let currentPointRecord: NSDictionary = ["distanceTraveled": ((distance * 3.28084) * 0.000189394), "pointsGenerated": totalCurrentPoints, "createdAt": dateToRecordString]
+//                
+//                if (self.currentUserPointsList != nil && self.currentUserPointsListAppended.count == 0) {
+//                    for (var i = 0; i < self.currentUserPointsList!.count; i++) {
+//                        self.currentUserPointsListAppended.append(self.currentUserPointsList![i] as! NSDictionary)
+//                    }
+//                }
+//                
+//                
+//                self.currentUserPointsListAppended.append(currentPointRecord)
+//                usersRef.childByAppendingPath("\(userId)/pointsHistory").setValue(currentPointRecord)
+//                
+//                currentUserCurrentPoints = currentUserCurrentPoints + totalCurrentPoints
+//                currentUserTotalPoints = currentUserTotalPoints + totalCurrentPoints
+//                currentUserCurrentDistance = currentUserCurrentDistance + ((distance * 3.28084) * 0.000189394)
+//                currentUserTimeSpentDriving = secondsToAddToUser + currentUserTimeSpentDriving
+//                
+//                secondsToAddToUser = 0
+//                
+//                usersRef.childByAppendingPath("\(userId)/currentPoints").setValue(currentUserCurrentPoints)
+//                usersRef.childByAppendingPath("\(userId)/totalPoints").setValue(currentUserTotalPoints)
+//                usersRef.childByAppendingPath("\(userId)/distanceTraveled").setValue(currentUserCurrentDistance)
+//                usersRef.childByAppendingPath("\(userId)/timeSpentDriving").setValue(currentUserTimeSpentDriving)
+//            }
+//        }
         
     }
 
@@ -319,12 +330,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     usersRef.childByAppendingPath("\(userId)/distanceTraveled").setValue(currentUserCurrentDistance)
                     usersRef.childByAppendingPath("\(userId)/timeSpentDriving").setValue(currentUserTimeSpentDriving)
                     
-                    let prefs = NSUserDefaults.standardUserDefaults()
+                    let tracker = GAI.sharedInstance().defaultTracker
+                    let builder: NSObject = GAIDictionaryBuilder.createEventWithCategory(
+                        "Driving",
+                        action: "driveRecorded",
+                        label: "A drive was recorded",
+                        value: self.totalCurrentPoints).build()
+                    tracker.send(builder as! [NSObject : AnyObject])
                     
-                    prefs.setValue(self.currentUserCurrentPoints, forKey: "currentPoints")
-                    prefs.setValue(currentUserTotalPoints, forKey: "totalPoints")
-                    prefs.setValue(currentUserTimeSpentDriving, forKey: "timeSpentDriving")
-                    prefs.setValue(currentUserCurrentDistance, forKey: "distanceTraveled")
+                    let distanceTracker = GAI.sharedInstance().defaultTracker
+                    let distanceBuilder: NSObject = GAIDictionaryBuilder.createEventWithCategory(
+                        "Driving",
+                        action: "driveRecordedMiles",
+                        label: "A drive was recorded here are the miles that were driven",
+                        value: ((distance * 3.28084) * 0.000189394)).build()
+                    distanceTracker.send(distanceBuilder as! [NSObject : AnyObject])
+                    
+                    let timeTracker = GAI.sharedInstance().defaultTracker
+                    let timeBuilder: NSObject = GAIDictionaryBuilder.createEventWithCategory(
+                        "Driving",
+                        action: "driveRecordedTime",
+                        label: "A drive was recorded here was the time spent driving",
+                        value: secondsToAddToUser).build()
+                    timeTracker.send(timeBuilder as! [NSObject : AnyObject])
                     
                     self.totalCurrentPoints = 0
                     self.distance = 0.0
@@ -335,7 +363,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     self.distance = 0.0
                     self.seconds = 0.0
                 }
-                if (isSittingStillCount == 3600) {
+                if (isSittingStillCount == 600) {
                     self.locationManager.stopUpdatingLocation()
                     updatesAlreadyStarted = false
                     self.isSittingStillCount = 0
@@ -383,7 +411,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Calculate the points for the phone being off
         
-        totalCurrentPoints = totalCurrentPoints + (10 * 0.015)
+        totalCurrentPoints = totalCurrentPoints + (10 * 0.0194)
 
     }
     

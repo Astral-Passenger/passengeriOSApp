@@ -13,13 +13,11 @@ class RankingViewController: UITableViewController {
     let sectionStrings: [String] = ["", "..."]
     var rankedUsers = [RankingUser]()
     var currentRanking = 1
-    var currentUser: PFUser?
     var currentUserRanking: Int?
     var currentIndexPath: NSIndexPath?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        currentUser = PFUser.currentUser()
         configureView()
         
         let parentViewController = self.parentViewController
@@ -36,41 +34,6 @@ class RankingViewController: UITableViewController {
     }
     
     func loadUsers() {
-        let query = PFQuery(className:"_User")
-        query.orderByDescending("totalPoints")
-        query.findObjectsInBackgroundWithBlock {
-            (objects: [PFObject]?, error: NSError?) -> Void in
-            
-            if error == nil {
-                print("Successfully retrieved \(objects!.count) scores.")
-                // Do something with the found objects
-                if let objects = objects {
-                    for object in objects {
-                        let newRankedUser = RankingUser()
-                        newRankedUser.fullName = object["full_name"] as? String
-                        newRankedUser.totalPoints = object["totalPoints"] as? Int
-                        newRankedUser.ranking = String(self.currentRanking)
-                        self.rankedUsers.append(newRankedUser)
-                        if let email = object["email"] as? String {
-                            if (email == self.currentUser?.email) {
-                                self.currentUserRanking = self.currentRanking - 1
-                                let indexPath: NSIndexPath = NSIndexPath(forRow: self.currentUserRanking!, inSection: 0)
-                                self.currentIndexPath = indexPath
-                                newRankedUser.isCurrentUser = true
-                            } else {
-                                newRankedUser.isCurrentUser = false
-                            }
-                        }
-                        self.currentRanking++
-                    }
-                    self.tableView.reloadData()
-                    self.tableView.scrollToRowAtIndexPath(self.currentIndexPath!, atScrollPosition: .Top, animated: true)
-                }
-            } else {
-                // Log details of the failure
-                print("Error: \(error!) \(error!.userInfo)")
-            }
-        }
         
     }
     

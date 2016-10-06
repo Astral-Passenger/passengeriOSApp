@@ -7,7 +7,6 @@
 //
 import Foundation
 import UIKit
-import Parse
 import CoreLocation
 import HealthKit
 import Firebase
@@ -48,6 +47,14 @@ class ViewController: UIViewController {
     var timeSpentDriving: Double = 0.0
     var email: String = ""
     var distanceTraveled: Double = 0.0
+    
+    override func viewDidAppear(animated: Bool) {
+        let tracker = GAI.sharedInstance().defaultTracker
+        tracker.set(kGAIScreenName, value: name)
+        
+        let builder = GAIDictionaryBuilder.createScreenView()
+        tracker.send(builder.build() as [NSObject : AnyObject])
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -93,14 +100,12 @@ class ViewController: UIViewController {
     
     func configureView() {
         
-        let prefs = NSUserDefaults.standardUserDefaults()
         
-        self.fullname = prefs.stringForKey("name")!
-        self.currentPoints = prefs.integerForKey("currentPoints")
-        self.profilePictureString = prefs.stringForKey("profilePictureString")!
+        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
         
-        self.usernameTextView.text = self.fullname
-        self.totalPointsTextView.text = String(self.currentPoints)
+        self.usernameTextView.text = appDelegate.usersName
+        self.totalPointsTextView.text = String(Int(appDelegate.currentUserCurrentPoints))
+        self.profilePictureString = appDelegate.profilePictureString!
         
         let decodedData = NSData(base64EncodedString: profilePictureString, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
         
@@ -108,7 +113,7 @@ class ViewController: UIViewController {
         
         self.profilePictureView?.image = decodedImage
         self.profilePictureView.layer.masksToBounds = true
-        self.profilePictureView.layer.cornerRadius = 33.33333
+        self.profilePictureView.layer.cornerRadius = 37.5
         
         let strDate = "2015-10-06T15:42:34Z" // "2015-10-06T15:42:34Z"
         let dateFormatter = NSDateFormatter()

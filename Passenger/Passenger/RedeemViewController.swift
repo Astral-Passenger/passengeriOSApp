@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import Parse
 import Firebase
 import Bolts
 import Foundation
@@ -28,9 +27,10 @@ class RedeemViewController: UIViewController {
     var rewardImageString: String?
     var companyName: String?
     var rewardName: String?
+    var rewardRealPrice: Double?
     var rewardsList: NSArray?
     var companyImage: UIImage?
-    var couponCodes: NSArray?
+   // var couponCodes: NSArray?
     var couponCodesToReturn: [NSArray]?
     var didUseRewardBefore = false
     var couponCode: String?
@@ -39,11 +39,7 @@ class RedeemViewController: UIViewController {
     
     var newRewardRedeemed: NSDictionary = [:]
     
-    var redeemedRewards = [PFObject]()
-    
     var isEditable = false
-    
-    var company: PFObject?
     
     private var currentTotalPoints: Int?
 
@@ -55,6 +51,8 @@ class RedeemViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        print(rewardRealPrice)
         
         // Do any additional setup after loading the view.
         self.transitionManager.sourceViewController = self
@@ -96,7 +94,7 @@ class RedeemViewController: UIViewController {
                 dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
                 let dateToRecordString = dateFormatter.stringFromDate(date)
                 
-                self.newRewardRedeemed = ["dateRecorded": "\(dateToRecordString)", "rewardDescription": "\(self.rewardDescription!)", "rewardItem": "\(self.rewardName!)", "userEmail": "\(self.ref.authData.providerData["email"]!)", "pointCost": (self.rewardPointCost!)]
+                self.newRewardRedeemed = ["dateRecorded": "\(dateToRecordString)", "rewardDescription": "\(self.rewardDescription!)", "rewardItem": "\(self.rewardName!)", "userEmail": "\(self.ref.authData.providerData["email"]!)", "pointCost": (self.rewardPointCost!), "rewardPrice": self.rewardRealPrice!]
                 currentBusinessMonthlyTransactionsAppended.append(self.newRewardRedeemed)
                 
                 let currentBusinessRef = Firebase(url: "https://passenger-app.firebaseio.com/rewards/\(iteration)/monthlyTransactions")
@@ -132,10 +130,13 @@ class RedeemViewController: UIViewController {
                         currentUserRewardsReceivedRef.setValue(rewardsReceived)
                         currentUserRewardsRef.setValue(currentUserRewardsListAppended)
                         
-                        let prefs = NSUserDefaults.standardUserDefaults()
-                        
-                        prefs.setValue(currentPoints, forKey: "currentPoints")
-                        prefs.setValue(rewardsReceived, forKey: "rewardsReceived")
+                        let tracker = GAI.sharedInstance().defaultTracker
+                        let builder: NSObject = GAIDictionaryBuilder.createEventWithCategory(
+                            "Reward",
+                            action: "Redeemed",
+                            label: "Reward redeemed for: \(self.companyName!) and the item is: \(self.rewardName!)",
+                            value: nil).build()
+                        tracker.send(builder as! [NSObject : AnyObject])
                         
                         self.performSegueWithIdentifier("redeemToRewardsHistory", sender: nil)
                     })
@@ -176,13 +177,13 @@ class RedeemViewController: UIViewController {
                         
                         // User has used this company before
                         
-                        self.couponCode = self.couponCodes?.objectAtIndex(self.couponCodeUsedBefore + 1) as? String
+                       // self.couponCode = self.couponCodes?.objectAtIndex(self.couponCodeUsedBefore + 1) as? String
 
                     } else {
                         
                         // First time using this company
                         
-                        self.couponCode = self.couponCodes?.objectAtIndex(self.couponCodeUsedBefore) as? String
+                    // self.couponCode = self.couponCodes?.objectAtIndex(self.couponCodeUsedBefore) as? String
 
                     }
                     
@@ -190,7 +191,7 @@ class RedeemViewController: UIViewController {
                     
                     // The user has never before redeemed a reward.
                     
-                    self.couponCode = self.couponCodes?.objectAtIndex(self.couponCodeUsedBefore) as? String
+                   // self.couponCode = self.couponCodes?.objectAtIndex(self.couponCodeUsedBefore) as? String
 
                 }
                 
@@ -224,12 +225,13 @@ class RedeemViewController: UIViewController {
         // Check to see if the user even has enough points saved to redeem it before they actually go to the pop up
         if(rewardPointCost < currentTotalPoints) {
             //backgroundPopUpView.hidden = false
-            let alert = UIAlertController(title: "SHOW TO TELLER", message: "Show your phone for the teller at \(self.companyName!) and have them click redeem", preferredStyle: UIAlertControllerStyle.Alert)
+            let alert = UIAlertController(title: "SHOW TO TELLER", message: "Show your phone to the teller at \(self.companyName!) and have them click redeem before you have purchased the \(self.rewardName!)", preferredStyle: UIAlertControllerStyle.Alert)
             alert.addAction(UIAlertAction(title: "REDEEM", style: UIAlertActionStyle.Default, handler: {(alert: UIAlertAction!) in self.couponReceived()}))
+            alert.addAction(UIAlertAction(title: "CANCEL", style: UIAlertActionStyle.Cancel, handler: nil))
             self.presentViewController(alert, animated: true, completion: nil)
         } else {
             // The user didn't have enough points show an alert
-            let alertController = UIAlertController(title: "Passenger", message: "You do not have enough points built up to redeem. this reward", preferredStyle: .Alert)
+            let alertController = UIAlertController(title: "Passenger", message: "You do not have enough points built up to redeem this reward", preferredStyle: .Alert)
             
             let defaultAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
             alertController.addAction(defaultAction)

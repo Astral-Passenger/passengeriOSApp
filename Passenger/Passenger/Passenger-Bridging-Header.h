@@ -10,7 +10,7 @@
 #define Passenger_Bridging_Header_h
 
 #import <FacebookSDK/FacebookSDK.h>
-#import <ParseFacebookUtilsV4/PFFacebookUtils.h>
+#import <Google/Analytics.h>
 #import <FBSDKCoreKit/FBSDKCoreKit.h>
 #import <FBSDKShareKit/FBSDKShareKit.h>
 #import "Notifier.h"

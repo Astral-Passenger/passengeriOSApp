@@ -67,11 +67,14 @@ class DiscountCollectionViewController: UICollectionViewController {
             dest.rewardPointCost = rewardsList[rowSelected].pointCost
             dest.rewardImage = rewardsList[rowSelected].getRewardImage()
             dest.companyName = self.companyName
+            
             dest.rewardsList = self.rewards
             dest.rewardName = rewardsList[rowSelected].getRewardName()
             dest.rewardImageString = rewardsList[rowSelected].getRewardImageString()
             dest.companyImage = self.companyImage
-            dest.couponCodes = couponCodes[rowSelected]
+            dest.rewardRealPrice = rewardsList[rowSelected].getRewardPrice()
+
+            // dest.couponCodes = couponCodes[rowSelected]
             dest.couponCodesToReturn = couponCodes
         }
 
@@ -100,8 +103,16 @@ class DiscountCollectionViewController: UICollectionViewController {
             let info = rewards!.objectAtIndex(i).objectForKey("rewardImage") as! String
             let decodedData = NSData(base64EncodedString: info, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
             let decodedImage = UIImage(data: decodedData!)
-            let reward = Reward(companyName: self.companyName!, pointCost: rewards!.objectAtIndex(i).objectForKey("pointCost") as! Int, rewardImage: decodedImage!, rewardPrice: rewards!.objectAtIndex(i).objectForKey("rewardPrice") as! Int, rewardDescription: rewards!.objectAtIndex(i).objectForKey("rewardDescription") as! String, rewardName: rewards!.objectAtIndex(i).objectForKey("rewardsName") as! String, rewardImageString: info)
-            couponCodes.append(rewards!.objectAtIndex(i).objectForKey("couponCodes") as! NSArray)
+            print(rewards!.objectAtIndex(i))
+            let reward = Reward(
+                companyName: self.companyName!,
+                pointCost: rewards!.objectAtIndex(i).objectForKey("pointCost") as! Int,
+                rewardImage: decodedImage!,
+                rewardPrice: rewards!.objectAtIndex(i).objectForKey("rewardPrice") as! Double,
+                rewardDescription: rewards!.objectAtIndex(i).objectForKey("rewardDescription") as! String,
+                rewardName: rewards!.objectAtIndex(i).objectForKey("rewardsName") as! String,
+                rewardImageString: info)
+            //couponCodes.append(rewards!.objectAtIndex(i).objectForKey("couponCodes") as! NSArray)
             self.rewardsList.append(reward)
             self.collectionView!.reloadData()
         }

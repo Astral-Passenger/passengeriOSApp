@@ -7,9 +7,9 @@
 //
 
 import UIKit
-import Parse
 import FBSDKCoreKit
-import ParseFacebookUtilsV4
+import FBSDKShareKit
+import FBSDKLoginKit
 import Firebase
 
 class SignInViewController: UIViewController, UITextFieldDelegate {
@@ -22,8 +22,8 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     
     var fullName: String?
     var username: String?
-    var currentPoints: Int?
-    var totalPoints: Int?
+    var currentPoints: Double?
+    var totalPoints: Double?
     var profilePictureString: String?
     var rewardsReceived: Int?
     var timeSpentDriving: Double?
@@ -32,9 +32,10 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     var rewardsList: NSArray?
     var userExists: Bool = false
     var firebaseUserId: String?
-        var kbHeight: CGFloat!
+    var kbHeight: CGFloat!
     
     var base64String: NSString!
+    var uidToSave: String?
 
     @IBOutlet weak var usernameTextViewField: UIView!
     @IBOutlet weak var passwordTextViewField: UIView!
@@ -47,12 +48,6 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var loadingView: UIView!
     
     var imageList = [UIImage]()
-    
-    var rewards = [PFObject]()
-    var rewardsHistory = [PFObject]()
-    var helpData = [PFObject]()
-    
-    var localData = ParseLocalData()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -117,16 +112,34 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         } else if(segue.identifier == "signInSegue") {
             let prefs = NSUserDefaults.standardUserDefaults()
             
-            prefs.setValue(fullName!, forKey: "name")
-            prefs.setValue(username!, forKey: "username")
-            prefs.setValue(currentPoints!, forKey: "currentPoints")
-            prefs.setValue(totalPoints!, forKey: "totalPoints")
-            prefs.setValue(profilePictureString!, forKey: "profilePictureString")
-            prefs.setValue(rewardsReceived!, forKey: "rewardsReceived")
-            prefs.setValue(timeSpentDriving!, forKey: "timeSpentDriving")
-            prefs.setValue(email!, forKey: "email")
-            prefs.setValue(distanceTraveled!, forKey: "distanceTraveled")
+           // prefs.setValue(fullName!, forKey: "name")
+           // prefs.setValue(username!, forKey: "username")
+           // prefs.setValue(currentPoints!, forKey: "currentPoints")
+           // prefs.setValue(totalPoints!, forKey: "totalPoints")
+           // prefs.setValue(profilePictureString!, forKey: "profilePictureString")
+           // prefs.setValue(rewardsReceived!, forKey: "rewardsReceived")
+           // prefs.setValue(timeSpentDriving!, forKey: "timeSpentDriving")
+           // prefs.setValue(email!, forKey: "email")
+           // prefs.setValue(distanceTraveled!, forKey: "distanceTraveled")
             //prefs.setValue(rewardsList!, forKey: "rewards")
+            
+            let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+            
+            appDelegate.profilePictureString = self.profilePictureString
+            appDelegate.usersName = self.fullName
+            appDelegate.currentUserCurrentPoints = self.currentPoints!
+            appDelegate.currentUserTotalPoints = self.totalPoints!
+            appDelegate.rewardsReceived = self.rewardsReceived
+            appDelegate.currentUserTimeSpentDriving = self.timeSpentDriving!
+            appDelegate.currentUserCurrentDistance = self.distanceTraveled!
+            
+            let tracker = GAI.sharedInstance().defaultTracker
+            let builder: NSObject = GAIDictionaryBuilder.createEventWithCategory(
+                "Active users",
+                action: "Sign In",
+                label: "User with the email: \(email!) has signed in to Passenger.",
+                value: nil).build()
+            tracker.send(builder as! [NSObject : AnyObject])
         }
         
     }
@@ -141,6 +154,9 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     func dismissKeyboard() {
         //Causes the view (or one of its embedded text fields) to resign the first responder status.
         view.endEditing(true)
+        self.loadingView.hidden = true
+        self.activityIndicator.hidden = true
+        self.activityIndicator.stopAnimating()
     }
     
     func configureView() {
@@ -204,31 +220,35 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
                     
                 } else {
                     // user is logged in, check authData for data and send it to the view controller
+                    var uid = self.ref.authData.uid
+                    uid = (uid as NSString).stringByReplacingOccurrencesOfString("facebook:", withString: "")
                     
-                    self.usersRef.queryOrderedByChild("email").queryEqualToValue("\(self.ref.authData.providerData["email"]!)")
-                        .observeEventType(.ChildAdded, withBlock: { snapshot in
-                            self.userExists = true
-                            self.firebaseUserId = snapshot.key
-                            
-                            let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-                            appDelegate.userId = self.firebaseUserId!
-                            self.fullName = snapshot.value.objectForKey("name") as! String!
-                            self.username = snapshot.value.objectForKey("username") as! String!
-                            self.currentPoints = snapshot.value.objectForKey("currentPoints") as! Int!
-                            self.totalPoints = snapshot.value.objectForKey("totalPoints") as! Int!
-                            self.profilePictureString = snapshot.value.objectForKey("profileImage") as! String!
-                            self.rewardsReceived = snapshot.value.objectForKey("rewardsReceived") as! Int!
-                            self.timeSpentDriving = snapshot.value.objectForKey("timeSpentDriving") as! Double!
-                            self.email = snapshot.value.objectForKey("email") as! String!
-                            self.distanceTraveled = snapshot.value.objectForKey("distanceTraveled") as! Double!
-                            self.downloadRewards()
-                            self.registerUserInformation()
-                            
-                            self.performSegueWithIdentifier("signInSegue", sender: nil)
-                            self.loadingView.hidden = true
-                            self.activityIndicator.hidden = true
-                            self.activityIndicator.stopAnimating()
-                        })
+                    var currentUserRef = Firebase(url: "https://passenger-app.firebaseio.com/users/\(uid)")
+                    currentUserRef.observeEventType(.Value, withBlock: { snapshot in
+                        
+                        self.userExists = true
+                        self.firebaseUserId = snapshot.key
+                        
+                        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+                        appDelegate.userId = self.firebaseUserId!
+                        self.fullName = snapshot.value.objectForKey("name") as! String!
+                        self.username = snapshot.value.objectForKey("username") as! String!
+                        self.currentPoints = snapshot.value.objectForKey("currentPoints") as! Double!
+                        self.totalPoints = snapshot.value.objectForKey("totalPoints") as! Double!
+                        self.profilePictureString = snapshot.value.objectForKey("profileImage") as! String!
+                        self.rewardsReceived = snapshot.value.objectForKey("rewardsReceived") as! Int!
+                        self.timeSpentDriving = snapshot.value.objectForKey("timeSpentDriving") as! Double!
+                        self.email = snapshot.value.objectForKey("email") as! String!
+                        self.distanceTraveled = snapshot.value.objectForKey("distanceTraveled") as! Double!
+                        self.downloadRewards()
+                        self.registerUserInformation()
+                        
+                        self.performSegueWithIdentifier("signInSegue", sender: nil)
+                        self.loadingView.hidden = true
+                        self.activityIndicator.hidden = true
+                        self.activityIndicator.stopAnimating()
+                        
+                    })
                 }
             }
         }
@@ -269,7 +289,8 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
                             if error != nil {
                                 print("Login failed. \(error)")
                             } else {
-                                print("Logged in! \(authData)")
+                                self.uidToSave = authData.uid
+                                print("Logged in! \(authData.uid)")
                                 
                                 self.registerUserInformation()
                             }
@@ -283,13 +304,14 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         self.usersRef.queryOrderedByChild("email").queryEqualToValue("\(self.ref.authData.providerData["email"]!)")
             .observeEventType(.Value, withBlock: { snapshot in
                 
+                
                 if snapshot.value is NSNull {
                     // The user is not currently in the database
                     
                     // Register user in the database function
                     
                     let requestParameters = ["fields": "id, email, first_name, last_name"]
-                    
+                    print(requestParameters)
                     let userDetails = FBSDKGraphRequest(graphPath: "me", parameters: requestParameters)
                     
                     userDetails.startWithCompletionHandler { (connection, result, error:NSError!) -> Void in
@@ -304,6 +326,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
                         {
                             
                             let userId:String = result.objectForKey("id") as! String
+                            print(userId)
                             let userFirstName:String? = result.objectForKey("first_name") as? String
                             let userLastName:String? = result.objectForKey("last_name") as? String
                             let userEmail:String? = result.objectForKey("email") as? String
@@ -312,7 +335,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
                             
                             // Get Facebook profile picture
                             let userProfile = "https://graph.facebook.com/" + userId + "/picture?type=large"
-                            
+                            print(userId)
                             let profilePictureUrl = NSURL(string: userProfile)
                             
                             let profilePictureData = NSData(contentsOfURL: profilePictureUrl!)
@@ -331,7 +354,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
                             {
                                 self.base64String = profilePictureData!.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
                                 let currentUser = [
-                                    "\(userId)": [
+                                    "\(self.uidToSave!)": [
                                         "username": "",
                                         "name": "\(fullName!)",
                                         "email": "\(userEmail!)",
@@ -353,7 +376,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
                                 self.base64String = imageData.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
                                 
                                 let currentUser = [
-                                    "\(userId)": [
+                                    "\(self.uidToSave!)": [
                                         "username": "",
                                         "name": "\(fullName!)",
                                         "email": "\(userEmail!)",
@@ -382,7 +405,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
                             self.distanceTraveled = 0
                             
                             let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-                            appDelegate.userId = userId
+                            appDelegate.userId = self.uidToSave!
                             
                             self.performSegueWithIdentifier("signInSegue", sender: nil)
                         }
@@ -391,26 +414,48 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
                     
                 } else {
                     
-                    // The user is in the datbase and simply logged in
+                    // The user is in the datbase so we need to just log them in
                     self.userExists = true
-                    let userId = self.ref.authData.uid.stringByReplacingOccurrencesOfString(
-                        "facebook:",
-                        withString: "",// or just nil
-                        range: nil)
+
+                    if self.ref.authData.uid.rangeOfString("facebook:") != nil{
+                        let userId = self.ref.authData.uid.stringByReplacingOccurrencesOfString(
+                            "facebook:",
+                            withString: "",// or just nil
+                            range: nil)
+                        print(snapshot.value)
+                        let currentUser = snapshot.value.objectForKey("\(userId)")
+                        self.fullName = currentUser!.objectForKey("name") as? String
+                        self.username = currentUser!.objectForKey("username") as? String
+                        self.currentPoints = currentUser!.objectForKey("currentPoints") as? Double
+                        self.totalPoints = currentUser!.objectForKey("totalPoints") as? Double
+                        self.profilePictureString = currentUser!.objectForKey("profileImage") as? String
+                        self.rewardsReceived = currentUser!.objectForKey("rewardsReceived") as? Int
+                        self.timeSpentDriving = currentUser!.objectForKey("timeSpentDriving") as? Double
+                        self.email = currentUser!.objectForKey("email") as? String
+                        self.distanceTraveled = currentUser!.objectForKey("distanceTraveled") as? Double
+                        
+                        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+                        appDelegate.userId = userId
+                    } else {
+                        let userId = self.ref.authData.uid
+                        print(self.ref.authData.uid)
+                        print(snapshot.value)
+                        let currentUser = snapshot.value.objectForKey("\(userId)")
+                        self.fullName = currentUser!.objectForKey("name") as? String
+                        self.username = currentUser!.objectForKey("username") as? String
+                        self.currentPoints = currentUser!.objectForKey("currentPoints") as? Double
+                        self.totalPoints = currentUser!.objectForKey("totalPoints") as? Double
+                        self.profilePictureString = currentUser!.objectForKey("profileImage") as? String
+                        self.rewardsReceived = currentUser!.objectForKey("rewardsReceived") as? Int
+                        self.timeSpentDriving = currentUser!.objectForKey("timeSpentDriving") as? Double
+                        self.email = currentUser!.objectForKey("email") as? String
+                        self.distanceTraveled = currentUser!.objectForKey("distanceTraveled") as? Double
+                        
+                        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+                        appDelegate.userId = userId
+                    }
                     
-                    let currentUser = snapshot.value.objectForKey("\(userId)")
-                    self.fullName = currentUser!.objectForKey("name") as! String
-                    self.username = currentUser!.objectForKey("username") as! String
-                    self.currentPoints = currentUser!.objectForKey("currentPoints") as! Int
-                    self.totalPoints = currentUser!.objectForKey("totalPoints") as! Int
-                    self.profilePictureString = currentUser!.objectForKey("profileImage") as! String
-                    self.rewardsReceived = currentUser!.objectForKey("rewardsReceived") as! Int
-                    self.timeSpentDriving = currentUser!.objectForKey("timeSpentDriving") as! Double
-                    self.email = currentUser!.objectForKey("email") as! String
-                    self.distanceTraveled = currentUser!.objectForKey("distanceTraveled") as! Double
-                    
-                    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-                    appDelegate.userId = userId
+
                     
                     self.performSegueWithIdentifier("signInSegue", sender: nil)
                     

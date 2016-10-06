@@ -14,7 +14,7 @@ class Reward {
     var companyName: String = ""
     var pointCost: Int = 0
     var rewardImage: UIImage?
-    var rewardPrice: Int?
+    var rewardPrice: Double?
     var rewardDescription: String = ""
     var rewardType: String = ""
     var rewardName: String = ""
@@ -24,7 +24,7 @@ class Reward {
         
     }
     
-    init(companyName: String, pointCost: Int, rewardImage: UIImage, rewardPrice: Int, rewardDescription: String, rewardName: String, rewardImageString: String) {
+    init(companyName: String, pointCost: Int, rewardImage: UIImage, rewardPrice: Double, rewardDescription: String, rewardName: String, rewardImageString: String) {
         self.companyName = companyName
         self.pointCost = pointCost
         self.rewardImage = rewardImage
@@ -42,11 +42,11 @@ class Reward {
         self.companyName = companyName
     }
     
-    func getRewardPrice() -> Int {
+    func getRewardPrice() -> Double {
         return self.rewardPrice!
     }
     
-    func setRewardPrice(rewardPrice: Int) {
+    func setRewardPrice(rewardPrice: Double) {
         self.rewardPrice = rewardPrice
     }
     

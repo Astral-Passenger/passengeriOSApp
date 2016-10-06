@@ -20,8 +20,6 @@ class MoreViewController: UIViewController {
     @IBOutlet weak var profilePicture: UIImageView!
     @IBOutlet weak var currentUserNameLabel: UILabel!
     
-    private var currentUser: PFUser?
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -65,14 +63,14 @@ class MoreViewController: UIViewController {
     
     func configureView() {
         
-        let prefs = NSUserDefaults.standardUserDefaults()
+        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
         
-        let fullname = prefs.stringForKey("name")!
-        let profilePictureString = prefs.stringForKey("profilePictureString")!
+        let fullname = appDelegate.usersName
+        let profilePictureString = appDelegate.profilePictureString
         
         self.currentUserNameLabel.text = fullname
         
-        let decodedData = NSData(base64EncodedString: profilePictureString, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
+        let decodedData = NSData(base64EncodedString: profilePictureString!, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
         
         let decodedImage = UIImage(data: decodedData!)
         

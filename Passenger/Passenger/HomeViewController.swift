@@ -61,6 +61,9 @@ class HomeViewController: UITabBarController, UITabBarControllerDelegate {
     func tabBarController(tabBarController: UITabBarController, didSelectViewController viewController: UIViewController) {
         
         if viewController is ViewController {
+            
+            print("This was also called my nigga")
+            
             let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 28, height: 28))
             imageView.contentMode = .ScaleAspectFit
             let image = UIImage(named: "logo.png")
@@ -71,18 +74,12 @@ class HomeViewController: UITabBarController, UITabBarControllerDelegate {
                 self.statusBarBackground.removeFromSuperview()
                 statusBarBackground = nil
             }
-            let viewController = ViewController()
-            viewController.fullname = fullname
-            viewController.currentPoints = currentPoints
-            viewController.totalPoints = totalPoints
-            viewController.profilePictureString = profilePictureString
-            viewController.rewardsReceived = rewardsReceived
-            viewController.timeSpentDriving = timeSpentDriving
-            viewController.email = email
-            viewController.distanceTraveled = distanceTraveled
             
             UIApplication.sharedApplication().statusBarStyle = .Default
         } else if viewController is ProfileViewController {
+            
+            print(fullname)
+            
             self.navigationController?.navigationBarHidden = true
             // create view to go behind statusbar
             self.statusBarBackground = UIView()
@@ -92,6 +89,7 @@ class HomeViewController: UITabBarController, UITabBarControllerDelegate {
             // add to window rather than view controller
             UIApplication.sharedApplication().keyWindow!.addSubview(self.statusBarBackground)
             UIApplication.sharedApplication().statusBarStyle = .LightContent
+            
         } else if viewController is MoreViewController {
             self.navigationItem.titleView = nil
             self.navigationItem.title = "MORE"

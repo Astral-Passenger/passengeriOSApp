@@ -140,8 +140,8 @@ class MenuTransitionManager: UIPercentDrivenInteractiveTransition, UIViewControl
         
         // add the both views to our view controller
         
-        container!.addSubview(menuView)
-        container!.addSubview(topView)
+        container.addSubview(menuView)
+        container.addSubview(topView)
         
         
         let duration = self.transitionDuration(transitionContext)

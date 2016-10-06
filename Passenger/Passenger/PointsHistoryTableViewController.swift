@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import Parse
 import Firebase
 import Bolts
 
@@ -28,14 +27,11 @@ class PointsHistoryTableViewController: UITableViewController {
     var pointsHistory: NSArray?
     var senderViewController: String?
     
-    var currentUser: PFUser?
-    
     var dateFormatter = NSDateFormatter()
     var readableDateFormatter = NSDateFormatter()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        currentUser = PFUser.currentUser()
         configureView()
         //loadSampleDrives()
         loadPreviousDrives()

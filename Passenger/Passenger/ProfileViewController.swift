@@ -29,12 +29,18 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var editProfileButton: UIButton!
     @IBOutlet weak var profilePicture: UIImageView!
     
-    var currentUser: PFUser?
-    
     private var days: Int?
     private var hoursFloored: Int?
     private var hoursFull: Double?
     private var minutes: Int?
+    
+    var fullName: String?
+    var totalPoints: Int?
+    var currentPoints: Int?
+    var distanceTraveled: Double?
+    var rewardsReceived: Int?
+    var timeSpentDriving: Double?
+    var profilePictureString: String?
     
     private var timeSpendDrivingText: String?
     
@@ -52,24 +58,17 @@ class ProfileViewController: UIViewController {
     
     func configureView() {
         
-        let prefs = NSUserDefaults.standardUserDefaults()
-        
-        let fullname = prefs.stringForKey("name")!
-        let currentPoints = prefs.integerForKey("currentPoints")
-        let profilePictureString = prefs.stringForKey("profilePictureString")!
-        let totalPoints = prefs.integerForKey("totalPoints")
-        let distanceTraveled = prefs.integerForKey("distanceTraveled")
-        let rewardsReceived = prefs.integerForKey("rewardsReceived")
-        let timeSpentDriving = prefs.integerForKey("timeSpentDriving")
+        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
 
-        self.fullNameLabel.text = fullname
-        self.totalPointsLabel.text = String(totalPoints)
-        self.totalCurrentPointsLabel.text = String(currentPoints)
-        self.milesDrivenLabel.text = String(distanceTraveled)
-        self.rewardsReceivedLabel.text = String(rewardsReceived)
-        self.timeSpentDrivingLabel.text = self.calculateTimeSpentDriving(timeSpentDriving)
+        self.fullNameLabel.text = appDelegate.usersName
+        self.totalPointsLabel.text = String(Int(appDelegate.currentUserTotalPoints))
+        self.totalCurrentPointsLabel.text = String(Int(appDelegate.currentUserCurrentPoints))
+        self.milesDrivenLabel.text = String(Int(appDelegate.currentUserCurrentDistance))
+        self.rewardsReceivedLabel.text = String(appDelegate.rewardsReceived!)
+        self.timeSpentDrivingLabel.text = self.calculateTimeSpentDriving(appDelegate.currentUserTimeSpentDriving)
+        self.profilePictureString = appDelegate.profilePictureString
         
-        let decodedData = NSData(base64EncodedString: profilePictureString, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
+        let decodedData = NSData(base64EncodedString: profilePictureString!, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
         
         let decodedImage = UIImage(data: decodedData!)
         
@@ -116,7 +115,7 @@ class ProfileViewController: UIViewController {
         milesDrivenButton.backgroundColor = UIColor.whiteColor()
     }
     
-    func calculateTimeSpentDriving(totalTime: Int) -> String {
+    func calculateTimeSpentDriving(totalTime: Double) -> String {
         var finalString: String?
         self.hoursFull = (Double(totalTime)/3600.0)
         

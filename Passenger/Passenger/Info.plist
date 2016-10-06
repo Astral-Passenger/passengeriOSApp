@@ -15,7 +15,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>1.14</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -28,7 +28,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>3</string>
 	<key>FacebookAppID</key>
 	<string>1527897344198158</string>
 	<key>FacebookDisplayName</key>
@@ -73,6 +73,10 @@
 	<string>Passenger wants to track your drive</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Passenger wants to track your drive</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Passenger needs to know when you are in motion to monitor your driving</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Passenger wants to help you change your profile picture</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>

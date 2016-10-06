@@ -28,13 +28,13 @@ class BackgroundView: UIView {
         
         //// Background Drawing
         let backgroundPath = UIBezierPath(rect: CGRectMake(0, 0, self.frame.width, self.frame.height))
-        CGContextSaveGState(context)
+        CGContextSaveGState(context!)
         backgroundPath.addClip()
-        CGContextDrawLinearGradient(context, purpleGradient,
+        CGContextDrawLinearGradient(context!, purpleGradient!,
             CGPointMake(160, 0),
             CGPointMake(160, 568),
             [.DrawsBeforeStartLocation, .DrawsAfterEndLocation])
-        CGContextRestoreGState(context)
+        CGContextRestoreGState(context!)
         
     }
     
