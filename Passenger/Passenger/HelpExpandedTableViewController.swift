@@ -11,8 +11,7 @@ import Firebase
 
 class HelpExpandedTableViewController: UITableViewController {
     
-    let ref = Firebase(url: "https://passenger-app.firebaseio.com")
-    let helpQuestionsRef = Firebase(url: "https://passenger-app.firebaseio.com/help/")
+    var ref: FIRDatabaseReference!
     
     let transitionManager = MenuTransitionManager()
     
@@ -66,12 +65,21 @@ class HelpExpandedTableViewController: UITableViewController {
             emptyLabel.textColor = hexChanger.hexStringToUIColor("#5c5c5c")
             self.tableView.backgroundView = emptyLabel
         } else {
-            helpQuestionsRef.queryOrderedByChild("questionType").queryEqualToValue(questionType)
-                .observeEventType(.ChildAdded, withBlock: { snapshot in
-                    self.questions.append(snapshot.value.objectForKey("question") as! String)
-                    self.answers.append(snapshot.value.objectForKey("answer") as! String)
-                    self.tableView.reloadData()
-                })
+            self.ref = FIRDatabase.database().reference()
+            ref.child("help").queryOrderedByChild("questionType").queryEqualToValue(questionType).observeEventType(.Value, withBlock: { (snapshot) in
+
+                let newSnapshot = snapshot.value! as! NSDictionary
+                
+                for (key,values) in newSnapshot {
+                    let newValues = values as! NSDictionary
+                    print()
+                    self.questions.append(newValues["question"]! as! String)
+                    self.answers.append(newValues["answer"]! as! String)
+                }
+                
+                self.tableView.reloadData()
+
+            })
             self.tableView.reloadData()
         }
     }

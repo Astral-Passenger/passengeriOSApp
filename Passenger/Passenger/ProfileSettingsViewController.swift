@@ -13,9 +13,7 @@ import Firebase
 
 class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
     
-    let ref = Firebase(url: "https://passenger-app.firebaseio.com")
-    let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users/")
-    let helpRef = Firebase(url: "https://passenger-app.firebaseio.com/help/")
+    var ref: FIRDatabaseReference!
     
     let transitionManager = MenuTransitionManager()
     
@@ -46,6 +44,7 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        self.ref = FIRDatabase.database().reference()
         configureView()
         
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "dismissKeyboard")
@@ -167,7 +166,7 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
         
         let decodedData = NSData(base64EncodedString: profilePictureString!, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
         
-        let decodedImage = UIImage(data: decodedData!)
+        let decodedImage = UIImage(data: appDelegate.imageData!)
         
         self.profileImage?.image = decodedImage
         self.profileImage.layer.masksToBounds = true
@@ -210,6 +209,8 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
         // Create a new image based on the imageRef and rotate back to the original orientation
         let imageFinal: UIImage = UIImage(CGImage: imageRef, scale: image.scale, orientation: image.imageOrientation)
 
+        var imageData: NSData?
+        imageData = UIImagePNGRepresentation(imageFinal);
         
         profileImage.contentMode = .ScaleAspectFit
         profileImage.image = imageFinal
@@ -221,11 +222,7 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
     func imagePickerControllerDidCancel(picker: UIImagePickerController) {
         dismissViewControllerAnimated(true, completion: nil)
     }
-    
-    @IBAction func connectToFacebookButtonTap(sender: AnyObject) {
 
-    }
-    
     func resizeImage(image: UIImage, newWidth: CGFloat) -> UIImage {
         
         let scale = newWidth / image.size.width
@@ -247,47 +244,51 @@ class ProfileSettingsViewController: UIViewController, UIImagePickerControllerDe
             activityIndicator.hidden = true
             activityIndicator.stopAnimating()
         } else {
-            print(ref.authData.providerData["email"]!)
-            usersRef.queryOrderedByChild("email").queryEqualToValue("\(ref.authData.providerData["email"]!)")
-                .observeEventType(.Value, withBlock: { snapshot in
+            let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+            
+            let fullName: String = self.nameTextField.text!
 
-                    let currentUserId = snapshot.key
-                    
-                    let fullName: String = self.nameTextField.text!
-                    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-                    let currentUserRef = self.usersRef.childByAppendingPath(self.userId!)
-                    
-                    if (self.updatedImage != nil) {
-                        print("The image is not nil")
-                        let imageData: NSData = UIImagePNGRepresentation(self.updatedImage!)!
-                        
+            if (self.updatedImage != nil) {
+                let imageData: NSData = UIImagePNGRepresentation(self.updatedImage!)!
+                let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+                let storage = FIRStorage.storage()
+                let storageRef = storage.referenceForURL("\(appDelegate.imageLocation!)")
+                let uploadTask = storageRef.putData(imageData, metadata: nil) { metadata, error in
+                    if (error != nil) {
+                        // Uh-oh, an error occurred!
+                    } else {
+                        // Metadata contains file metadata such as size, content-type, and download URL.
+                        let downloadURL = metadata!.downloadURL
+                        print(downloadURL)
                         self.base64String = imageData.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
                         let nameUpdated = ["name": fullName]
                         let profileImageUpdated = ["profileImage": self.base64String]
                         
                         self.nameTextField.text = fullName
                         
-                        currentUserRef.updateChildValues(nameUpdated)
-                        currentUserRef.updateChildValues(profileImageUpdated)
+                        self.ref.child("users/\(appDelegate.userId)").updateChildValues(nameUpdated)
+                        
                         appDelegate.usersName = fullName
                         appDelegate.profilePictureString = self.base64String as String
-                    } else {
-                        print("The image is nil \(fullName)")
-                        let nameUpdated = ["name": fullName]
-                        
-                        self.nameTextField.text = fullName
-                        
-                        currentUserRef.updateChildValues(nameUpdated)
-                        appDelegate.usersName = fullName
+                        appDelegate.imageData = imageData
                     }
-                    
-                    self.profileSavedView.hidden = false
-                    let dispatchTime: dispatch_time_t = dispatch_time(DISPATCH_TIME_NOW, Int64(3.0 * Double(NSEC_PER_SEC)))
-                    dispatch_after(dispatchTime, dispatch_get_main_queue(), {
-                        // your function here
-                        self.profileSavedView.hidden = true
-                    })
-                })
+                }
+
+            } else {
+                let nameUpdated = ["name": fullName]
+
+                self.nameTextField.text = fullName
+
+                self.ref.child("users/\(appDelegate.userId)").updateChildValues(nameUpdated)
+                appDelegate.usersName = fullName
+            }
+
+            self.profileSavedView.hidden = false
+            let dispatchTime: dispatch_time_t = dispatch_time(DISPATCH_TIME_NOW, Int64(3.0 * Double(NSEC_PER_SEC)))
+            dispatch_after(dispatchTime, dispatch_get_main_queue(), {
+                // your function here
+                self.profileSavedView.hidden = true
+            })
    
         }
     }

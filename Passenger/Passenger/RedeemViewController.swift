@@ -13,19 +13,23 @@ import Foundation
 
 class RedeemViewController: UIViewController {
     
+    var ref: FIRDatabaseReference!
     let transitionManager = MenuTransitionManager()
 
     var userId: String?
     
-    let ref = Firebase(url: "https://passenger-app.firebaseio.com/")
-    let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users/")
-    let rewardsRef = Firebase(url: "https://passenger-app.firebaseio.com/rewards/")
+//    let ref = Firebase(url: "https://passenger-app.firebaseio.com/")
+//    let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users/")
+//    let rewardsRef = Firebase(url: "https://passenger-app.firebaseio.com/rewards/")
     
     var rewardPointCost: Int?
     var rewardDescription: String?
     var rewardImage: UIImage?
     var rewardImageString: String?
     var companyName: String?
+    var merchantEmail: String?
+    var merchantLatitude: Double?
+    var currentMerchantIndex: Int?
     var rewardName: String?
     var rewardRealPrice: Double?
     var rewardsList: NSArray?
@@ -51,12 +55,10 @@ class RedeemViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        print(rewardRealPrice)
+        self.ref = FIRDatabase.database().reference()
         
         // Do any additional setup after loading the view.
         self.transitionManager.sourceViewController = self
-        
         configureView()
     }
 
@@ -66,27 +68,57 @@ class RedeemViewController: UIViewController {
     }
     
     func couponReceived() {
-        UIPasteboard.generalPasteboard().string = "Hello World"
             
         var iteration = 0
         
         var currentBusinessMonthlyTransactions: NSArray?
+        var currentMerchantMonthlyTransactions: NSArray?
         
         var currentBusinessMonthlyTransactionsAppended = [NSDictionary]()
+        var currentMerchantMonthlyTransactionsAppended = [NSDictionary]()
         var currentUserRewardsList: NSArray?
         var currentUserRewardsListAppended = [NSDictionary]()
-        
-        rewardsRef.queryOrderedByChild("companyName").queryEqualToValue(companyName)
-            .observeEventType(.ChildAdded, withBlock: { snapshot in
+        self.ref.child("merchants").queryOrderedByChild("latitude").queryEqualToValue(self.merchantLatitude).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            let key = snapshot.key 
+            let value = snapshot.value! as! NSDictionary
+            let currentCompany = value["\(self.currentMerchantIndex!)"]
+            currentBusinessMonthlyTransactions = currentCompany!["monthlyTransactions"] as? NSArray
+            if (currentBusinessMonthlyTransactions != nil) {
+                for (var i = 0; i < currentBusinessMonthlyTransactions!.count; i++) {
+                    currentBusinessMonthlyTransactionsAppended.append(currentBusinessMonthlyTransactions![i] as! NSDictionary)
+                }
+            } else {
+                print("They are nil")
+            }
+            
+            var date = NSDate()
+            let dateFormatter = NSDateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+            let dateToRecordString = dateFormatter.stringFromDate(date)
+            
+            let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+            
+            self.newRewardRedeemed = ["dateRecorded": "\(dateToRecordString)", "rewardDescription": "\(self.rewardDescription!)", "rewardItem": "\(self.rewardName!)", "userEmail": "\(appDelegate.usersEmail!)", "pointCost": (self.rewardPointCost!), "rewardPrice": self.rewardRealPrice!]
+            currentBusinessMonthlyTransactionsAppended.append(self.newRewardRedeemed)
+            print(currentBusinessMonthlyTransactionsAppended)
+            
+            self.ref.child("merchants/\(self.currentMerchantIndex!)/monthlyTransactions").setValue(currentBusinessMonthlyTransactionsAppended)
+
+            self.ref.child("merchantLocationOwners").queryOrderedByChild("email").queryEqualToValue(self.merchantEmail!).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                
+                let value = snapshot.value! as! NSDictionary
+                let currentCompany = value.allValues.first!
+                let currentKey = value.allKeys.first!
                 
                 // Handling the storing of the transaction for the businesses
                 
-                iteration = Int(snapshot.key!)!
-                currentBusinessMonthlyTransactions = snapshot.value.objectForKey("monthlyTransactions") as? NSArray
-                if (currentBusinessMonthlyTransactions != nil) {
-                    for (var i = 0; i < currentBusinessMonthlyTransactions!.count; i++) {
-                        currentBusinessMonthlyTransactionsAppended.append(currentBusinessMonthlyTransactions![i] as! NSDictionary)
+                currentMerchantMonthlyTransactions = currentCompany["monthlyTransactions"] as? NSArray
+                if (currentMerchantMonthlyTransactions != nil) {
+                    for (var i = 0; i < currentMerchantMonthlyTransactions!.count; i++) {
+                        currentMerchantMonthlyTransactionsAppended.append(currentMerchantMonthlyTransactions![i] as! NSDictionary)
                     }
+                } else {
+                    print("They are nil")
                 }
                 
                 var date = NSDate()
@@ -94,108 +126,55 @@ class RedeemViewController: UIViewController {
                 dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
                 let dateToRecordString = dateFormatter.stringFromDate(date)
                 
-                self.newRewardRedeemed = ["dateRecorded": "\(dateToRecordString)", "rewardDescription": "\(self.rewardDescription!)", "rewardItem": "\(self.rewardName!)", "userEmail": "\(self.ref.authData.providerData["email"]!)", "pointCost": (self.rewardPointCost!), "rewardPrice": self.rewardRealPrice!]
-                currentBusinessMonthlyTransactionsAppended.append(self.newRewardRedeemed)
+                let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
                 
-                let currentBusinessRef = Firebase(url: "https://passenger-app.firebaseio.com/rewards/\(iteration)/monthlyTransactions")
+                self.newRewardRedeemed = ["dateRecorded": "\(dateToRecordString)", "rewardDescription": "\(self.rewardDescription!)", "rewardItem": "\(self.rewardName!)", "userEmail": "\(appDelegate.usersEmail!)", "pointCost": (self.rewardPointCost!), "rewardPrice": self.rewardRealPrice!]
+                currentMerchantMonthlyTransactionsAppended.append(self.newRewardRedeemed)
+                print(currentMerchantMonthlyTransactionsAppended)
+                self.ref.child("merchantLocationOwners/\(currentKey)/monthlyTransactions").setValue(currentMerchantMonthlyTransactionsAppended)
                 
-                currentBusinessRef.setValue(currentBusinessMonthlyTransactionsAppended)
                 
                 // Handling the storing of the transaction for the user
                 
-                self.usersRef.queryOrderedByChild("email").queryEqualToValue("\(self.ref.authData.providerData["email"]!)")
-                    .observeEventType(.ChildAdded, withBlock: { snapshot in
-                        let id = snapshot.key
-                        
-                        var currentPoints = snapshot.value.objectForKey("currentPoints") as! Int
-                        var rewardsReceived = snapshot.value.objectForKey("rewardsReceived") as! Int
-                        rewardsReceived = rewardsReceived + 1
-                        currentPoints = currentPoints - self.rewardPointCost!
-                        currentUserRewardsList = snapshot.value.objectForKey("rewardsHistory") as? NSArray
-                        if (currentUserRewardsList != nil) {
-                            for (var i = 0; i < currentUserRewardsList!.count; i++) {
-                                currentUserRewardsListAppended.append(currentUserRewardsList![i] as! NSDictionary)
-                            }
+                self.ref.child("users").child(appDelegate.userId).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                    let userID = appDelegate.userId
+                    
+                    let currentUser = snapshot.value!
+                    
+                    var currentPoints = currentUser["currentPoints"] as! Int
+                    var rewardsReceived = currentUser["rewardsReceived"] as! Int
+                    rewardsReceived = rewardsReceived + 1
+                    currentPoints = currentPoints - self.rewardPointCost!
+                    currentUserRewardsList = currentUser["rewardsHistory"] as? NSArray
+                    if (currentUserRewardsList != nil) {
+                        for (var i = 0; i < currentUserRewardsList!.count; i++) {
+                            currentUserRewardsListAppended.append(currentUserRewardsList![i] as! NSDictionary)
                         }
-                        
-                        let currentReward: NSDictionary = ["companyName": "", "pointCost": self.rewardPointCost!, "rewardImage": self.rewardImageString!, "rewardItem": self.rewardName!, "rewardText": self.rewardDescription!]
-                        
-                        currentUserRewardsListAppended.append(currentReward)
-                        
-                        let currentUserPointsRef = Firebase(url: "https://passenger-app.firebaseio.com/users/\(id)/currentPoints/")
-                        let currentUserRewardsRef = Firebase(url: "https://passenger-app.firebaseio.com/users/\(id)/rewardsHistory/")
-                        let currentUserRewardsReceivedRef = Firebase(url: "https://passenger-app.firebaseio.com/users/\(id)/rewardsReceived/")
-
-                        currentUserPointsRef.setValue(currentPoints)
-                        currentUserRewardsReceivedRef.setValue(rewardsReceived)
-                        currentUserRewardsRef.setValue(currentUserRewardsListAppended)
-                        
-                        let tracker = GAI.sharedInstance().defaultTracker
-                        let builder: NSObject = GAIDictionaryBuilder.createEventWithCategory(
-                            "Reward",
-                            action: "Redeemed",
-                            label: "Reward redeemed for: \(self.companyName!) and the item is: \(self.rewardName!)",
-                            value: nil).build()
-                        tracker.send(builder as! [NSObject : AnyObject])
-                        
-                        self.performSegueWithIdentifier("redeemToRewardsHistory", sender: nil)
-                    })
-                
+                    }
+                    
+                    let currentReward: NSDictionary = ["companyName": self.companyName!, "pointCost": self.rewardPointCost!, "rewardImage": self.rewardImageString!, "rewardItem": self.rewardName!, "rewardText": self.rewardDescription!]
+                    
+                    currentUserRewardsListAppended.append(currentReward)
+                    
+                    self.ref.child("users/\(userID)/currentPoints").setValue(currentPoints)
+                    self.ref.child("users/\(userID)/rewardsHistory").setValue(currentUserRewardsListAppended)
+                    self.ref.child("users/\(userID)/rewardsReceived").setValue(rewardsReceived)
+                    
+                    self.performSegueWithIdentifier("redeemToRewardsHistory", sender: nil)
+                    
+                })
             })
-        
+        })
 
     }
     
     func configureView() {
-        // Change the font and size of nav bar text
 
-        // Change the font and size of nav bar text
-        
-        usersRef.queryOrderedByChild("email").queryEqualToValue("\(ref.authData.providerData["email"]!)")
-            .observeEventType(.ChildAdded, withBlock: { snapshot in
-                self.currentTotalPoints = snapshot.value.objectForKey("currentPoints") as! Int
-                self.userId = snapshot.key
-
-                // Check if this reward has been used before
-                
-                if ((snapshot.value.objectForKey("couponHistory")) != nil) {
-                    
-                    // The user has gotten at least one reward from some partner of ours before
-                    
-                    for i in snapshot.value.objectForKey("couponHistory") as! NSArray {
-                        
-                        let currentCompany = i.objectForKey("companyName") as! String
-                        
-                        if (self.companyName == currentCompany) {
-                            self.didUseRewardBefore = true
-                            self.couponCodeUsedBefore = i.objectForKey("previousCouponNumber") as! Int
-                        }
-
-                    }
-                    
-                    if (self.didUseRewardBefore) {
-                        
-                        // User has used this company before
-                        
-                       // self.couponCode = self.couponCodes?.objectAtIndex(self.couponCodeUsedBefore + 1) as? String
-
-                    } else {
-                        
-                        // First time using this company
-                        
-                    // self.couponCode = self.couponCodes?.objectAtIndex(self.couponCodeUsedBefore) as? String
-
-                    }
-                    
-                } else {
-                    
-                    // The user has never before redeemed a reward.
-                    
-                   // self.couponCode = self.couponCodes?.objectAtIndex(self.couponCodeUsedBefore) as? String
-
-                }
-                
-            })
+        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+        self.ref.child("users").queryOrderedByChild("email").queryEqualToValue(appDelegate.usersEmail).observeEventType(.ChildAdded, withBlock: { (snapshot) in
+            self.currentTotalPoints = snapshot.value!.objectForKey("currentPoints") as! Int
+            self.userId = snapshot.key
+        })
         
         let font = UIFont.systemFontOfSize(16, weight: UIFontWeightLight)
         
@@ -255,6 +234,9 @@ class RedeemViewController: UIViewController {
                 dest.rewards = self.rewardsList
             dest.companyImage = self.companyImage
             dest.couponCodes = self.couponCodesToReturn!
+            dest.merchantLatitude = self.merchantLatitude!
+            dest.merchantEmail = self.merchantEmail!
+            dest.currentMerchantIndex = self.currentMerchantIndex!
         }
     
     

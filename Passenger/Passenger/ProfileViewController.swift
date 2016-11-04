@@ -11,9 +11,6 @@ import Darwin
 import Firebase
 
 class ProfileViewController: UIViewController {
-    
-    let ref = Firebase(url: "https://passenger-app.firebaseio.com")
-    let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users/")
 
     @IBOutlet weak var profileTopBackground: UIImageView!
 
@@ -70,7 +67,7 @@ class ProfileViewController: UIViewController {
         
         let decodedData = NSData(base64EncodedString: profilePictureString!, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
         
-        let decodedImage = UIImage(data: decodedData!)
+        let decodedImage = UIImage(data: appDelegate.imageData!)
         
         self.profilePicture?.image = decodedImage
         self.profilePicture.layer.masksToBounds = true
@@ -119,8 +116,6 @@ class ProfileViewController: UIViewController {
         var finalString: String?
         self.hoursFull = (Double(totalTime)/3600.0)
         
-        print(self.hoursFull)
-        
         if(hoursFull! > 23.999) {
             self.days = Int(hoursFull!/24.0)
             self.hoursFull = hoursFull! - (Double(days!) * 24.0)
@@ -149,7 +144,7 @@ class ProfileViewController: UIViewController {
             targetViewController.senderViewController = "Profile"
         } else if (segue.identifier == "profiileToRewardsHistory") {
             let destinationViewController = segue.destinationViewController as! UINavigationController
-            let targetViewController = destinationViewController.topViewController as! RewardsHistoryCollectionViewController
+            let targetViewController = destinationViewController.topViewController as! RewardsRedeemedTableViewController
             targetViewController.senderViewController = "Rewards"
         } else if (segue.identifier == "profileToPointsHistory") {
             let destinationViewController = segue.destinationViewController as! UINavigationController

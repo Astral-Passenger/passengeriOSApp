@@ -12,10 +12,6 @@ import HealthKit
 import Firebase
 
 class ViewController: UIViewController {
-    
-    let ref = Firebase(url: "https://passenger-app.firebaseio.com")
-    let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users/")
-    let rewardsRef = Firebase(url: "https://passenger-app.firebaseio.com/rewards/")
 
     @IBOutlet weak var homeProfileLayout: UIView!
     @IBOutlet weak var rewardsButtonView: UIView!
@@ -25,7 +21,14 @@ class ViewController: UIViewController {
     @IBOutlet weak var totalPointsTextView: UILabel!
     @IBOutlet weak var profilePictureView: UIImageView!
     
+    @IBOutlet weak var rewardImageButton: UIButton!
+    @IBOutlet weak var pointsHistoryImageButton: UIButton!
     // User information
+    @IBOutlet weak var rewardsContainerView: UIView!
+    @IBOutlet weak var rewardsHistoryImageButton: UIButton!
+    @IBOutlet weak var driveStartedPopup: UIView!
+    @IBOutlet weak var driveStartedContinueButton: UIButton!
+    @IBOutlet weak var driveStartedLayoverView: UIView!
     
     var name = ""
     
@@ -43,17 +46,15 @@ class ViewController: UIViewController {
     var currentPoints  = 0
     var totalPoints = 0
     var profilePictureString: String = ""
+    var profilePictureLocation: String = ""
     var rewardsReceived: Int = 0
     var timeSpentDriving: Double = 0.0
     var email: String = ""
     var distanceTraveled: Double = 0.0
+    var imageData: NSData?
     
     override func viewDidAppear(animated: Bool) {
-        let tracker = GAI.sharedInstance().defaultTracker
-        tracker.set(kGAIScreenName, value: name)
-        
-        let builder = GAIDictionaryBuilder.createScreenView()
-        tracker.send(builder.build() as [NSObject : AnyObject])
+
     }
     
     override func viewDidLoad() {
@@ -68,18 +69,19 @@ class ViewController: UIViewController {
 
         configureView()
 
-//        let gpsConvert = GpsCoordinateConverter()
-//        gpsConvert.gpsToAddress(36.8080762, longitude: -119.7274735) {
-//            (result: String) in
-//            print(result)
-//        }
-        let userId = self.ref.authData.uid.stringByReplacingOccurrencesOfString(
-            "facebook:",
-            withString: "",// or just nil
-            range: nil)
-        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-        appDelegate.userId = userId
-        print("Here is the id for the user \(userId)")
+        if let user = FIRAuth.auth()?.currentUser {
+            // User is signed in.
+            var uid = user.uid;
+            uid = (uid as NSString).stringByReplacingOccurrencesOfString("facebook:", withString: "")
+            let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+            appDelegate.userId = uid
+        } else {
+            
+        }
+
+      //  performSegueWithIdentifier("presentLastDriveStats", sender: nil)
+
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -94,48 +96,54 @@ class ViewController: UIViewController {
             let dest = nav.topViewController as! RewardsDetailTableViewController
             dest.currentTitle = "CHOOSE COMPANY"
             dest.rewardType = "Discounts"
+        } else if (segue.identifier == "presentLastDriveStats") {
+            let dest = segue.destinationViewController as! PreviousDriveStatsViewController
+            dest.usersName = self.fullname
+            dest.userImageString = self.profilePictureString
         }
         
     }
     
     func configureView() {
         
-        
         let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
         
         self.usernameTextView.text = appDelegate.usersName
+        self.fullname = appDelegate.usersName!
         self.totalPointsTextView.text = String(Int(appDelegate.currentUserCurrentPoints))
         self.profilePictureString = appDelegate.profilePictureString!
+        self.profilePictureLocation = appDelegate.imageLocation!
         
-        let decodedData = NSData(base64EncodedString: profilePictureString, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
+       // let decodedData = NSData(base64EncodedString: profilePictureString, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
         
-        let decodedImage = UIImage(data: decodedData!)
-        
+       // let decodedImage = UIImage(data: decodedData!)
+        let decodedImage = UIImage(data: appDelegate.imageData!)
         self.profilePictureView?.image = decodedImage
         self.profilePictureView.layer.masksToBounds = true
         self.profilePictureView.layer.cornerRadius = 37.5
+        
+        self.rewardImageButton.clipsToBounds = true
+        self.pointsHistoryImageButton.clipsToBounds = true
+        self.rewardsHistoryImageButton.clipsToBounds = true
+        self.driveStartedPopup.clipsToBounds = true
+        self.driveStartedContinueButton.clipsToBounds = true
+        self.rewardImageButton.layer.cornerRadius = 3
+        self.pointsHistoryImageButton.layer.cornerRadius = 3
+        self.rewardsHistoryImageButton.layer.cornerRadius = 3
+        self.driveStartedPopup.layer.cornerRadius = 10
+        self.driveStartedContinueButton.layer.cornerRadius = 3
         
         let strDate = "2015-10-06T15:42:34Z" // "2015-10-06T15:42:34Z"
         let dateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
         let currentDate = NSDate()
         let currentDateString:String = dateFormatter.stringFromDate(currentDate)
-        print("Here is the current date \(currentDateString)")
         
-        let hexConverter = HexToUIColor()
-        self.navigationController!.navigationBar.barTintColor = hexConverter.hexStringToUIColor("ffffff")
         
-        UIApplication.sharedApplication().statusBarStyle = .Default
-        
-        let font = UIFont.systemFontOfSize(16, weight: UIFontWeightLight)
-        
-        let navBarAttributesDictionary: [String: AnyObject]? = [
-            NSForegroundColorAttributeName: UIColor(red:0.04, green:0.37, blue:0.76, alpha:1.0),
-            NSFontAttributeName: font
-        ]
-        
-        navigationController?.navigationBar.titleTextAttributes = navBarAttributesDictionary
     }
 
+    @IBAction func driveStartedContinueButtonClicked(sender: AnyObject) {
+        self.driveStartedLayoverView.hidden = true
+    }
 }
 

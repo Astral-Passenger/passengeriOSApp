@@ -52,17 +52,29 @@ class HomeViewController: UITabBarController, UITabBarControllerDelegate {
             let image = UIImage(named: "logo.png")
             imageView.image = image
             self.navigationItem.titleView = imageView
+            let btnName = UIButton()
+            btnName.setImage(UIImage(named: "start-drive-steering-wheel"), forState: .Normal)
+            btnName.frame = CGRectMake(0, 0, 25, 25)
+            btnName.addTarget(self, action: Selector("startDriveClicked"), forControlEvents: .TouchUpInside)
+
+            //.... Set Right/Left Bar Button item
+            let rightBarButton = UIBarButtonItem()
+            rightBarButton.customView = btnName
+            self.navigationItem.rightBarButtonItem = rightBarButton
         }
 
         configureView()
 
     }
     
+    func startDriveClicked() {
+        var controller = self.viewControllers![0] as! ViewController
+        controller.driveStartedLayoverView.hidden = false
+    }
+    
     func tabBarController(tabBarController: UITabBarController, didSelectViewController viewController: UIViewController) {
         
         if viewController is ViewController {
-            
-            print("This was also called my nigga")
             
             let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 28, height: 28))
             imageView.contentMode = .ScaleAspectFit

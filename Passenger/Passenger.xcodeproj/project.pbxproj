@@ -10,11 +10,9 @@
 		1E0B6DC61C4C18680050ABF0 /* GpsCoordinateConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E0B6DC51C4C18680050ABF0 /* GpsCoordinateConverter.swift */; };
 		1E1DE21C1C72828800C3D22E /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E1DE21B1C72828700C3D22E /* libc++.tbd */; };
 		1E1DE21E1C7282B000C3D22E /* libicucore.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E1DE21D1C7282B000C3D22E /* libicucore.tbd */; };
-		1E26E9031C7FCD5400B1EE23 /* Firebase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E26E9021C7FCD5400B1EE23 /* Firebase.framework */; };
 		1E26E9051C7FDD7500B1EE23 /* default-profile.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E26E9041C7FDD7500B1EE23 /* default-profile.png */; };
 		1E26E9071C7FE8EB00B1EE23 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E26E9061C7FE8EB00B1EE23 /* logo.png */; };
 		1E26E90B1C7FE91B00B1EE23 /* earn-points-image.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E26E9081C7FE91B00B1EE23 /* earn-points-image.png */; };
-		1E26E90C1C7FE91B00B1EE23 /* earn-rewards-image.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E26E9091C7FE91B00B1EE23 /* earn-rewards-image.png */; };
 		1E26E90D1C7FE91B00B1EE23 /* iphone_locked_image.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E26E90A1C7FE91B00B1EE23 /* iphone_locked_image.png */; };
 		1E2E3B741C3317EC008E3FB3 /* Notifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E2E3B731C3317EC008E3FB3 /* Notifier.m */; };
 		1E30E6921C9A0ADF00AF0470 /* SplashScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E30E6911C9A0ADF00AF0470 /* SplashScreenViewController.swift */; };
@@ -35,9 +33,11 @@
 		1E406EF51BF056E200C3885F /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E406EEB1BF056E200C3885F /* Security.framework */; };
 		1E406EF71BF056E200C3885F /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E406EED1BF056E200C3885F /* SystemConfiguration.framework */; };
 		1E406F031BF05A1400C3885F /* Bolts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E406EFC1BF05A1400C3885F /* Bolts.framework */; };
-		1E4D6E871C9754E300FD826C /* logo-heart.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E4D6E861C9754E300FD826C /* logo-heart.png */; };
-		1E5A03DA1CA49D0B00260EE4 /* passenger_app_homescreen.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E5A03D91CA49D0B00260EE4 /* passenger_app_homescreen.png */; };
+		1E4C95EF1DCBFB1000C811A9 /* passenger_app_homescreen.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E4C95EE1DCBFB1000C811A9 /* passenger_app_homescreen.png */; };
+		1E4C95F11DCBFB1E00C811A9 /* passenger_app_homescreen_drive.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E4C95F01DCBFB1E00C811A9 /* passenger_app_homescreen_drive.png */; };
+		1E4C95F31DCBFB2500C811A9 /* earn-rewards-image.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E4C95F21DCBFB2500C811A9 /* earn-rewards-image.png */; };
 		1E5A03DC1CAC6E8A00260EE4 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E5A03DB1CAC6E8A00260EE4 /* Reachability.swift */; };
+		1E67A12A1DB816A6009A23FF /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1E67A1291DB816A6009A23FF /* GoogleService-Info.plist */; };
 		1E67B6801C027E9700B7C866 /* RankingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E67B67F1C027E9700B7C866 /* RankingViewController.swift */; };
 		1E67B6821C027EA300B7C866 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E67B6811C027EA300B7C866 /* ProfileViewController.swift */; };
 		1E67B6841C027EAB00B7C866 /* MoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E67B6831C027EAB00B7C866 /* MoreViewController.swift */; };
@@ -50,7 +50,6 @@
 		1E76C7711BFEB57B00F03E74 /* PointsHistoryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E76C7701BFEB57B00F03E74 /* PointsHistoryTableViewCell.swift */; };
 		1E76C7741BFED52500F03E74 /* DriveRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E76C7731BFED52500F03E74 /* DriveRecord.swift */; };
 		1E76C7771BFED70C00F03E74 /* PointsHistoryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E76C7751BFED70C00F03E74 /* PointsHistoryTableViewController.swift */; };
-		1E76C7781BFED70C00F03E74 /* PointsHistoryTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1E76C7761BFED70C00F03E74 /* PointsHistoryTableViewController.xib */; };
 		1E76C77A1BFEE9D900F03E74 /* DayDriveRecorded.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E76C7791BFEE9D900F03E74 /* DayDriveRecorded.swift */; };
 		1E76C77D1BFF99C200F03E74 /* FirstCustomSegue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E76C77C1BFF99C200F03E74 /* FirstCustomSegue.swift */; };
 		1E76C77F1BFF99FE00F03E74 /* FirstCustomSegueUnwind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E76C77E1BFF99FE00F03E74 /* FirstCustomSegueUnwind.swift */; };
@@ -60,6 +59,8 @@
 		1E92404C1C25D53500F8D2DA /* HelpExpandedTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E92404B1C25D53500F8D2DA /* HelpExpandedTableViewController.swift */; };
 		1E92404E1C25DC6700F8D2DA /* HelpExpandedTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E92404D1C25DC6700F8D2DA /* HelpExpandedTableViewCell.swift */; };
 		1E9240501C25F73F00F8D2DA /* HelpFinalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E92404F1C25F73F00F8D2DA /* HelpFinalViewController.swift */; };
+		1E9F791B1DAC7175006F45BE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1E9F791A1DAC7175006F45BE /* Main.storyboard */; };
+		1E9F791F1DAC96F0006F45BE /* PreviousDriveStatsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9F791E1DAC96F0006F45BE /* PreviousDriveStatsViewController.swift */; };
 		1EA1F0331C22207E00845B2C /* HelpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA1F0321C22207D00845B2C /* HelpViewController.swift */; };
 		1EA1F0351C2230BA00845B2C /* HomeNavigationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA1F0341C2230BA00845B2C /* HomeNavigationViewController.swift */; };
 		1EA1F0371C22381400845B2C /* LegalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA1F0361C22381400845B2C /* LegalViewController.swift */; };
@@ -72,13 +73,14 @@
 		1EAB38A91BF6720A008E568E /* RegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAB38A81BF6720A008E568E /* RegisterViewController.swift */; };
 		1EAC2D161BE861D200547515 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAC2D151BE861D200547515 /* AppDelegate.swift */; };
 		1EAC2D181BE861D200547515 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAC2D171BE861D200547515 /* ViewController.swift */; };
-		1EAC2D1B1BE861D200547515 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1EAC2D191BE861D200547515 /* Main.storyboard */; };
 		1EAC2D1D1BE861D200547515 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1EAC2D1C1BE861D200547515 /* Assets.xcassets */; };
 		1EAC2D201BE861D200547515 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1EAC2D1E1BE861D200547515 /* LaunchScreen.storyboard */; };
 		1EAC2D2B1BE861D200547515 /* PassengerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAC2D2A1BE861D200547515 /* PassengerTests.swift */; };
 		1EAC2D361BE861D200547515 /* PassengerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAC2D351BE861D200547515 /* PassengerUITests.swift */; };
 		1EB2230D1C2B3BF50034D7E4 /* MenuTransitionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EB2230C1C2B3BF50034D7E4 /* MenuTransitionManager.swift */; };
 		1EB2230F1C2B45F70034D7E4 /* HexToUIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EB2230E1C2B45F70034D7E4 /* HexToUIColor.swift */; };
+		1EBB726E1DC803A300C9ACDE /* RewardsRedeemedTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBB726D1DC803A300C9ACDE /* RewardsRedeemedTableViewController.swift */; };
+		1EBB72701DC803CC00C9ACDE /* RewardsRedeemedTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBB726F1DC803CC00C9ACDE /* RewardsRedeemedTableViewCell.swift */; };
 		1ED2707C1C0D2AEA00F85E2B /* RewardsHistoryCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ED2707B1C0D2AEA00F85E2B /* RewardsHistoryCollectionViewController.swift */; };
 		1ED8F7AB1C0A457E0063B001 /* FBAudienceNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1ED8F7A61C0A457E0063B001 /* FBAudienceNetwork.framework */; };
 		1ED8F7AC1C0A457E0063B001 /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1ED8F7A71C0A457E0063B001 /* FBSDKCoreKit.framework */; };
@@ -89,7 +91,6 @@
 		1ED8F7BD1C0BB1290063B001 /* RankingTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ED8F7BC1C0BB1290063B001 /* RankingTableViewCell.swift */; };
 		1ED8F7BF1C0BB7DF0063B001 /* RankingUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ED8F7BE1C0BB7DF0063B001 /* RankingUser.swift */; };
 		1ED8F7CD1C0C02110063B001 /* MotionKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ED8F7CC1C0C02110063B001 /* MotionKit.swift */; };
-		1EDC86C91D305E17000A36AA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1EDC86C81D305E17000A36AA /* GoogleService-Info.plist */; };
 		1EE174FC1C473F1B00F74773 /* InviteFriendsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE174FB1C473F1B00F74773 /* InviteFriendsTableViewController.swift */; };
 		1EF195C51C1244F000CC7AC5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EF195C41C1244F000CC7AC5 /* Foundation.framework */; };
 		1EF62EC31BF2D6C100AFE2F3 /* CurrentDriveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EF62EC21BF2D6C100AFE2F3 /* CurrentDriveViewController.swift */; };
@@ -130,11 +131,9 @@
 		1E0B6DC51C4C18680050ABF0 /* GpsCoordinateConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GpsCoordinateConverter.swift; sourceTree = "<group>"; };
 		1E1DE21B1C72828700C3D22E /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		1E1DE21D1C7282B000C3D22E /* libicucore.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.tbd; path = usr/lib/libicucore.tbd; sourceTree = SDKROOT; };
-		1E26E9021C7FCD5400B1EE23 /* Firebase.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Firebase.framework; sourceTree = "<group>"; };
 		1E26E9041C7FDD7500B1EE23 /* default-profile.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "default-profile.png"; sourceTree = "<group>"; };
 		1E26E9061C7FE8EB00B1EE23 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logo.png; sourceTree = "<group>"; };
 		1E26E9081C7FE91B00B1EE23 /* earn-points-image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "earn-points-image.png"; sourceTree = "<group>"; };
-		1E26E9091C7FE91B00B1EE23 /* earn-rewards-image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "earn-rewards-image.png"; sourceTree = "<group>"; };
 		1E26E90A1C7FE91B00B1EE23 /* iphone_locked_image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iphone_locked_image.png; sourceTree = "<group>"; };
 		1E2E3B721C3317EC008E3FB3 /* Notifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Notifier.h; sourceTree = "<group>"; };
 		1E2E3B731C3317EC008E3FB3 /* Notifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Notifier.m; sourceTree = "<group>"; };
@@ -157,9 +156,12 @@
 		1E406EED1BF056E200C3885F /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		1E406EFC1BF05A1400C3885F /* Bolts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Bolts.framework; sourceTree = "<group>"; };
 		1E406F021BF05A1400C3885F /* ParseUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ParseUI.framework; sourceTree = "<group>"; };
-		1E4D6E861C9754E300FD826C /* logo-heart.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo-heart.png"; sourceTree = "<group>"; };
-		1E5A03D91CA49D0B00260EE4 /* passenger_app_homescreen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = passenger_app_homescreen.png; sourceTree = "<group>"; };
+		1E4C95EE1DCBFB1000C811A9 /* passenger_app_homescreen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = passenger_app_homescreen.png; sourceTree = "<group>"; };
+		1E4C95F01DCBFB1E00C811A9 /* passenger_app_homescreen_drive.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = passenger_app_homescreen_drive.png; sourceTree = "<group>"; };
+		1E4C95F21DCBFB2500C811A9 /* earn-rewards-image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "earn-rewards-image.png"; sourceTree = "<group>"; };
+		1E4C95F41DCC057300C811A9 /* Passenger.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Passenger.entitlements; sourceTree = "<group>"; };
 		1E5A03DB1CAC6E8A00260EE4 /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
+		1E67A1291DB816A6009A23FF /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		1E67B67F1C027E9700B7C866 /* RankingViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RankingViewController.swift; sourceTree = "<group>"; };
 		1E67B6811C027EA300B7C866 /* ProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		1E67B6831C027EAB00B7C866 /* MoreViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoreViewController.swift; sourceTree = "<group>"; };
@@ -172,7 +174,6 @@
 		1E76C7701BFEB57B00F03E74 /* PointsHistoryTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PointsHistoryTableViewCell.swift; sourceTree = "<group>"; };
 		1E76C7731BFED52500F03E74 /* DriveRecord.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DriveRecord.swift; sourceTree = "<group>"; };
 		1E76C7751BFED70C00F03E74 /* PointsHistoryTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PointsHistoryTableViewController.swift; sourceTree = "<group>"; };
-		1E76C7761BFED70C00F03E74 /* PointsHistoryTableViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PointsHistoryTableViewController.xib; sourceTree = "<group>"; };
 		1E76C7791BFEE9D900F03E74 /* DayDriveRecorded.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DayDriveRecorded.swift; sourceTree = "<group>"; };
 		1E76C77C1BFF99C200F03E74 /* FirstCustomSegue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FirstCustomSegue.swift; sourceTree = "<group>"; };
 		1E76C77E1BFF99FE00F03E74 /* FirstCustomSegueUnwind.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FirstCustomSegueUnwind.swift; sourceTree = "<group>"; };
@@ -182,6 +183,8 @@
 		1E92404B1C25D53500F8D2DA /* HelpExpandedTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpExpandedTableViewController.swift; sourceTree = "<group>"; };
 		1E92404D1C25DC6700F8D2DA /* HelpExpandedTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpExpandedTableViewCell.swift; sourceTree = "<group>"; };
 		1E92404F1C25F73F00F8D2DA /* HelpFinalViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpFinalViewController.swift; sourceTree = "<group>"; };
+		1E9F791A1DAC7175006F45BE /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		1E9F791E1DAC96F0006F45BE /* PreviousDriveStatsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreviousDriveStatsViewController.swift; sourceTree = "<group>"; };
 		1EA1F0321C22207D00845B2C /* HelpViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpViewController.swift; sourceTree = "<group>"; };
 		1EA1F0341C2230BA00845B2C /* HomeNavigationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeNavigationViewController.swift; sourceTree = "<group>"; };
 		1EA1F0361C22381400845B2C /* LegalViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegalViewController.swift; sourceTree = "<group>"; };
@@ -195,7 +198,6 @@
 		1EAC2D121BE861D200547515 /* Passenger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Passenger.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1EAC2D151BE861D200547515 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1EAC2D171BE861D200547515 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		1EAC2D1A1BE861D200547515 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		1EAC2D1C1BE861D200547515 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1EAC2D1F1BE861D200547515 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1EAC2D211BE861D200547515 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -207,6 +209,8 @@
 		1EAC2D371BE861D200547515 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1EB2230C1C2B3BF50034D7E4 /* MenuTransitionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuTransitionManager.swift; sourceTree = "<group>"; };
 		1EB2230E1C2B45F70034D7E4 /* HexToUIColor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HexToUIColor.swift; sourceTree = "<group>"; };
+		1EBB726D1DC803A300C9ACDE /* RewardsRedeemedTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RewardsRedeemedTableViewController.swift; sourceTree = "<group>"; };
+		1EBB726F1DC803CC00C9ACDE /* RewardsRedeemedTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RewardsRedeemedTableViewCell.swift; sourceTree = "<group>"; };
 		1ED2707B1C0D2AEA00F85E2B /* RewardsHistoryCollectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RewardsHistoryCollectionViewController.swift; sourceTree = "<group>"; };
 		1ED8F7A61C0A457E0063B001 /* FBAudienceNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FBAudienceNetwork.framework; sourceTree = "<group>"; };
 		1ED8F7A71C0A457E0063B001 /* FBSDKCoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FBSDKCoreKit.framework; sourceTree = "<group>"; };
@@ -219,7 +223,6 @@
 		1ED8F7BE1C0BB7DF0063B001 /* RankingUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RankingUser.swift; sourceTree = "<group>"; };
 		1ED8F7CB1C0C02110063B001 /* MotionKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MotionKit.h; sourceTree = "<group>"; };
 		1ED8F7CC1C0C02110063B001 /* MotionKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MotionKit.swift; sourceTree = "<group>"; };
-		1EDC86C81D305E17000A36AA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		1EE174FB1C473F1B00F74773 /* InviteFriendsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InviteFriendsTableViewController.swift; sourceTree = "<group>"; };
 		1EF195C41C1244F000CC7AC5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1EF62EC21BF2D6C100AFE2F3 /* CurrentDriveViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentDriveViewController.swift; sourceTree = "<group>"; };
@@ -257,7 +260,6 @@
 				1ED8F7AD1C0A457E0063B001 /* FBSDKLoginKit.framework in Frameworks */,
 				1E406EEF1BF056E200C3885F /* CFNetwork.framework in Frameworks */,
 				1E406EF01BF056E200C3885F /* CoreGraphics.framework in Frameworks */,
-				1E26E9031C7FCD5400B1EE23 /* Firebase.framework in Frameworks */,
 				1E406EF11BF056E200C3885F /* CoreLocation.framework in Frameworks */,
 				1ED8F7AF1C0A457E0063B001 /* FBSDKShareKit.framework in Frameworks */,
 				1E406EF21BF056E200C3885F /* libsqlite3.tbd in Frameworks */,
@@ -296,7 +298,6 @@
 		1E406EFA1BF0598000C3885F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				1E26E9021C7FCD5400B1EE23 /* Firebase.framework */,
 				1E1DE21D1C7282B000C3D22E /* libicucore.tbd */,
 				1E1DE21B1C72828700C3D22E /* libc++.tbd */,
 				1EF195C41C1244F000CC7AC5 /* Foundation.framework */,
@@ -338,6 +339,7 @@
 				1E76C7731BFED52500F03E74 /* DriveRecord.swift */,
 				1E76C7791BFEE9D900F03E74 /* DayDriveRecorded.swift */,
 				1E67B6891C0508F900B7C866 /* RewardGroup.swift */,
+				1E76C77E1BFF99FE00F03E74 /* FirstCustomSegueUnwind.swift */,
 				1E67B68D1C05091600B7C866 /* Reward.swift */,
 				1ED8F7BE1C0BB7DF0063B001 /* RankingUser.swift */,
 				1EB2230E1C2B45F70034D7E4 /* HexToUIColor.swift */,
@@ -352,13 +354,11 @@
 			isa = PBXGroup;
 			children = (
 				1E76C77C1BFF99C200F03E74 /* FirstCustomSegue.swift */,
-				1E76C77E1BFF99FE00F03E74 /* FirstCustomSegueUnwind.swift */,
 				1E76C7801BFF9A0D00F03E74 /* SecondCustomSegue.swift */,
 				1E76C7821BFF9A1B00F03E74 /* SecondCustomSegueUnwind.swift */,
 				1E406EDE1BF0351300C3885F /* BackgroundView.swift */,
-				1EAC2D191BE861D200547515 /* Main.storyboard */,
+				1E9F791A1DAC7175006F45BE /* Main.storyboard */,
 				1EAC2D1E1BE861D200547515 /* LaunchScreen.storyboard */,
-				1E76C7761BFED70C00F03E74 /* PointsHistoryTableViewController.xib */,
 				1EAC2D1C1BE861D200547515 /* Assets.xcassets */,
 				1EB2230C1C2B3BF50034D7E4 /* MenuTransitionManager.swift */,
 			);
@@ -390,13 +390,14 @@
 		1EAC2D141BE861D200547515 /* Passenger */ = {
 			isa = PBXGroup;
 			children = (
+				1E4C95F41DCC057300C811A9 /* Passenger.entitlements */,
 				1EF9597D1BFFE15D0087F9E4 /* SupportingFiles */,
 				1E76C77B1BFF998800F03E74 /* Views */,
 				1E76C7721BFED4F800F03E74 /* Models */,
 				1EF62EC41BF2DA5200AFE2F3 /* Controllers */,
 				1EAC2D151BE861D200547515 /* AppDelegate.swift */,
+				1E67A1291DB816A6009A23FF /* GoogleService-Info.plist */,
 				1EAC2D211BE861D200547515 /* Info.plist */,
-				1EDC86C81D305E17000A36AA /* GoogleService-Info.plist */,
 				1ED8F7BB1C0A4A570063B001 /* Passenger-Bridging-Header.h */,
 				1ED8F7CB1C0C02110063B001 /* MotionKit.h */,
 				1ED8F7CC1C0C02110063B001 /* MotionKit.swift */,
@@ -446,22 +447,25 @@
 				1E67B6871C0506AC00B7C866 /* PointsDetailedTableViewCell.swift */,
 				1E67B67F1C027E9700B7C866 /* RankingViewController.swift */,
 				1ED8F7BC1C0BB1290063B001 /* RankingTableViewCell.swift */,
+				1EBB726D1DC803A300C9ACDE /* RewardsRedeemedTableViewController.swift */,
+				1EBB726F1DC803CC00C9ACDE /* RewardsRedeemedTableViewCell.swift */,
 				1ED2707B1C0D2AEA00F85E2B /* RewardsHistoryCollectionViewController.swift */,
 				1E36F7261C0E9403002259CA /* RewardsHistoryCollectionViewCell.swift */,
-				1EA1F0321C22207D00845B2C /* HelpViewController.swift */,
 				1EA1F0361C22381400845B2C /* LegalViewController.swift */,
 				1EA1F0381C22382500845B2C /* SettignsViewController.swift */,
 				1EA1F03A1C22383200845B2C /* ProfileSettingsViewController.swift */,
+				1EA1F0321C22207D00845B2C /* HelpViewController.swift */,
 				1E92404B1C25D53500F8D2DA /* HelpExpandedTableViewController.swift */,
 				1E92404D1C25DC6700F8D2DA /* HelpExpandedTableViewCell.swift */,
 				1E92404F1C25F73F00F8D2DA /* HelpFinalViewController.swift */,
 				1E7059461C431AEE00936C0D /* FirstLaunchViewController.swift */,
-				1E7059481C431B0F00936C0D /* PageViewDetailedViewController.swift */,
 				1EE174FB1C473F1B00F74773 /* InviteFriendsTableViewController.swift */,
 				1E32FCAA1C481C0500F01EC4 /* ForgotPasswordViewController.swift */,
+				1E7059481C431B0F00936C0D /* PageViewDetailedViewController.swift */,
 				1E32FCAC1C48271000F01EC4 /* ForgotPasswordLoggedInViewController.swift */,
 				1E30E6911C9A0ADF00AF0470 /* SplashScreenViewController.swift */,
 				1E30E6931C9BA44E00AF0470 /* LaunchViewController.swift */,
+				1E9F791E1DAC96F0006F45BE /* PreviousDriveStatsViewController.swift */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -470,12 +474,12 @@
 			isa = PBXGroup;
 			children = (
 				1E26E9081C7FE91B00B1EE23 /* earn-points-image.png */,
-				1E5A03D91CA49D0B00260EE4 /* passenger_app_homescreen.png */,
-				1E26E9091C7FE91B00B1EE23 /* earn-rewards-image.png */,
 				1E26E90A1C7FE91B00B1EE23 /* iphone_locked_image.png */,
+				1E4C95F01DCBFB1E00C811A9 /* passenger_app_homescreen_drive.png */,
+				1E4C95F21DCBFB2500C811A9 /* earn-rewards-image.png */,
+				1E4C95EE1DCBFB1000C811A9 /* passenger_app_homescreen.png */,
 				1E26E9041C7FDD7500B1EE23 /* default-profile.png */,
 				1E26E9061C7FE8EB00B1EE23 /* logo.png */,
-				1E4D6E861C9754E300FD826C /* logo-heart.png */,
 				1EF959921BFFE3BE0087F9E4 /* tmp-0.jpg */,
 				1EF959931BFFE3BE0087F9E4 /* tmp-1.jpg */,
 				1EF959941BFFE3BE0087F9E4 /* tmp-2.jpg */,
@@ -588,6 +592,9 @@
 							com.apple.InAppPurchase = {
 								enabled = 0;
 							};
+							com.apple.Push = {
+								enabled = 1;
+							};
 						};
 					};
 					1EAC2D251BE861D200547515 = {
@@ -628,23 +635,22 @@
 				1EAC2D201BE861D200547515 /* LaunchScreen.storyboard in Resources */,
 				1EAC2D1D1BE861D200547515 /* Assets.xcassets in Resources */,
 				1EF959A31BFFE3BE0087F9E4 /* tmp-7.jpg in Resources */,
-				1E4D6E871C9754E300FD826C /* logo-heart.png in Resources */,
 				1EF959A01BFFE3BE0087F9E4 /* tmp-4.jpg in Resources */,
+				1E4C95F31DCBFB2500C811A9 /* earn-rewards-image.png in Resources */,
+				1E9F791B1DAC7175006F45BE /* Main.storyboard in Resources */,
 				1EF9599C1BFFE3BE0087F9E4 /* tmp-0.jpg in Resources */,
 				1EF9599E1BFFE3BE0087F9E4 /* tmp-2.jpg in Resources */,
-				1EAC2D1B1BE861D200547515 /* Main.storyboard in Resources */,
+				1E4C95EF1DCBFB1000C811A9 /* passenger_app_homescreen.png in Resources */,
 				1EF9599D1BFFE3BE0087F9E4 /* tmp-1.jpg in Resources */,
 				1E26E90D1C7FE91B00B1EE23 /* iphone_locked_image.png in Resources */,
+				1E4C95F11DCBFB1E00C811A9 /* passenger_app_homescreen_drive.png in Resources */,
 				1EF959A41BFFE3BE0087F9E4 /* tmp-8.jpg in Resources */,
-				1E76C7781BFED70C00F03E74 /* PointsHistoryTableViewController.xib in Resources */,
-				1E5A03DA1CA49D0B00260EE4 /* passenger_app_homescreen.png in Resources */,
-				1E26E90C1C7FE91B00B1EE23 /* earn-rewards-image.png in Resources */,
 				1E26E9071C7FE8EB00B1EE23 /* logo.png in Resources */,
 				1EF959A11BFFE3BE0087F9E4 /* tmp-5.jpg in Resources */,
 				1EF9599F1BFFE3BE0087F9E4 /* tmp-3.jpg in Resources */,
 				1E26E90B1C7FE91B00B1EE23 /* earn-points-image.png in Resources */,
 				1E26E9051C7FDD7500B1EE23 /* default-profile.png in Resources */,
-				1EDC86C91D305E17000A36AA /* GoogleService-Info.plist in Resources */,
+				1E67A12A1DB816A6009A23FF /* GoogleService-Info.plist in Resources */,
 				1EF959A21BFFE3BE0087F9E4 /* tmp-6.jpg in Resources */,
 				1EF959A51BFFE3BE0087F9E4 /* tmp-9.jpg in Resources */,
 			);
@@ -817,6 +823,7 @@
 				1E7059491C431B0F00936C0D /* PageViewDetailedViewController.swift in Sources */,
 				1E9240501C25F73F00F8D2DA /* HelpFinalViewController.swift in Sources */,
 				1E76C77D1BFF99C200F03E74 /* FirstCustomSegue.swift in Sources */,
+				1EBB72701DC803CC00C9ACDE /* RewardsRedeemedTableViewCell.swift in Sources */,
 				1E76C7891BFFC2DC00F03E74 /* HomeViewController.swift in Sources */,
 				1E406EDF1BF0351300C3885F /* BackgroundView.swift in Sources */,
 				1E76C7741BFED52500F03E74 /* DriveRecord.swift in Sources */,
@@ -828,9 +835,11 @@
 				1EA5EDAA1C3EDC4C0066B332 /* DiscountCollectionViewController.swift in Sources */,
 				1E0B6DC61C4C18680050ABF0 /* GpsCoordinateConverter.swift in Sources */,
 				1E92404C1C25D53500F8D2DA /* HelpExpandedTableViewController.swift in Sources */,
+				1E9F791F1DAC96F0006F45BE /* PreviousDriveStatsViewController.swift in Sources */,
 				1EAC2D181BE861D200547515 /* ViewController.swift in Sources */,
 				1EA1F0331C22207E00845B2C /* HelpViewController.swift in Sources */,
 				1EA4D5631D1B35330044C45F /* UIDevice.swift in Sources */,
+				1EBB726E1DC803A300C9ACDE /* RewardsRedeemedTableViewController.swift in Sources */,
 				1E76C7711BFEB57B00F03E74 /* PointsHistoryTableViewCell.swift in Sources */,
 				1E67B68E1C05091600B7C866 /* Reward.swift in Sources */,
 				1E30E6921C9A0ADF00AF0470 /* SplashScreenViewController.swift in Sources */,
@@ -882,14 +891,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		1EAC2D191BE861D200547515 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				1EAC2D1A1BE861D200547515 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		1EAC2D1E1BE861D200547515 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -998,8 +999,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Passenger/Passenger.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = MLD7PKQ57G;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1009,8 +1011,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.SpacebarTechnologies.PassengerMobile;
 				PRODUCT_NAME = Passenger;
-				PROVISIONING_PROFILE = "21b3c374-08ce-4216-a6b6-ee09faa3c9e5";
-				PROVISIONING_PROFILE_SPECIFIER = com.SpacebarTechnologies.PassengerMobile;
+				PROVISIONING_PROFILE = "920c508d-5d1e-4aca-a6f0-291d258878e7";
+				PROVISIONING_PROFILE_SPECIFIER = "iOS Development Certificate";
 				SWIFT_OBJC_BRIDGING_HEADER = "Passenger/Passenger-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -1022,6 +1024,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Passenger/Passenger.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				DEVELOPMENT_TEAM = MLD7PKQ57G;

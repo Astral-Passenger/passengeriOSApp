@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import FirebaseStorage
 
 private let reuseIdentifier = "discountsCell"
 
@@ -15,6 +16,9 @@ class DiscountCollectionViewController: UICollectionViewController {
     let transitionManager = MenuTransitionManager()
     
     var companyName: String?
+    var merchantEmail: String?
+    var merchantLatitude: Double?
+    var currentMerchantIndex: Int?
     var companyImage: UIImage?
     var couponCodes = [NSArray]()
     
@@ -67,6 +71,9 @@ class DiscountCollectionViewController: UICollectionViewController {
             dest.rewardPointCost = rewardsList[rowSelected].pointCost
             dest.rewardImage = rewardsList[rowSelected].getRewardImage()
             dest.companyName = self.companyName
+            dest.merchantEmail = merchantEmail
+            dest.merchantLatitude = self.merchantLatitude
+            dest.currentMerchantIndex = self.currentMerchantIndex
             
             dest.rewardsList = self.rewards
             dest.rewardName = rewardsList[rowSelected].getRewardName()
@@ -97,27 +104,46 @@ class DiscountCollectionViewController: UICollectionViewController {
         self.title = companyName!.uppercaseString
     }
     
-    func loadDiscounts() {
-        
-        for (var i = 0; i < self.rewards!.count; i++) {
-            let info = rewards!.objectAtIndex(i).objectForKey("rewardImage") as! String
-            let decodedData = NSData(base64EncodedString: info, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
-            let decodedImage = UIImage(data: decodedData!)
-            print(rewards!.objectAtIndex(i))
-            let reward = Reward(
-                companyName: self.companyName!,
-                pointCost: rewards!.objectAtIndex(i).objectForKey("pointCost") as! Int,
-                rewardImage: decodedImage!,
-                rewardPrice: rewards!.objectAtIndex(i).objectForKey("rewardPrice") as! Double,
-                rewardDescription: rewards!.objectAtIndex(i).objectForKey("rewardDescription") as! String,
-                rewardName: rewards!.objectAtIndex(i).objectForKey("rewardsName") as! String,
-                rewardImageString: info)
-            //couponCodes.append(rewards!.objectAtIndex(i).objectForKey("couponCodes") as! NSArray)
-            self.rewardsList.append(reward)
-            self.collectionView!.reloadData()
+    var processGroup = dispatch_group_create()
+    
+    func loadRewardData(snapshotAtIndex: AnyObject) {
+        let info = snapshotAtIndex.objectForKey("rewardImage") as! String
+        let imageLocation = snapshotAtIndex.objectForKey("imageLocation") as! String
+        let storage = FIRStorage.storage()
+        let storageRef = storage.referenceForURL("\(imageLocation)")
+        dispatch_group_enter(self.processGroup)
+        storageRef.dataWithMaxSize(1 * 3000 * 3000) { (data, error) -> Void in
+            if (error != nil) {
+                // Uh-oh, an error occurred!
+                print(error)
+                
+            } else {
+                let decodedData = data
+                let decodedImage = UIImage(data: decodedData!)
+                let reward = Reward(
+                    companyName: self.companyName!,
+                    pointCost: snapshotAtIndex.objectForKey("pointCost") as! Int,
+                    rewardImage: decodedImage!,
+                    rewardPrice: snapshotAtIndex.objectForKey("rewardPrice") as! Double,
+                    rewardDescription: snapshotAtIndex.objectForKey("rewardDescription") as! String,
+                    rewardName: snapshotAtIndex.objectForKey("rewardsName") as! String,
+                    rewardImageString: info,
+                    imageLocation: imageLocation)
+                self.rewardsList.append(reward)            }
+            dispatch_group_leave(self.processGroup)
         }
 
         self.collectionView!.reloadData()
+    }
+    
+    func loadDiscounts() {
+        
+        for (var i = 0; i < self.rewards!.count; i++) {
+            self.loadRewardData(rewards!.objectAtIndex(i))
+        }
+        dispatch_group_notify(self.processGroup, dispatch_get_main_queue()) {
+            self.collectionView!.reloadData()
+        }
         
     }
 

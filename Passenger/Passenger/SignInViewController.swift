@@ -11,11 +11,12 @@ import FBSDKCoreKit
 import FBSDKShareKit
 import FBSDKLoginKit
 import Firebase
+import FirebaseAuth
+import FirebaseStorage
 
 class SignInViewController: UIViewController, UITextFieldDelegate {
     
-    let ref = Firebase(url: "https://passenger-app.firebaseio.com")
-    let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users")
+    var ref: FIRDatabaseReference!
     
     let transitionManager = MenuTransitionManager()
     let facebookLogin = FBSDKLoginManager()
@@ -30,9 +31,12 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     var email: String?
     var distanceTraveled: Double?
     var rewardsList: NSArray?
+    var currentUserPointsList: NSArray?
     var userExists: Bool = false
     var firebaseUserId: String?
     var kbHeight: CGFloat!
+    var imageLocation: String?
+    var imageData: NSData?
     
     var base64String: NSString!
     var uidToSave: String?
@@ -110,18 +114,6 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
             menu.transitioningDelegate = self.transitionManager
             self.transitionManager.menuViewController = menu
         } else if(segue.identifier == "signInSegue") {
-            let prefs = NSUserDefaults.standardUserDefaults()
-            
-           // prefs.setValue(fullName!, forKey: "name")
-           // prefs.setValue(username!, forKey: "username")
-           // prefs.setValue(currentPoints!, forKey: "currentPoints")
-           // prefs.setValue(totalPoints!, forKey: "totalPoints")
-           // prefs.setValue(profilePictureString!, forKey: "profilePictureString")
-           // prefs.setValue(rewardsReceived!, forKey: "rewardsReceived")
-           // prefs.setValue(timeSpentDriving!, forKey: "timeSpentDriving")
-           // prefs.setValue(email!, forKey: "email")
-           // prefs.setValue(distanceTraveled!, forKey: "distanceTraveled")
-            //prefs.setValue(rewardsList!, forKey: "rewards")
             
             let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
             
@@ -132,14 +124,12 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
             appDelegate.rewardsReceived = self.rewardsReceived
             appDelegate.currentUserTimeSpentDriving = self.timeSpentDriving!
             appDelegate.currentUserCurrentDistance = self.distanceTraveled!
-            
-            let tracker = GAI.sharedInstance().defaultTracker
-            let builder: NSObject = GAIDictionaryBuilder.createEventWithCategory(
-                "Active users",
-                action: "Sign In",
-                label: "User with the email: \(email!) has signed in to Passenger.",
-                value: nil).build()
-            tracker.send(builder as! [NSObject : AnyObject])
+            appDelegate.imageData = self.imageData!
+            appDelegate.imageLocation = self.imageLocation!
+            if (self.currentUserPointsList != nil) {
+                appDelegate.currentUserPointsList = self.currentUserPointsList!
+            }
+
         }
         
     }
@@ -207,8 +197,8 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
             loadingView.hidden = false
             activityIndicator.hidden = false
             activityIndicator.startAnimating()
-            ref.authUser(usernameTextField.text!, password: passwordTextField.text!) {
-                error, authData in
+            self.ref = FIRDatabase.database().reference()
+            FIRAuth.auth()?.signInWithEmail(usernameTextField.text!, password: passwordTextField.text!) { (user, error) in
                 if error != nil {
                     // an error occured while attempting login
                     let alert = UIAlertController(title: "SIGN IN FAILED", message: "Please make sure that you entered in the correct login infotmation", preferredStyle: UIAlertControllerStyle.Alert)
@@ -220,251 +210,77 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
                     
                 } else {
                     // user is logged in, check authData for data and send it to the view controller
-                    var uid = self.ref.authData.uid
-                    uid = (uid as NSString).stringByReplacingOccurrencesOfString("facebook:", withString: "")
+
+                    var uid = user?.uid
                     
-                    var currentUserRef = Firebase(url: "https://passenger-app.firebaseio.com/users/\(uid)")
-                    currentUserRef.observeEventType(.Value, withBlock: { snapshot in
+                    self.ref.child("users").child(uid!).observeEventType(.Value, withBlock: { (snapshot) in
                         
                         self.userExists = true
                         self.firebaseUserId = snapshot.key
-                        
+
                         let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
                         appDelegate.userId = self.firebaseUserId!
-                        self.fullName = snapshot.value.objectForKey("name") as! String!
-                        self.username = snapshot.value.objectForKey("username") as! String!
-                        self.currentPoints = snapshot.value.objectForKey("currentPoints") as! Double!
-                        self.totalPoints = snapshot.value.objectForKey("totalPoints") as! Double!
-                        self.profilePictureString = snapshot.value.objectForKey("profileImage") as! String!
-                        self.rewardsReceived = snapshot.value.objectForKey("rewardsReceived") as! Int!
-                        self.timeSpentDriving = snapshot.value.objectForKey("timeSpentDriving") as! Double!
-                        self.email = snapshot.value.objectForKey("email") as! String!
-                        self.distanceTraveled = snapshot.value.objectForKey("distanceTraveled") as! Double!
-                        self.downloadRewards()
-                        self.registerUserInformation()
+                        self.fullName = snapshot.value!.objectForKey("name") as! String!
+                        self.username = snapshot.value!.objectForKey("username") as! String!
+                        self.currentPoints = snapshot.value!.objectForKey("currentPoints") as! Double!
+                        self.totalPoints = snapshot.value!.objectForKey("totalPoints") as! Double!
+                        self.profilePictureString = snapshot.value!.objectForKey("profileImage") as! String!
+                        self.rewardsReceived = snapshot.value!.objectForKey("rewardsReceived") as! Int!
+                        self.timeSpentDriving = snapshot.value!.objectForKey("timeSpentDriving") as! Double!
+                        self.email = snapshot.value!.objectForKey("email") as! String!
+                        self.distanceTraveled = snapshot.value!.objectForKey("distanceTraveled") as! Double!
+                        self.currentUserPointsList = snapshot.value!.objectForKey("pointsHistory") as! NSArray!
+                        self.imageLocation = snapshot.value!.objectForKey("imageLocation") as? String
                         
-                        self.performSegueWithIdentifier("signInSegue", sender: nil)
-                        self.loadingView.hidden = true
-                        self.activityIndicator.hidden = true
-                        self.activityIndicator.stopAnimating()
+                        self.registerUserInformation()
+                        if (self.imageLocation == nil) {
+                            let decodedData = NSData(base64EncodedString: self.profilePictureString!, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
+                            let storage = FIRStorage.storage()
+                            let storageRef = storage.referenceForURL("gs://firebase-passenger-app.appspot.com/images/\(uid!)")
+                            storageRef.putData(decodedData!, metadata: nil) { metadata, error in
+                                self.ref.child("users/\(uid!)/imageLocation").setValue("gs://firebase-passenger-app.appspot.com/images/\(uid!)")
+                                self.ref.child("users/\(uid!)/profileImage").setValue(" ")
+                                self.imageLocation = "gs://firebase-passenger-app.appspot.com/images/\(uid!)"
+                                self.imageData = decodedData!
+                                self.performSegueWithIdentifier("signInSegue", sender: nil)
+                                self.loadingView.hidden = true
+                                self.activityIndicator.hidden = true
+                                self.activityIndicator.stopAnimating()
+                                
+                            }
+                        } else {
+                            print(self.imageLocation)
+                            let storage = FIRStorage.storage()
+                            let storageRef = storage.referenceForURL("\(self.imageLocation!)")
+                            
+                            storageRef.dataWithMaxSize(1 * 3000 * 3000) { (data, error) -> Void in
+                                if (error != nil) {
+                                    // Uh-oh, an error occurred!
+                                    print(error)
+                                } else {
+                                    // Data for "images/island.jpg" is returned
+                                    // ... let islandImage: UIImage! = UIImage(data: data!)
+                                    self.imageData = data
+                                    self.performSegueWithIdentifier("signInSegue", sender: nil)
+                                    self.loadingView.hidden = true
+                                    self.activityIndicator.hidden = true
+                                    self.activityIndicator.stopAnimating()                                }
+                            }
+                            
+                        }
                         
                     })
                 }
+
             }
+            
         }
-        
-    }
-    
-    func downloadRewards() {
         
     }
 
-    @IBAction func loginUserWithFacebook(sender: AnyObject) {
-        
-        let reachable = Reachability()
-        if !(reachable.isConnectedToNetwork()) {
-            let alert = UIAlertController(title: "INTERNET CONNECTION", message: "You are currently not connected to the internet. Make sure you are connected and try again.", preferredStyle: UIAlertControllerStyle.Alert)
-            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
-            self.presentViewController(alert, animated: true, completion: nil)
-            self.loadingView.hidden = true
-            self.activityIndicator.hidden = true
-            self.activityIndicator.stopAnimating()
-        } else {
-            loadingView.hidden = false
-            activityIndicator.hidden = false
-            activityIndicator.startAnimating()
-            facebookLogin.logInWithReadPermissions(["email"], handler: {
-                (facebookResult, facebookError) -> Void in
-                if facebookError != nil {
-                    print("Facebook login failed. Error \(facebookError)")
-                } else if facebookResult.isCancelled {
-                    print("Facebook login was cancelled.")
-                    self.loadingView.hidden = true
-                    self.activityIndicator.stopAnimating()
-                    self.activityIndicator.hidden = true
-                } else {
-                    let accessToken = FBSDKAccessToken.currentAccessToken().tokenString
-                    self.ref.authWithOAuthProvider("facebook", token: accessToken,
-                        withCompletionBlock: { error, authData in
-                            if error != nil {
-                                print("Login failed. \(error)")
-                            } else {
-                                self.uidToSave = authData.uid
-                                print("Logged in! \(authData.uid)")
-                                
-                                self.registerUserInformation()
-                            }
-                    })
-                }
-            })
-        }
-    }
     
     func registerUserInformation() {
-        self.usersRef.queryOrderedByChild("email").queryEqualToValue("\(self.ref.authData.providerData["email"]!)")
-            .observeEventType(.Value, withBlock: { snapshot in
-                
-                
-                if snapshot.value is NSNull {
-                    // The user is not currently in the database
-                    
-                    // Register user in the database function
-                    
-                    let requestParameters = ["fields": "id, email, first_name, last_name"]
-                    print(requestParameters)
-                    let userDetails = FBSDKGraphRequest(graphPath: "me", parameters: requestParameters)
-                    
-                    userDetails.startWithCompletionHandler { (connection, result, error:NSError!) -> Void in
-                        
-                        if(error != nil)
-                        {
-                            print("\(error.localizedDescription)", terminator: "")
-                            return
-                        }
-                        
-                        if(result != nil)
-                        {
-                            
-                            let userId:String = result.objectForKey("id") as! String
-                            print(userId)
-                            let userFirstName:String? = result.objectForKey("first_name") as? String
-                            let userLastName:String? = result.objectForKey("last_name") as? String
-                            let userEmail:String? = result.objectForKey("email") as? String
-                            
-                            let fullName:String? = userFirstName! + " " + userLastName!
-                            
-                            // Get Facebook profile picture
-                            let userProfile = "https://graph.facebook.com/" + userId + "/picture?type=large"
-                            print(userId)
-                            let profilePictureUrl = NSURL(string: userProfile)
-                            
-                            let profilePictureData = NSData(contentsOfURL: profilePictureUrl!)
-                            let imageProfile: UIImage! = UIImage(data: profilePictureData!)!
-                            
-                            
-                            var data: NSData = NSData()
-                            
-                            if let image = imageProfile {
-                                data = UIImageJPEGRepresentation(image,0.1)!
-                            }
-                            
-                            let base64String = data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength)
-                            
-                            if(profilePictureData != nil && fullName != nil && userEmail != nil)
-                            {
-                                self.base64String = profilePictureData!.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
-                                let currentUser = [
-                                    "\(self.uidToSave!)": [
-                                        "username": "",
-                                        "name": "\(fullName!)",
-                                        "email": "\(userEmail!)",
-                                        "totalPoints": 0,
-                                        "currentPoints": 0,
-                                        "distanceTraveled": 0,
-                                        "timeSpentDriving": 0,
-                                        "rewardsReceived": 0,
-                                        "phoneNumber": "",
-                                        "profileImage": base64String
-                                    ]
-                                ]
-                                
-                                self.usersRef.updateChildValues(currentUser)
-                            } else {
-                                
-                                let uploadImage = UIImage(named: "default-profile.png")
-                                let imageData: NSData = UIImagePNGRepresentation(uploadImage!)!
-                                self.base64String = imageData.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
-                                
-                                let currentUser = [
-                                    "\(self.uidToSave!)": [
-                                        "username": "",
-                                        "name": "\(fullName!)",
-                                        "email": "\(userEmail!)",
-                                        "totalPoints": 0,
-                                        "currentPoints": 0,
-                                        "distanceTraveled": 0,
-                                        "timeSpentDriving": 0,
-                                        "rewardsReceived": 0,
-                                        "phoneNumber": "",
-                                        "profileImage": self.base64String
-                                    ]
-                                ]
-                                
-                                self.usersRef.updateChildValues(currentUser)
-                                
-                            }
-                            
-                            self.fullName = fullName!
-                            self.username = ""
-                            self.currentPoints = 0
-                            self.totalPoints = 0
-                            self.profilePictureString = base64String
-                            self.rewardsReceived = 0
-                            self.timeSpentDriving = 0
-                            self.email = userEmail!
-                            self.distanceTraveled = 0
-                            
-                            let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-                            appDelegate.userId = self.uidToSave!
-                            
-                            self.performSegueWithIdentifier("signInSegue", sender: nil)
-                        }
-                        
-                    }
-                    
-                } else {
-                    
-                    // The user is in the datbase so we need to just log them in
-                    self.userExists = true
-
-                    if self.ref.authData.uid.rangeOfString("facebook:") != nil{
-                        let userId = self.ref.authData.uid.stringByReplacingOccurrencesOfString(
-                            "facebook:",
-                            withString: "",// or just nil
-                            range: nil)
-                        print(snapshot.value)
-                        let currentUser = snapshot.value.objectForKey("\(userId)")
-                        self.fullName = currentUser!.objectForKey("name") as? String
-                        self.username = currentUser!.objectForKey("username") as? String
-                        self.currentPoints = currentUser!.objectForKey("currentPoints") as? Double
-                        self.totalPoints = currentUser!.objectForKey("totalPoints") as? Double
-                        self.profilePictureString = currentUser!.objectForKey("profileImage") as? String
-                        self.rewardsReceived = currentUser!.objectForKey("rewardsReceived") as? Int
-                        self.timeSpentDriving = currentUser!.objectForKey("timeSpentDriving") as? Double
-                        self.email = currentUser!.objectForKey("email") as? String
-                        self.distanceTraveled = currentUser!.objectForKey("distanceTraveled") as? Double
-                        
-                        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-                        appDelegate.userId = userId
-                    } else {
-                        let userId = self.ref.authData.uid
-                        print(self.ref.authData.uid)
-                        print(snapshot.value)
-                        let currentUser = snapshot.value.objectForKey("\(userId)")
-                        self.fullName = currentUser!.objectForKey("name") as? String
-                        self.username = currentUser!.objectForKey("username") as? String
-                        self.currentPoints = currentUser!.objectForKey("currentPoints") as? Double
-                        self.totalPoints = currentUser!.objectForKey("totalPoints") as? Double
-                        self.profilePictureString = currentUser!.objectForKey("profileImage") as? String
-                        self.rewardsReceived = currentUser!.objectForKey("rewardsReceived") as? Int
-                        self.timeSpentDriving = currentUser!.objectForKey("timeSpentDriving") as? Double
-                        self.email = currentUser!.objectForKey("email") as? String
-                        self.distanceTraveled = currentUser!.objectForKey("distanceTraveled") as? Double
-                        
-                        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-                        appDelegate.userId = userId
-                    }
-                    
-
-                    
-                    self.performSegueWithIdentifier("signInSegue", sender: nil)
-                    
-                }
-                
-                
-                
-            })
-    }
+       }
 
 
 }

@@ -13,8 +13,7 @@ private let reuseIdentifier = "rewardsHistoryCell"
 
 class RewardsHistoryCollectionViewController: UICollectionViewController {
     
-    let ref = Firebase(url: "https://passenger-app.firebaseio.com")
-    let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users/")
+    var ref: FIRDatabaseReference!
     
     var counter = 0
     let sectionInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 0.0, right: 0.0)
@@ -83,38 +82,39 @@ class RewardsHistoryCollectionViewController: UICollectionViewController {
             emptyLabel.textColor = hexChanger.hexStringToUIColor("#5c5c5c")
             self.collectionView!.backgroundView = emptyLabel
         } else {
-            usersRef.queryOrderedByChild("email").queryEqualToValue("\(ref.authData.providerData["email"]!)")
-                .observeEventType(.ChildAdded, withBlock: { snapshot in
-                    
-                    if let rewardsHistory = snapshot.value.objectForKey("rewardsHistory") as? NSArray {
-                        
-                        self.rewardsHistory = rewardsHistory
-                        
-                        for(var i = self.rewardsHistory!.count - 1; i >= 0; i--) {
-                            let imageString = self.rewardsHistory!.objectAtIndex(i).objectForKey("rewardImage") as! String
-                            let decodedData = NSData(base64EncodedString: imageString, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
-                            let decodedImage = UIImage(data: decodedData!)
-                            let reward = Reward()
-                            reward.companyName = self.rewardsHistory!.objectAtIndex(i).objectForKey("companyName") as! String
-                            reward.pointCost = self.rewardsHistory!.objectAtIndex(i).objectForKey("pointCost") as! Int
-                            reward.rewardDescription = self.rewardsHistory!.objectAtIndex(i).objectForKey("rewardText") as! String
-                            reward.rewardName = self.rewardsHistory!.objectAtIndex(i).objectForKey("rewardItem") as! String
-                            reward.rewardImage = decodedImage
-                            self.redeemedRewards.append(reward)
-                            self.collectionView!.reloadData()
-                            
-                        }
-                    } else {
-                        // The user does not yet have any rewards that they have redeemed yet.
-                        var emptyLabel = UILabel(frame: CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height))
-                        emptyLabel.text = "You have not redeemed any rewards yet."
-                        emptyLabel.textAlignment = NSTextAlignment.Center
-                        let hexChanger = HexToUIColor()
-                        emptyLabel.textColor = hexChanger.hexStringToUIColor("#5c5c5c")
-                        self.collectionView!.backgroundView = emptyLabel
+            let userID = FIRAuth.auth()?.currentUser?.uid
+            print(self.redeemedRewards.count)
+            self.ref = FIRDatabase.database().reference()
+            ref.child("users").child(userID!).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                if let rewardsHistory = snapshot.value!.objectForKey("rewardsHistory") as? NSArray {
+
+                    self.rewardsHistory = rewardsHistory
+
+                    for(var i = self.rewardsHistory!.count - 1; i >= 0; i--) {
+                        let imageString = self.rewardsHistory!.objectAtIndex(i).objectForKey("rewardImage") as! String
+                        let decodedData = NSData(base64EncodedString: imageString, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
+                        let decodedImage = UIImage(data: decodedData!)
+                        let reward = Reward()
+                        reward.companyName = self.rewardsHistory!.objectAtIndex(i).objectForKey("companyName") as! String
+                        reward.pointCost = self.rewardsHistory!.objectAtIndex(i).objectForKey("pointCost") as! Int
+                        reward.rewardDescription = self.rewardsHistory!.objectAtIndex(i).objectForKey("rewardText") as! String
+                        reward.rewardName = self.rewardsHistory!.objectAtIndex(i).objectForKey("rewardItem") as! String
+                        reward.rewardImage = decodedImage
+                        self.redeemedRewards.append(reward)
+                        self.collectionView!.reloadData()
+
                     }
-                    
-                })
+                } else {
+                    // The user does not yet have any rewards that they have redeemed yet.
+                    var emptyLabel = UILabel(frame: CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height))
+                    emptyLabel.text = "You have not redeemed any rewards yet."
+                    emptyLabel.textAlignment = NSTextAlignment.Center
+                    let hexChanger = HexToUIColor()
+                    emptyLabel.textColor = hexChanger.hexStringToUIColor("#5c5c5c")
+                    self.collectionView!.backgroundView = emptyLabel
+                }
+
+            })
             collectionView?.reloadData()
         }
         

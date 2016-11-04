@@ -8,18 +8,23 @@
 
 import UIKit
 import CoreData
+import UserNotifications
 import Bolts
 import FBSDKCoreKit
 import CoreLocation
 import CoreMotion
 import HealthKit
+
 import Firebase
+import FirebaseAuth
+import FirebaseMessaging
+import FirebaseInstanceID
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-    let ref = Firebase(url: "https://passenger-app.firebaseio.com/")
-    let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users/")
+    var ref: FIRDatabaseReference!
+    
     let activityManager = CMMotionActivityManager()
     var window: UIWindow?
     
@@ -33,7 +38,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var currentUserTimeSpentDriving = 0.0
     var profilePictureString: String?
     var usersEmail: String?
-    
+    var imageLocation: String?
+    var imageData: NSData?
     var currentUserPointsList: NSArray?
     var currentUserPointsListAppended = [NSDictionary]()
     
@@ -48,6 +54,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var isDrivingSpeedLimit = true
     var everyTenSeconds = 0
     var distanceTraveledInTen = 0.0
+    var checkingPhoneAndSpeed = true
     
     var currentSpeedIsZero = 0
     
@@ -89,21 +96,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     lazy var timer = NSTimer()
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+        if #available(iOS 10.0, *) {
+            let authOptions : UNAuthorizationOptions = [.Alert, .Badge, .Sound]
+            let current = UNUserNotificationCenter.currentNotificationCenter()
+            current.requestAuthorizationWithOptions(
+                authOptions,
+                completionHandler: {_,_ in })
+            
+            // For iOS 10 display notification (sent via APNS)
+            UNUserNotificationCenter.currentNotificationCenter().delegate = self
+            // For iOS 10 data message (sent via FCM)
+            FIRMessaging.messaging().remoteMessageDelegate = self
+            
+        } else {
+            let settings: UIUserNotificationSettings =
+                UIUserNotificationSettings(forTypes: [.Alert, .Badge, .Sound], categories: nil)
+            application.registerUserNotificationSettings(settings)
+        }
         
+        application.registerForRemoteNotifications()
+
+        FIRApp.configure()
+        self.ref = FIRDatabase.database().reference()
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         
         self.locationManager.requestAlwaysAuthorization()
-        
-        // Configure tracker from GoogleService-Info.plist.
-        var configureError:NSError?
-        GGLContext.sharedInstance().configureWithError(&configureError)
-        assert(configureError == nil, "Error configuring Google services: \(configureError)")
-        
-        // Optional: configure GAI options.
-        let gai = GAI.sharedInstance()
-        gai.trackUncaughtExceptions = true  // report uncaught exceptions
-        gai.logger.logLevel = GAILogLevel.Verbose  // remove before app release
-        GAI.sharedInstance().trackerWithTrackingId("UA-80527181-1")
         
         if(NSUserDefaults.standardUserDefaults().boolForKey("HasLaunchedOnce"))
         {
@@ -113,24 +130,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UITabBar.appearance().barTintColor = UIColor.whiteColor()
             
             self.window = UIWindow(frame: UIScreen.mainScreen().bounds)
-
-            if ref.authData != nil {
-                // user authenticated
-                let launchViewController = storyboard.instantiateViewControllerWithIdentifier("launchViewController")
-                self.usersRef.queryOrderedByChild("email").queryEqualToValue("\(self.ref.authData.providerData["email"]!)")
-                    .observeEventType(.ChildAdded, withBlock: { snapshot in
-                        self.userId = snapshot.key
-                        self.currentUserCurrentPoints = snapshot.value.objectForKey("currentPoints") as! Double!
-                        self.currentUserTotalPoints = snapshot.value.objectForKey("totalPoints") as! Double!
-                        self.currentUserTimeSpentDriving = snapshot.value.objectForKey("timeSpentDriving") as! Double!
-                        self.currentUserCurrentDistance = snapshot.value.objectForKey("distanceTraveled") as! Double!
-                        self.currentUserPointsList = snapshot.value.objectForKey("pointsHistory") as! NSArray!
-                        self.usersName = snapshot.value.objectForKey("name") as! String
-                        self.rewardsReceived = snapshot.value.objectForKey("rewardsReceived") as! Int
-                })
-
-                self.window?.rootViewController = launchViewController
+            if let user = FIRAuth.auth()?.currentUser {
                 
+                // User is logged in
+                
+                let launchViewController = storyboard.instantiateViewControllerWithIdentifier("launchViewController")
+                self.window?.rootViewController = launchViewController
                 
             } else {
                 // No user is signed in
@@ -203,6 +208,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationWillEnterForeground(application: UIApplication) {
+        
         if (updatesAlreadyStarted == false) {
             updatesAlreadyStarted = true
             startLocationUpdates()
@@ -212,42 +218,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-//        
-//        if (totalCurrentPoints > 0.9) {
-//            
-//            if (ref.authData != nil) {
-//            
-//                let date = NSDate()
-//                let dateFormatter = NSDateFormatter()
-//                dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
-//                let dateToRecordString = dateFormatter.stringFromDate(date)
-//                
-//                let currentPointRecord: NSDictionary = ["distanceTraveled": ((distance * 3.28084) * 0.000189394), "pointsGenerated": totalCurrentPoints, "createdAt": dateToRecordString]
-//                
-//                if (self.currentUserPointsList != nil && self.currentUserPointsListAppended.count == 0) {
-//                    for (var i = 0; i < self.currentUserPointsList!.count; i++) {
-//                        self.currentUserPointsListAppended.append(self.currentUserPointsList![i] as! NSDictionary)
-//                    }
-//                }
-//                
-//                
-//                self.currentUserPointsListAppended.append(currentPointRecord)
-//                usersRef.childByAppendingPath("\(userId)/pointsHistory").setValue(currentPointRecord)
-//                
-//                currentUserCurrentPoints = currentUserCurrentPoints + totalCurrentPoints
-//                currentUserTotalPoints = currentUserTotalPoints + totalCurrentPoints
-//                currentUserCurrentDistance = currentUserCurrentDistance + ((distance * 3.28084) * 0.000189394)
-//                currentUserTimeSpentDriving = secondsToAddToUser + currentUserTimeSpentDriving
-//                
-//                secondsToAddToUser = 0
-//                
-//                usersRef.childByAppendingPath("\(userId)/currentPoints").setValue(currentUserCurrentPoints)
-//                usersRef.childByAppendingPath("\(userId)/totalPoints").setValue(currentUserTotalPoints)
-//                usersRef.childByAppendingPath("\(userId)/distanceTraveled").setValue(currentUserCurrentDistance)
-//                usersRef.childByAppendingPath("\(userId)/timeSpentDriving").setValue(currentUserTimeSpentDriving)
-//            }
-//        }
-        
     }
 
     func eachSecond(timer: NSTimer) {
@@ -279,12 +249,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             //secondsToAddToUser += 10
             
         }
+    
         
         if ( isLocked == false && currentSpeed > 10) {
             
-            self.totalCurrentPoints = 0
-            self.distance = 0
-            self.seconds = 0
+            
+            if (checkingPhoneAndSpeed) {
+                checkingPhoneAndSpeed = false
+                let triggerTime = (Int64(NSEC_PER_SEC) * 5)
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, triggerTime), dispatch_get_main_queue(), { () -> Void in
+                    
+                    if (self.currentSpeed < 10) {
+                        // dont delete points
+                    } else if (self.currentSpeed >= 10) {
+                        // delete the points
+                        self.totalCurrentPoints = 0
+                        self.distance = 0
+                        self.seconds = 0
+                    }
+                    self.checkingPhoneAndSpeed = true
+                })
+            }
+            
+
             
         }
 
@@ -294,7 +281,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             currentSpeed = 0.0
             isSittingStillCount += 1
             if (isSittingStillCount > 120 && stoppedDriving) {
-                if (totalCurrentPoints > 0.9 && ref.authData != nil && self.userId != "" && self.reachable.isConnectedToNetwork()) {
+                if (totalCurrentPoints > 0.9 && /* ref.authData != nil && */ self.userId != "" && self.reachable.isConnectedToNetwork()) {
                     self.isSittingStillCount = 0
                     self.stoppedDriving = true
                     
@@ -317,7 +304,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         self.currentUserPointsListAppended.removeAtIndex(0)
                     }
                     
-                    usersRef.childByAppendingPath("\(userId)/pointsHistory").setValue(currentUserPointsListAppended)
+                    self.ref.child("users/\(userId)/pointsHistory").setValue(currentUserPointsListAppended)
                     
                     currentUserCurrentPoints = currentUserCurrentPoints + totalCurrentPoints
                     currentUserTotalPoints = currentUserTotalPoints + totalCurrentPoints
@@ -325,34 +312,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     currentUserTimeSpentDriving = secondsToAddToUser + currentUserTimeSpentDriving
                     secondsToAddToUser = 0
                     
-                    usersRef.childByAppendingPath("\(userId)/currentPoints").setValue(currentUserCurrentPoints)
-                    usersRef.childByAppendingPath("\(userId)/totalPoints").setValue(currentUserTotalPoints)
-                    usersRef.childByAppendingPath("\(userId)/distanceTraveled").setValue(currentUserCurrentDistance)
-                    usersRef.childByAppendingPath("\(userId)/timeSpentDriving").setValue(currentUserTimeSpentDriving)
-                    
-                    let tracker = GAI.sharedInstance().defaultTracker
-                    let builder: NSObject = GAIDictionaryBuilder.createEventWithCategory(
-                        "Driving",
-                        action: "driveRecorded",
-                        label: "A drive was recorded",
-                        value: self.totalCurrentPoints).build()
-                    tracker.send(builder as! [NSObject : AnyObject])
-                    
-                    let distanceTracker = GAI.sharedInstance().defaultTracker
-                    let distanceBuilder: NSObject = GAIDictionaryBuilder.createEventWithCategory(
-                        "Driving",
-                        action: "driveRecordedMiles",
-                        label: "A drive was recorded here are the miles that were driven",
-                        value: ((distance * 3.28084) * 0.000189394)).build()
-                    distanceTracker.send(distanceBuilder as! [NSObject : AnyObject])
-                    
-                    let timeTracker = GAI.sharedInstance().defaultTracker
-                    let timeBuilder: NSObject = GAIDictionaryBuilder.createEventWithCategory(
-                        "Driving",
-                        action: "driveRecordedTime",
-                        label: "A drive was recorded here was the time spent driving",
-                        value: secondsToAddToUser).build()
-                    timeTracker.send(timeBuilder as! [NSObject : AnyObject])
+
+                    self.ref.child("users/\(userId)/currentPoints").setValue(currentUserCurrentPoints)
+                    self.ref.child("users/\(userId)/totalPoints").setValue(currentUserTotalPoints)
+                    self.ref.child("users/\(userId)/distanceTraveled").setValue(currentUserCurrentDistance)
+                    self.ref.child("users/\(userId)/timeSpentDriving").setValue(currentUserTimeSpentDriving)
                     
                     self.totalCurrentPoints = 0
                     self.distance = 0.0
@@ -363,7 +327,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     self.distance = 0.0
                     self.seconds = 0.0
                 }
-                if (isSittingStillCount == 600) {
+                if (isSittingStillCount == 300) {
                     self.locationManager.stopUpdatingLocation()
                     updatesAlreadyStarted = false
                     self.isSittingStillCount = 0
@@ -386,25 +350,66 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             isDriving = true
             self.stoppedDriving = false
             isSittingStillCount = 0
-            print(totalCurrentPoints)
+            //print(totalCurrentPoints)
             didUsePhoneAtStopLight = false
         } else {
             isDriving = true
             self.stoppedDriving = false
             isSittingStillCount = 0
-            print(totalCurrentPoints)
+            //print(totalCurrentPoints)
         }
         
-        print("Current speed: \(currentSpeed)")
-        print("Sitting still count: \(isSittingStillCount)")
-        print("Distance in 10: \(distanceTraveledInTen)")
+//        print("Current speed: \(currentSpeed)")
+//        print("Sitting still count: \(isSittingStillCount)")
+//        print("Distance in 10: \(distanceTraveledInTen)")
         
         everyTenSeconds += 1
     }
     
     func startLocationUpdates() {
         // Here, the location manager will be lazily instantiated
+        if CLLocationManager.locationServicesEnabled() {
+            switch(CLLocationManager.authorizationStatus()) {
+            case .NotDetermined, .Restricted, .Denied:
+                presentLocationAlertAlways()
+            case .AuthorizedWhenInUse:
+                presentLocationAlertAlways()
+            case .AuthorizedAlways: break
+                // Nothing
+            }
+        } else {
+            presentLocationAlertOn()
+        }
         self.locationManager.startUpdatingLocation()
+    }
+    
+    func presentLocationAlertOn() {
+        dispatch_async(dispatch_get_main_queue(), {
+            let alert = UIAlertController(title: "Location", message: "Your location services are not on. Go to Settings/Privacy/Location Services to turn them on.", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: {
+                (alert: UIAlertAction!) in
+                    // self.sendUserToHome()
+            }))
+                
+            self.window?.rootViewController?.presentViewController(alert, animated: true, completion: nil)
+        })
+    }
+    
+    func presentLocationAlertAlways() {
+        dispatch_async(dispatch_get_main_queue(), {
+            let alert = UIAlertController(title: "Location", message: "Make sure the location service settings for Passenger Mobile are 'Always On'. Go to Settings/Privacy/ Location Services/Passenger to change the setting.", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: {
+                (alert: UIAlertAction!) in
+                    // self.sendUserToHome()
+            }))
+            self.window?.rootViewController?.presentViewController(alert, animated: true, completion: nil)
+        })
+    }
+    
+    func sendUserToHome() {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let launchViewController = storyboard.instantiateViewControllerWithIdentifier("launchViewController")
+        self.window?.rootViewController = launchViewController
     }
     
     func addScreenOffPoints() {
@@ -415,7 +420,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     }
     
+
+}
+@available(iOS 10, *)
+extension AppDelegate : UNUserNotificationCenterDelegate {
     
+    // Receive displayed notifications for iOS 10 devices.
+    
+    func userNotificationCenter(center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        let userInfo = notification.request.content.userInfo
+        // Print message ID.
+        print("Message ID: \(userInfo["gcm.message_id"]!)")
+        
+        // Print full message.
+        print("%@", userInfo)
+        
+    }
+    
+}
+extension AppDelegate : FIRMessagingDelegate {
+    // Receive data message on iOS 10 devices.
+    func applicationReceivedRemoteMessage(_ remoteMessage: FIRMessagingRemoteMessage) {
+        print("%@", remoteMessage.appData)
+    }
 }
 // MARK: - CLLocationManagerDelegate
 extension AppDelegate: CLLocationManagerDelegate {
@@ -436,4 +463,3 @@ extension AppDelegate: CLLocationManagerDelegate {
         }
     }
 }
-

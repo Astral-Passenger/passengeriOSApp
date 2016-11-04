@@ -12,8 +12,8 @@ import Bolts
 
 class MoreViewController: UIViewController {
     
-    let ref = Firebase(url: "https://passenger-app.firebaseio.com")
-    let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users/")
+//    let ref = Firebase(url: "https://passenger-app.firebaseio.com")
+//    let usersRef = Firebase(url: "https://passenger-app.firebaseio.com/users/")
 
     @IBOutlet weak var helpSupportButton: UIButton!
     @IBOutlet weak var profileSettingsButton: UIButton!
@@ -49,7 +49,7 @@ class MoreViewController: UIViewController {
             alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
             self.presentViewController(alert, animated: true, completion: nil)
         } else {
-            ref.unauth()
+            try! FIRAuth.auth()!.signOut()
         }
     }
 
@@ -72,7 +72,7 @@ class MoreViewController: UIViewController {
         
         let decodedData = NSData(base64EncodedString: profilePictureString!, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
         
-        let decodedImage = UIImage(data: decodedData!)
+        let decodedImage = UIImage(data: appDelegate.imageData!)
         
         self.profilePicture?.image = decodedImage
         self.profilePicture.layer.masksToBounds = true
